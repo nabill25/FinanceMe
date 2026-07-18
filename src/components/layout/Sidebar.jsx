@@ -2,11 +2,13 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, CreditCard, ArrowLeftRight,
   PieChart, BarChart3, HelpCircle, LogOut, Wallet,
-  Menu, X, PiggyBank, Settings, Zap, Repeat, CalendarDays
+  Menu, X, PiggyBank, Settings, Zap, Repeat, CalendarDays,
+  Sun, Moon
 } from 'lucide-react';
 import { useState } from 'react';
 import NotificationBell from './NotificationBell';
 import { useAuthStore } from '../../store/authStore';
+import { useFinanceStore } from '../../store/financeStore';
 import './Sidebar.css';
 
 const navItems = [
@@ -28,6 +30,7 @@ const mobileMoreItems = navItems.slice(4);
 
 export default function Sidebar() {
   const { user, signOut } = useAuthStore();
+  const { theme, toggleTheme } = useFinanceStore();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -95,6 +98,13 @@ export default function Sidebar() {
           </div>
           <button
             className="sidebar-signout btn btn-icon btn-ghost"
+            onClick={toggleTheme}
+            title={theme === 'dark' ? "Mode Terang" : "Mode Gelap"}
+          >
+            {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+          </button>
+          <button
+            className="sidebar-signout btn btn-icon btn-ghost"
             onClick={handleSignOut}
             title="Keluar"
           >
@@ -111,7 +121,10 @@ export default function Sidebar() {
         <div className="sidebar-logo" style={{ padding: 0 }}>
           <span className="sidebar-logo-text">FinanceMe</span>
         </div>
-        <div style={{ width: 40, display: 'flex', justifyContent: 'flex-end' }}>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <button className="btn btn-icon btn-ghost" onClick={toggleTheme}>
+            {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+          </button>
           <NotificationBell />
         </div>
       </div>

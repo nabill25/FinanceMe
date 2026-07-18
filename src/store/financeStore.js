@@ -14,6 +14,7 @@ export const useFinanceStore = create((set, get) => ({
   // spendingGuardState handled below
   recurringBills: [],
   momStats: null,               // { lastMonthIncome, lastMonthExpense }
+  theme: localStorage.getItem('financeme-theme') || 'light',
   loading: {
     accounts: false,
     transactions: false,
@@ -633,6 +634,23 @@ export const useFinanceStore = create((set, get) => ({
     if (error) throw error;
     set({ spendingLimit: data });
     return data;
+  },
+
+  updateSpendingGuardState: (stateUpdate) => {
+    set(state => ({
+      spendingGuardState: {
+        ...state.spendingGuardState,
+        ...stateUpdate
+      }
+    }));
+  },
+
+  toggleTheme: () => {
+    const current = get().theme;
+    const next = current === 'light' ? 'dark' : 'light';
+    localStorage.setItem('financeme-theme', next);
+    document.documentElement.setAttribute('data-theme', next);
+    set({ theme: next });
   },
 
   checkSpendingGuard: (userId, limit) => {

@@ -36,6 +36,12 @@ export default function App() {
   const { setSession, setLoading } = useAuthStore();
   const financeStore = useFinanceStore;
 
+  const theme = financeStore(state => state.theme);
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
+
   useEffect(() => {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
