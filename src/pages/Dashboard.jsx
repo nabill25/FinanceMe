@@ -104,7 +104,7 @@ export default function Dashboard() {
       {/* Total Balance Hero */}
       <div className="balance-hero card hover-lift-slight">
         <div className="balance-hero-bg" />
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ position: 'relative', zIndex: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <p className="balance-hero-label">Total Saldo Semua Akun</p>
           <button className="btn-icon btn-ghost" style={{ color: 'rgba(255,255,255,0.7)', margin: '-8px' }} onClick={() => setShowBalance(!showBalance)}>
             {showBalance ? <Eye size={18} /> : <EyeOff size={18} />}
