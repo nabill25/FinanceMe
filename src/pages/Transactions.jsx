@@ -21,6 +21,8 @@ function TransactionModal({ open, onClose, transaction, accounts, categories, on
   const [scanning, setScanning] = useState(false);
   const fileInputRef = useRef(null);
 
+  const { uploadReceipt } = useFinanceStore();
+
   useEffect(() => {
     if (transaction) {
       setForm({
@@ -39,8 +41,6 @@ function TransactionModal({ open, onClose, transaction, accounts, categories, on
   if (!open) return null;
 
   const filteredCategories = categories.filter(c => c.type === form.type || form.type === 'transfer');
-
-  const { uploadReceipt } = useFinanceStore();
 
   const handleSubmit = async (e) => {
     e.preventDefault();

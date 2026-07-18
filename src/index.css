@@ -389,3 +389,33 @@ h1, h2, h3, h4, h5, h6 {
   transform: translateY(-2px);
   box-shadow: var(--shadow-xl);
 }
+/* Page & UI Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(100%); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-slide-up {
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Button clicks */
+.btn:active, .btn-icon:active, .stat-card:active {
+  transform: scale(0.96);
+  transition: transform 0.1s;
+}
+
+/* Sidebar nav animations */
+.sidebar-nav a {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.sidebar-nav a:hover {
+  transform: translateX(4px);
+}
