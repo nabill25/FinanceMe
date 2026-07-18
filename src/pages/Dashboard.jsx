@@ -17,6 +17,7 @@ import BudgetSimulatorWidget from '../components/dashboard/BudgetSimulatorWidget
 import UpcomingBillsWidget from '../components/dashboard/UpcomingBillsWidget';
 import GoalProgressCard from '../components/dashboard/GoalProgressCard';
 import FinancialHealthWidget from '../components/dashboard/FinancialHealthWidget';
+import AiInsightsWidget from '../components/dashboard/AiInsightsWidget';
 import ProviderLogo from '../components/ProviderLogo';
 import './Dashboard.css';
 
@@ -224,10 +225,10 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Goal Progress & Budget Simulator Row */}
       {/* Goal Progress, Financial Health & Budget Simulator Row */}
       <div className="dashboard-row" style={{ marginBottom: 'var(--space-lg)' }}>
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'var(--space-lg)' }}>
+          <AiInsightsWidget />
           <FinancialHealthWidget />
           <GoalProgressCard />
         </div>
