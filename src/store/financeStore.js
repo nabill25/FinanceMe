@@ -146,7 +146,13 @@ export const useFinanceStore = create((set, get) => ({
       .insert(transaction)
       .select('*, accounts(name, color, icon, type), categories(name, color, icon)')
       .single();
-    if (error) throw error;
+      
+    if (error) {
+      if (error.message.includes('receipt_url') || error.message.includes('schema cache')) {
+        throw new Error('Gagal: Kolom "receipt_url" belum ditambahkan ke tabel "transactions". Silakan jalankan script SQL yang diberikan untuk membuatnya.');
+      }
+      throw error;
+    }
 
     set((s) => ({ transactions: [data, ...s.transactions] }));
 
