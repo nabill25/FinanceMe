@@ -1,0 +1,25 @@
+.layout {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.layout-main {
+  flex: 1;
+  min-width: 0;
+  overflow-x: hidden;
+  background: var(--bg-main);
+}
+
+.layout-content {
+  padding: var(--space-xl);
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .layout-content {
+    padding: var(--space-md);
+    padding-top: 72px; /* account for mobile toggle button */
+  }
+}

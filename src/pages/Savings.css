@@ -1,0 +1,32 @@
+.savings-page { display: flex; flex-direction: column; gap: var(--space-lg); }
+
+.savings-summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  padding: var(--space-lg);
+  flex-wrap: wrap;
+}
+.savings-summary-item { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 140px; }
+.savings-summary-amount { font-size: 20px; font-weight: 700; margin: 0; }
+.savings-summary-divider { width: 1px; height: 48px; background: var(--border-subtle); }
+
+.savings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--space-md);
+}
+
+.pot-card { padding: var(--space-lg); display: flex; flex-direction: column; gap: 4px; }
+.pot-card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+.pot-icon {
+  width: 52px; height: 52px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+}
+.pot-actions { display: flex; gap: 4px; }
+.pot-name { font-size: 16px; font-weight: 700; margin: 0; }
+.pot-amounts { font-size: 14px; }
+.pot-current { font-weight: 700; font-size: 18px; }
+.pot-target { font-size: 13px; }
+.pot-pct { margin-bottom: 8px; }
+.pot-card-actions { display: flex; gap: 8px; margin-top: 4px; }

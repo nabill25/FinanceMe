@@ -1,0 +1,59 @@
+.settings-page { display: flex; flex-direction: column; gap: var(--space-lg); }
+
+.settings-section { padding: var(--space-lg); }
+.settings-section-header {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 8px;
+}
+.settings-section-header h2 { font-size: 16px; font-weight: 700; margin: 0; }
+
+.settings-toggle-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 0; border-bottom: 1px solid var(--border-subtle);
+}
+
+/* Toggle switch */
+.toggle-switch { position: relative; display: inline-block; width: 44px; height: 24px; cursor: pointer; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-track {
+  position: absolute; inset: 0; border-radius: 24px;
+  background: var(--border-subtle); transition: background 0.25s;
+}
+.toggle-switch input:checked + .toggle-track { background: #6366f1; }
+.toggle-track::after {
+  content: ''; position: absolute; top: 3px; left: 3px;
+  width: 18px; height: 18px; border-radius: 50%; background: white;
+  transition: transform 0.25s; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+.toggle-switch input:checked + .toggle-track::after { transform: translateX(20px); }
+
+/* Spending Guard Banner */
+.guard-banner {
+  display: flex; gap: 16px; align-items: flex-start;
+  padding: var(--space-md) var(--space-lg);
+  border-left: 4px solid;
+}
+.guard-ok { border-left-color: #10b981; }
+.guard-ok .guard-banner-icon { color: #10b981; }
+.guard-warning { border-left-color: #f59e0b; background: rgba(245,158,11,0.06); }
+.guard-warning .guard-banner-icon { color: #f59e0b; }
+.guard-blocked { border-left-color: #ef4444; background: rgba(239,68,68,0.06); }
+.guard-blocked .guard-banner-icon { color: #ef4444; }
+
+.guard-banner-icon { margin-top: 2px; flex-shrink: 0; }
+.guard-banner-title { font-weight: 700; font-size: 15px; margin: 0 0 4px; }
+.guard-banner-sub { font-size: 13px; color: var(--text-muted); margin: 0; }
+
+.countdown-timer {
+  font-family: monospace; font-size: 16px; font-weight: 800;
+  color: #ef4444; background: rgba(239,68,68,0.1);
+  padding: 2px 8px; border-radius: 6px; margin-left: 4px;
+}
+
+/* Info card */
+.settings-info {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: var(--space-md) var(--space-lg);
+  background: rgba(99,102,241,0.05);
+  border: 1px solid rgba(99,102,241,0.2);
+}

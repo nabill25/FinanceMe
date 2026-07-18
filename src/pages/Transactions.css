@@ -1,0 +1,232 @@
+.transactions-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+/* Summary */
+.tx-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-md);
+}
+
+.tx-summary-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.tx-summary-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tx-summary-icon.income {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--accent-success);
+}
+
+.tx-summary-icon.expense {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--accent-danger);
+}
+
+.tx-summary-amount {
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+/* Filters */
+.tx-filters {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+  padding: var(--space-md);
+}
+
+.tx-search-wrapper {
+  flex: 1;
+  min-width: 200px;
+  position: relative;
+}
+
+.tx-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+}
+
+.tx-search {
+  padding-left: 36px !important;
+}
+
+/* Transaction list */
+.tx-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.tx-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: 12px var(--space-sm);
+  border-radius: var(--radius-md);
+  transition: background var(--transition-fast);
+  border-bottom: 1px solid var(--border-default);
+}
+
+.tx-item:last-child { border-bottom: none; }
+.tx-item:hover { background: var(--border-subtle); }
+
+.tx-item-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.tx-item-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.tx-item-desc {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tx-item-meta {
+  font-size: 12px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.tx-item-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.tx-item-amount {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.tx-item-actions {
+  display: flex;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.tx-item:hover .tx-item-actions { opacity: 1; }
+
+/* Transaction modal */
+.tx-type-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-sm);
+}
+
+.tx-type-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  border: 2px solid var(--border-default);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.tx-type-btn.active-expense {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: var(--accent-danger);
+  color: var(--accent-danger);
+}
+
+.tx-type-btn.active-income {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: var(--accent-success);
+  color: var(--accent-success);
+}
+
+.tx-amount-input {
+  font-size: 1.4rem !important;
+  font-weight: 700 !important;
+  text-align: center;
+}
+
+/* Category chips */
+.category-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.category-chip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 500;
+  font-family: inherit;
+  border: 1px solid var(--border-default);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.category-chip:hover {
+  background: rgba(var(--chip-color), 0.1);
+  border-color: var(--chip-color);
+  color: var(--text-primary);
+}
+
+.category-chip.selected {
+  background: var(--chip-color);
+  border-color: var(--chip-color);
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .tx-summary { grid-template-columns: 1fr; }
+  .tx-filters { flex-direction: column; }
+  .tx-search-wrapper { width: 100%; }
+}
