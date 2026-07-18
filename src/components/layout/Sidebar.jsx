@@ -2,7 +2,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, CreditCard, ArrowLeftRight,
   PieChart, BarChart3, HelpCircle, LogOut, Wallet,
-  Menu, X, PiggyBank, Settings, Zap, Repeat
+  Menu, X, PiggyBank, Settings, Zap, Repeat, CalendarDays
 } from 'lucide-react';
 import { useState } from 'react';
 import NotificationBell from './NotificationBell';
@@ -13,6 +13,7 @@ const navItems = [
   { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/accounts', icon: Wallet, label: 'Akun' },
   { to: '/transactions', icon: ArrowLeftRight, label: 'Transaksi' },
+  { to: '/calendar', icon: CalendarDays, label: 'Kalender' },
   { to: '/recurring-bills', icon: Repeat, label: 'Tagihan Rutin' },
   { to: '/budget', icon: PieChart, label: 'Anggaran' },
   { to: '/savings', icon: PiggyBank, label: 'Tabungan' },
