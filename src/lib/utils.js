@@ -15,24 +15,27 @@ export const CURRENCIES = [
 
 // Currency formatter
 export const formatCurrency = (amount, currencyCode = 'IDR') => {
+  const code = (typeof currencyCode === 'string' && currencyCode) ? currencyCode : 'IDR';
   return new Intl.NumberFormat('id-ID', {
     style: 'currency',
-    currency: currencyCode || 'IDR',
+    currency: code,
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(amount);
 };
 
 export const formatCurrencyShort = (amount, currencyCode = 'IDR') => {
-  return formatCurrency(amount, currencyCode); // Use full formatting everywhere per user request
+  const code = (typeof currencyCode === 'string' && currencyCode) ? currencyCode : 'IDR';
+  return formatCurrency(amount, code); // Use full formatting everywhere per user request
 };
 
 export const formatCurrencyChart = (amount, currencyCode = 'IDR') => {
+  const code = (typeof currencyCode === 'string' && currencyCode) ? currencyCode : 'IDR';
   // Simplification for chart: we might just use formatCurrency directly 
   // or keep the K/M format but prepend the correct symbol.
   // For now, let's just use formatCurrency for consistency in foreign currencies,
   // and the shortened version for IDR.
-  if (currencyCode !== 'IDR') return formatCurrency(amount, currencyCode);
+  if (code !== 'IDR') return formatCurrency(amount, code);
 
   if (Math.abs(amount) >= 1_000_000_000) {
     return `Rp ${(amount / 1_000_000_000).toFixed(1)}M`;

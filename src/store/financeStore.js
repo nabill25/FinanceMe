@@ -11,7 +11,7 @@ export const useFinanceStore = create((set, get) => ({
   savingsPots: [],
   notifications: [],
   spendingLimit: null,          // { id, limit_amount, period, cooldown_hours, is_active }
-  spendingGuardState: null,     // { blocked: bool, unblock_at: string }
+  // spendingGuardState handled below
   recurringBills: [],
   loading: {
     accounts: false,
