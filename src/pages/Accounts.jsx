@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Plus, Edit2, Trash2, Wallet, CreditCard, Smartphone, TrendingUp, RefreshCcw } from 'lucide-react';
 import { useFinanceStore } from '../store/financeStore';
 import { useAuthStore } from '../store/authStore';
@@ -211,6 +212,8 @@ function SyncModal({ open, onClose, account, onSave }) {
 
 export default function AccountsPage() {
   const { user } = useAuthStore();
+  const location = useLocation();
+  const navigate = useNavigate();
   const { accounts, fetchAccounts, addAccount, updateAccount, deleteAccount, categories, fetchCategories, addTransaction } = useFinanceStore();
   const [modalOpen, setModalOpen] = useState(false);
   const [syncModalOpen, setSyncModalOpen] = useState(false);
@@ -222,6 +225,19 @@ export default function AccountsPage() {
       fetchCategories(user.id);
     }
   }, [user]);
+
+  useEffect(() => {
+    // Auto-open modal if navigating from Dashboard
+    if (location.state?.openAccountId && accounts.length > 0) {
+      const acc = accounts.find(a => a.id === location.state.openAccountId);
+      if (acc) {
+        setEditAccount(acc);
+        setModalOpen(true);
+        // Clear state so it doesn't reopen on refresh
+        navigate('/accounts', { replace: true, state: {} });
+      }
+    }
+  }, [location.state, accounts, navigate]);
 
   const handleSync = async (accountId, diffAmount) => {
     const type = diffAmount > 0 ? 'income' : 'expense';

@@ -149,7 +149,7 @@ export default function Dashboard() {
           {accounts.slice(0, 4).map((acc) => {
             const provider = ACCOUNT_PROVIDERS[acc.type]?.find(p => p.id === acc.icon);
             return (
-              <div key={acc.id} className="balance-hero-account">
+              <Link to="/accounts" state={{ openAccountId: acc.id }} key={acc.id} className="balance-hero-account" style={{ textDecoration: 'none' }}>
                 <ProviderLogo account={acc} size={28} />
                 <div>
                   <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)' }}>{acc.name}</div>
@@ -166,7 +166,7 @@ export default function Dashboard() {
                     )}
                   </div>
                 </div>
-              </div>
+              </Link>
             );
           })}
           {accounts.length === 0 && (
