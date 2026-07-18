@@ -9,11 +9,15 @@ import './QuickAddModal.css';
 
 export default function QuickAddModal() {
   const { user } = useAuthStore();
-  const { addTransaction, accounts, categories, spendingLimit, spendingGuardState, budgets, getCategorySpending } = useFinanceStore();
+  const { addTransaction, accounts, categories, spendingLimit, spendingGuardState, budgets, getCategorySpending, uploadReceipt } = useFinanceStore();
   const [open, setOpen] = useState(false);
   const [scanning, setScanning] = useState(false);
+  const [saving, setSaving] = useState(false);
   const fileInputRef = useRef(null);
   
+  const [receiptFile, setReceiptFile] = useState(null);
+  const [receiptPreview, setReceiptPreview] = useState(null);
+
   const [form, setForm] = useState({
     type: 'expense',
     amount: '',
@@ -25,7 +29,6 @@ export default function QuickAddModal() {
 
   useEffect(() => {
     if (open) {
-      // Default to first account and category if not set
       if (accounts.length > 0 && !form.account_id) {
         setForm(f => ({ ...f, account_id: accounts[0].id }));
       }
@@ -36,17 +39,29 @@ export default function QuickAddModal() {
     e.preventDefault();
     if (!form.amount || !form.account_id) return;
     
+    setSaving(true);
     try {
-      await addTransaction({
+      let finalForm = {
         ...form,
         user_id: user.id,
         amount: Number(form.amount)
-      });
+      };
+      
+      if (receiptFile) {
+        const url = await uploadReceipt(receiptFile);
+        if (url) finalForm.receipt_url = url;
+      }
+      
+      await addTransaction(finalForm);
       toast.success('Transaksi berhasil dicatat!');
       setOpen(false);
       setForm({ ...form, amount: '', description: '' });
+      setReceiptFile(null);
+      setReceiptPreview(null);
     } catch (err) {
       toast.error(err.message || 'Gagal mencatat transaksi');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -54,8 +69,11 @@ export default function QuickAddModal() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    setReceiptFile(file);
+    setReceiptPreview(URL.createObjectURL(file));
+
     if (!import.meta.env.VITE_GEMINI_API_KEY) {
-      toast.error('API Key Gemini belum diatur di .env.local!');
+      toast.success('Foto dilampirkan, tapi API Gemini tidak diset untuk auto-scan.');
       return;
     }
 
@@ -73,9 +91,9 @@ export default function QuickAddModal() {
             amount: result.amount || f.amount,
             description: result.description || f.description
           }));
-          toast.success('Struk berhasil diproses!');
+          toast.success('Struk berhasil diproses dan foto dilampirkan!');
         } catch (scanErr) {
-          toast.error(scanErr.message);
+          toast.error('Gagal scan AI: ' + scanErr.message);
         } finally {
           setScanning(false);
         }
@@ -152,11 +170,19 @@ export default function QuickAddModal() {
                   <input required type="number" min="1" className="form-input amount-input" 
                     value={form.amount} onChange={e => setForm({...form, amount: e.target.value})} 
                     placeholder="0" autoFocus style={{ flex: 1 }} />
-                  <button type="button" className="btn btn-outline" onClick={() => fileInputRef.current?.click()} disabled={scanning} style={{ padding: '0 12px' }}>
+                  <button type="button" className="btn btn-outline" onClick={() => fileInputRef.current?.click()} disabled={scanning} style={{ padding: '0 12px' }} title="Lampirkan Bukti (Foto)">
                     {scanning ? <Loader2 size={20} className="spin" /> : <Camera size={20} />}
                   </button>
                   <input type="file" ref={fileInputRef} onChange={handleScan} accept="image/*" capture="environment" style={{ display: 'none' }} />
                 </div>
+                {receiptPreview && (
+                  <div style={{ marginTop: '10px', position: 'relative', width: 'fit-content' }}>
+                    <a href={receiptPreview} target="_blank" rel="noreferrer" title="Lihat ukuran penuh">
+                      <img src={receiptPreview} alt="Bukti Transaksi" style={{ height: '80px', borderRadius: '8px', objectFit: 'cover', border: '1px solid var(--border-default)' }} />
+                    </a>
+                    <button type="button" onClick={() => { setReceiptFile(null); setReceiptPreview(null); setForm(f => ({ ...f, receipt_url: null })); }} className="btn-icon btn-ghost" style={{ position: 'absolute', top: -10, right: -10, background: 'var(--bg-elevated)', border: '1px solid var(--border-default)', width: 24, height: 24, minWidth: 24, padding: 0 }}>✕</button>
+                  </div>
+                )}
               </div>
               
               <div className="form-group">

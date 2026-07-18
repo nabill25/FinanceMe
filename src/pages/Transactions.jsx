@@ -40,26 +40,41 @@ function TransactionModal({ open, onClose, transaction, accounts, categories, on
 
   const filteredCategories = categories.filter(c => c.type === form.type || form.type === 'transfer');
 
+  const { uploadReceipt } = useFinanceStore();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.amount || !form.account_id || !form.category_id) return;
     setSaving(true);
     try {
-      await onSave({ ...form, amount: Number(form.amount) });
+      let finalForm = { ...form, amount: Number(form.amount) };
+      if (receiptFile) {
+        const url = await uploadReceipt(receiptFile);
+        if (url) finalForm.receipt_url = url;
+      }
+      await onSave(finalForm);
+      setReceiptFile(null);
+      setReceiptPreview(null);
       onClose();
     } catch (err) {
-      toast.error(err.message);
+      toast.error('Gagal menyimpan: ' + err.message);
     } finally {
       setSaving(false);
     }
   };
 
+  const [receiptFile, setReceiptFile] = useState(null);
+  const [receiptPreview, setReceiptPreview] = useState(transaction?.receipt_url || null);
+
   const handleScan = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    setReceiptFile(file);
+    setReceiptPreview(URL.createObjectURL(file));
+
     if (!import.meta.env.VITE_GEMINI_API_KEY) {
-      toast.error('API Key Gemini belum diatur di .env.local!');
+      toast.success('Foto dilampirkan, tapi API Gemini tidak diset untuk auto-scan.');
       return;
     }
 
@@ -77,9 +92,9 @@ function TransactionModal({ open, onClose, transaction, accounts, categories, on
             amount: result.amount || f.amount,
             description: result.description || f.description
           }));
-          toast.success('Struk berhasil diproses!');
+          toast.success('Struk berhasil diproses dan foto dilampirkan!');
         } catch (scanErr) {
-          toast.error(scanErr.message);
+          toast.error('Gagal scan AI: ' + scanErr.message);
         } finally {
           setScanning(false);
         }
@@ -121,11 +136,19 @@ function TransactionModal({ open, onClose, transaction, accounts, categories, on
               <input className="form-input tx-amount-input" type="number" value={form.amount}
                 onChange={e => setForm(f => ({ ...f, amount: e.target.value }))}
                 placeholder="0" required min="1" style={{ flex: 1 }} />
-              <button type="button" className="btn btn-outline" onClick={() => fileInputRef.current?.click()} disabled={scanning} style={{ padding: '0 12px' }}>
+              <button type="button" className="btn btn-outline" onClick={() => fileInputRef.current?.click()} disabled={scanning} style={{ padding: '0 12px' }} title="Lampirkan Bukti (Foto)">
                 {scanning ? <Loader2 size={20} className="spin" /> : <Camera size={20} />}
               </button>
               <input type="file" ref={fileInputRef} onChange={handleScan} accept="image/*" capture="environment" style={{ display: 'none' }} />
             </div>
+            {receiptPreview && (
+              <div style={{ marginTop: '10px', position: 'relative', width: 'fit-content' }}>
+                <a href={receiptPreview} target="_blank" rel="noreferrer" title="Lihat ukuran penuh">
+                  <img src={receiptPreview} alt="Bukti Transaksi" style={{ height: '80px', borderRadius: '8px', objectFit: 'cover', border: '1px solid var(--border-default)' }} />
+                </a>
+                <button type="button" onClick={() => { setReceiptFile(null); setReceiptPreview(null); setForm(f => ({ ...f, receipt_url: null })); }} className="btn-icon btn-ghost" style={{ position: 'absolute', top: -10, right: -10, background: 'var(--bg-elevated)', border: '1px solid var(--border-default)', width: 24, height: 24, minWidth: 24, padding: 0 }}>✕</button>
+              </div>
+            )}
           </div>
 
           <div className="grid-2">
@@ -338,7 +361,10 @@ export default function TransactionsPage() {
                   {CATEGORY_ICONS[tx.categories?.icon] || (tx.type === 'income' ? '💰' : '💸')}
                 </div>
                 <div className="tx-item-info">
-                  <span className="tx-item-desc">{tx.description || tx.categories?.name || 'Transaksi'}</span>
+                  <span className="tx-item-desc">
+                    {tx.description || tx.categories?.name || 'Transaksi'}
+                    {tx.receipt_url && <span title="Ada Lampiran Bukti" style={{ marginLeft: 6, color: 'var(--text-muted)' }}>📎</span>}
+                  </span>
                   <span className="tx-item-meta">
                     <span className="badge" style={{ background: (tx.categories?.color || '#6b7280') + '22', color: tx.categories?.color || 'var(--text-secondary)', fontSize: '11px' }}>
                       {CATEGORY_ICONS[tx.categories?.icon]} {tx.categories?.name}

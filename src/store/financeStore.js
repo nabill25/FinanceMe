@@ -106,6 +106,22 @@ export const useFinanceStore = create((set, get) => ({
     set((s) => ({ loading: { ...s.loading, transactions: false } }));
   },
 
+  uploadReceipt: async (file) => {
+    if (!file) return null;
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
+    const filePath = `${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('receipts')
+      .upload(filePath, file);
+
+    if (uploadError) throw uploadError;
+
+    const { data } = supabase.storage.from('receipts').getPublicUrl(filePath);
+    return data.publicUrl;
+  },
+
   addTransaction: async (transaction) => {
     // Spending Guard Check
     const state = get().spendingGuardState;
