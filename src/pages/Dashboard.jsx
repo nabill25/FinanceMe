@@ -18,6 +18,7 @@ import UpcomingBillsWidget from '../components/dashboard/UpcomingBillsWidget';
 import GoalProgressCard from '../components/dashboard/GoalProgressCard';
 import FinancialHealthWidget from '../components/dashboard/FinancialHealthWidget';
 import AiInsightsWidget from '../components/dashboard/AiInsightsWidget';
+import AchievementsWidget from '../components/dashboard/AchievementsWidget';
 import ProviderLogo from '../components/ProviderLogo';
 import './Dashboard.css';
 
@@ -232,7 +233,8 @@ export default function Dashboard() {
           <FinancialHealthWidget />
           <GoalProgressCard />
         </div>
-        <div className="dashboard-budget stagger-children">
+        <div className="dashboard-budget stagger-children" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-lg)' }}>
+          <AchievementsWidget />
           <BudgetSimulatorWidget />
           <UpcomingBillsWidget />
         </div>
