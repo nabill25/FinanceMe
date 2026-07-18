@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo, useRef } from 'react';
-import { Plus, Trash2, Edit2, Filter, Search, ArrowUpCircle, ArrowDownCircle, Camera, Loader2, ShieldAlert, Shield } from 'lucide-react';
+import { Plus, Trash2, Edit2, Filter, Search, ArrowUpCircle, ArrowDownCircle, Camera, Loader2, ShieldAlert, Shield, ImagePlus } from 'lucide-react';
 import { useFinanceStore } from '../store/financeStore';
 import { useAuthStore } from '../store/authStore';
 import {
@@ -139,10 +139,10 @@ function TransactionModal({ open, onClose, transaction, accounts, categories, on
               <input className="form-input tx-amount-input" type="number" value={form.amount}
                 onChange={e => setForm(f => ({ ...f, amount: e.target.value }))}
                 placeholder="0" required min="1" style={{ flex: 1 }} />
-              <button type="button" className="btn btn-outline" onClick={() => fileInputRef.current?.click()} disabled={scanning} style={{ padding: '0 12px' }} title="Lampirkan Bukti (Foto)">
-                {scanning ? <Loader2 size={20} className="spin" /> : <Camera size={20} />}
+              <button type="button" className="btn btn-outline" onClick={() => fileInputRef.current?.click()} disabled={scanning} style={{ padding: '0 12px' }} title="Pilih Bukti (Foto/Galeri)">
+                {scanning ? <Loader2 size={20} className="spin" /> : <ImagePlus size={20} />}
               </button>
-              <input type="file" ref={fileInputRef} onChange={handleScan} accept="image/*" capture="environment" style={{ display: 'none' }} />
+              <input type="file" ref={fileInputRef} onChange={handleScan} accept="image/*" style={{ display: 'none' }} />
             </div>
             {receiptPreview && (
               <div style={{ marginTop: '10px', position: 'relative', width: 'fit-content' }}>
