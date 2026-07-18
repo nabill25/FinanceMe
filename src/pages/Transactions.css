@@ -115,8 +115,9 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  flex-wrap: nowrap;
+  white-space: nowrap;
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .tx-item-right {
@@ -135,7 +136,7 @@
 
 .tx-item-actions {
   display: flex;
-  gap: 4px;
+  gap: 8px;
   opacity: 0;
   transition: opacity 0.15s ease;
 }
@@ -258,6 +259,18 @@
 
   .tx-item-actions {
     opacity: 1; /* Always visible on mobile */
+    gap: 0px;
+  }
+  .tx-item-actions button {
+    padding: 4px !important;
+  }
+  
+  .tx-item-right {
+    gap: 4px;
+  }
+
+  .tx-item-info {
+    max-width: calc(100vw - 180px); /* prevent extreme squish */
   }
 
   .tx-amount-input {

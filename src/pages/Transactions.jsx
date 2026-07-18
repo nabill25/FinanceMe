@@ -427,11 +427,12 @@ export default function TransactionsPage() {
       </div>
 
       {/* Controls */}
-      <div className="tx-controls">
-        <div className="tx-search">
-          <Search size={18} className="text-muted" />
+      <div className="tx-controls" style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '8px' }}>
+        <div className="tx-search-wrapper">
+          <Search size={18} className="tx-search-icon" />
           <input
             type="text"
+            className="form-input tx-search"
             placeholder="Cari nama, kategori, akun..."
             value={filters.search}
             onChange={e => setFilters(f => ({ ...f, search: e.target.value }))}
@@ -508,11 +509,11 @@ export default function TransactionsPage() {
                     </div>
                   )}
                 </div>
-                <div className="tx-item-right" style={{ flexDirection: 'row', alignItems: 'flex-start', gap: '16px' }}>
+                <div className="tx-item-right">
                   <span className={`tx-item-amount ${tx.type === 'income' ? 'amount-income' : 'amount-expense'}`}>
                     {tx.type === 'income' ? '+' : '-'}{formatCurrency(tx.amount, tx.accounts?.currency)}
                   </span>
-                  <div className="tx-item-actions" style={{ gap: '8px' }}>
+                  <div className="tx-item-actions">
                     <button className="btn btn-icon btn-ghost" onClick={() => { setEditTx(tx); setModalOpen(true); }} style={{ padding: '6px' }}>
                       <Edit2 size={20} />
                     </button>
