@@ -20,6 +20,13 @@ export const useFinanceStore = create((set, get) => ({
     savingsPots: false,
     recurringBills: false,
   },
+  spendingGuardState: {
+    blocked: false,
+    unblock_at: null,
+    pct: 0
+  },
+  showBalance: true, // Default to showing balance
+  setShowBalance: (show) => set({ showBalance: show }),
 
   // ── ACCOUNTS ──────────────────────────────────────────────
   fetchAccounts: async (userId) => {
@@ -142,6 +149,16 @@ export const useFinanceStore = create((set, get) => ({
     const delta = transaction.type === 'income' ? transaction.amount : -transaction.amount;
     await supabase.rpc('update_account_balance', { account_id: transaction.account_id, delta });
     get().updateAccountBalance(transaction.account_id, delta);
+
+    // Trigger confetti 🎉
+    import('canvas-confetti').then((confetti) => {
+      confetti.default({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.8 },
+        colors: transaction.type === 'income' ? ['#10b981', '#34d399', '#ffffff'] : ['#6366f1', '#a855f7', '#ffffff']
+      });
+    });
 
     return data;
   },

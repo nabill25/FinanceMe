@@ -1,8 +1,9 @@
 import { useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import CountUp from 'react-countup';
 import {
   TrendingUp, TrendingDown, Wallet, ArrowRight,
-  Plus, Target
+  Plus, Target, Eye, EyeOff
 } from 'lucide-react';
 import { useFinanceStore } from '../store/financeStore';
 import { useAuthStore } from '../store/authStore';
@@ -14,15 +15,28 @@ import CashflowChart from '../components/dashboard/CashflowChart';
 import ProviderLogo from '../components/ProviderLogo';
 import './Dashboard.css';
 
-const StatCard = ({ label, value, icon: Icon, color, trend, trendLabel }) => (
-  <div className="stat-card card">
+const StatCard = ({ label, value, icon: Icon, color, trend, trendLabel, rawValue, showBalance }) => (
+  <div className="stat-card card hover-lift">
     <div className="stat-card-header">
       <span className="stat-card-label">{label}</span>
       <div className="stat-card-icon" style={{ background: color }}>
         <Icon size={18} color="white" />
       </div>
     </div>
-    <div className="stat-card-value">{value}</div>
+    <div className="stat-card-value" style={{ transition: 'all 0.3s' }}>
+      {showBalance ? (
+        <CountUp
+          start={0}
+          end={rawValue}
+          duration={1.5}
+          separator="."
+          prefix="Rp "
+          formattingFn={formatCurrencyShort}
+        />
+      ) : (
+        value
+      )}
+    </div>
     {trend !== undefined && (
       <div className={`stat-card-trend ${trend >= 0 ? 'trend-up' : 'trend-down'}`}>
         {trend >= 0 ? <TrendingUp size={13} /> : <TrendingDown size={13} />}
@@ -35,7 +49,7 @@ const StatCard = ({ label, value, icon: Icon, color, trend, trendLabel }) => (
 export default function Dashboard() {
   const { user } = useAuthStore();
   const {
-    accounts, transactions, budgets, categories,
+    accounts, transactions, budgets, categories, showBalance, setShowBalance,
     fetchAccounts, fetchTransactions, fetchBudgets, fetchCategories,
     getTotalBalance, getMonthSummary, getCategorySpending,
   } = useFinanceStore();
@@ -67,6 +81,10 @@ export default function Dashboard() {
 
   const firstName = user?.user_metadata?.full_name?.split(' ')[0] || 'Anda';
 
+  // Obscure text if hidden
+  const obscure = (val) => showBalance ? val : 'Rp •••••••';
+  const obscureShort = (val) => showBalance ? val : '••••';
+
   return (
     <div className="dashboard animate-fade-in">
       {/* Header */}
@@ -77,17 +95,33 @@ export default function Dashboard() {
           </h1>
           <p className="text-secondary text-sm">{monthLabel} — Ringkasan keuangan Anda</p>
         </div>
-        <Link to="/transactions" className="btn btn-primary btn-sm">
+        <Link to="/transactions" className="btn btn-primary btn-sm hover-lift">
           <Plus size={15} />
           Catat Transaksi
         </Link>
       </div>
 
       {/* Total Balance Hero */}
-      <div className="balance-hero card">
+      <div className="balance-hero card hover-lift-slight">
         <div className="balance-hero-bg" />
-        <p className="balance-hero-label">Total Saldo Semua Akun</p>
-        <h2 className="balance-hero-amount">{formatCurrency(totalBalance)}</h2>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <p className="balance-hero-label">Total Saldo Semua Akun</p>
+          <button className="btn-icon btn-ghost" style={{ color: 'rgba(255,255,255,0.7)', margin: '-8px' }} onClick={() => setShowBalance(!showBalance)}>
+            {showBalance ? <Eye size={18} /> : <EyeOff size={18} />}
+          </button>
+        </div>
+        <h2 className="balance-hero-amount" style={{ transition: 'all 0.3s ease' }}>
+          {showBalance ? (
+            <CountUp
+              start={0}
+              end={totalBalance}
+              duration={1.5}
+              formattingFn={formatCurrency}
+            />
+          ) : (
+            obscure(formatCurrency(totalBalance))
+          )}
+        </h2>
         <div className="balance-hero-accounts">
           {accounts.slice(0, 4).map((acc) => {
             const provider = ACCOUNT_PROVIDERS[acc.type]?.find(p => p.id === acc.icon);
@@ -96,8 +130,17 @@ export default function Dashboard() {
                 <ProviderLogo account={acc} size={28} />
                 <div>
                   <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)' }}>{acc.name}</div>
-                  <div style={{ fontSize: '14px', fontWeight: 700, color: 'white' }}>
-                    {formatCurrencyShort(acc.balance)}
+                  <div style={{ fontSize: '14px', fontWeight: 700, color: 'white', transition: 'all 0.3s' }}>
+                    {showBalance ? (
+                      <CountUp
+                        start={0}
+                        end={acc.balance}
+                        duration={1.5}
+                        formattingFn={formatCurrencyShort}
+                      />
+                    ) : (
+                      obscureShort(formatCurrencyShort(acc.balance))
+                    )}
                   </div>
                 </div>
               </div>
@@ -116,19 +159,25 @@ export default function Dashboard() {
       <div className="grid-3" style={{ marginBottom: 'var(--space-lg)' }}>
         <StatCard
           label={`Pemasukan ${monthLabel.split(' ')[0]}`}
-          value={formatCurrencyShort(income)}
+          value={obscureShort(formatCurrencyShort(income))}
+          rawValue={income}
+          showBalance={showBalance}
           icon={TrendingUp}
           color="linear-gradient(135deg,#10b981,#06b6d4)"
         />
         <StatCard
           label={`Pengeluaran ${monthLabel.split(' ')[0]}`}
-          value={formatCurrencyShort(expense)}
+          value={obscureShort(formatCurrencyShort(expense))}
+          rawValue={expense}
+          showBalance={showBalance}
           icon={TrendingDown}
           color="linear-gradient(135deg,#ef4444,#f97316)"
         />
         <StatCard
           label="Net Bulan Ini"
-          value={formatCurrencyShort(Math.abs(net))}
+          value={obscureShort(formatCurrencyShort(Math.abs(net)))}
+          rawValue={Math.abs(net)}
+          showBalance={showBalance}
           icon={Wallet}
           color={net >= 0 ? 'linear-gradient(135deg,#6366f1,#8b5cf6)' : 'linear-gradient(135deg,#f59e0b,#f97316)'}
           trendLabel={net >= 0 ? 'Surplus' : 'Defisit'}

@@ -370,3 +370,22 @@ h1, h2, h3, h4, h5, h6 {
     max-height: 85vh;
   }
 }
+/* Fun Animations & Hover Effects */
+.hover-lift {
+  transition: transform var(--transition-bounce), box-shadow var(--transition-fast);
+}
+.hover-lift:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: var(--shadow-xl);
+}
+.hover-lift:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.hover-lift-slight {
+  transition: transform var(--transition-bounce), box-shadow var(--transition-fast);
+}
+.hover-lift-slight:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-xl);
+}
