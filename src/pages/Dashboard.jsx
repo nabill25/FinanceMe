@@ -304,7 +304,7 @@ export default function Dashboard() {
                   </span>
                 </div>
                 <span className={`recent-tx-amount ${tx.type === 'income' ? 'amount-income' : 'amount-expense'}`}>
-                  {tx.type === 'income' ? '+' : '-'}{formatCurrencyShort(tx.amount)}
+                  {tx.type === 'income' ? '+' : '-'}{formatCurrencyShort(tx.amount, tx.accounts?.currency)}
                 </span>
               </div>
             ))}

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Plus, Edit2, Trash2, Wallet, CreditCard, Smartphone, TrendingUp, RefreshCcw } from 'lucide-react';
 import { useFinanceStore } from '../store/financeStore';
 import { useAuthStore } from '../store/authStore';
-import { formatCurrency, ACCOUNT_TYPES, ACCOUNT_PROVIDERS } from '../lib/utils';
+import { formatCurrency, ACCOUNT_TYPES, ACCOUNT_PROVIDERS, CURRENCIES } from '../lib/utils';
 import ProviderLogo from '../components/ProviderLogo';
 import { toast } from 'sonner';
 import './Accounts.css';
@@ -20,7 +20,7 @@ const ACCOUNT_ICONS = {
 };
 
 const defaultForm = {
-  name: '', type: 'bank', balance: '', color: COLORS[0], icon: 'bca'
+  name: '', type: 'bank', balance: '', color: COLORS[0], icon: 'bca', currency: 'IDR'
 };
 
 function AccountModal({ open, onClose, account, onSave }) {
@@ -29,7 +29,7 @@ function AccountModal({ open, onClose, account, onSave }) {
 
   useEffect(() => {
     if (account) {
-      setForm({ name: account.name, type: account.type, balance: account.balance, color: account.color, icon: account.icon || account.type });
+      setForm({ name: account.name, type: account.type, balance: account.balance, color: account.color, icon: account.icon || account.type, currency: account.currency || 'IDR' });
     } else {
       setForm(defaultForm);
     }
@@ -100,6 +100,14 @@ function AccountModal({ open, onClose, account, onSave }) {
               </select>
             </div>
           )}
+          <div className="form-group">
+            <label className="form-label">Mata Uang</label>
+            <select className="form-select" value={form.currency} onChange={e => setForm(f => ({ ...f, currency: e.target.value }))}>
+              {CURRENCIES.map(c => (
+                <option key={c.code} value={c.code}>{c.label}</option>
+              ))}
+            </select>
+          </div>
           <div className="form-group">
             <label className="form-label">{account ? 'Saldo Saat Ini' : 'Saldo Awal'}</label>
             <input className="form-input" type="number" value={form.balance} onChange={e => setForm(f => ({ ...f, balance: e.target.value }))} placeholder="0" required min="0" />

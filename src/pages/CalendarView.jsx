@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, X } from 'lucide-react';
 import { useFinanceStore } from '../store/financeStore';
-import { formatCurrencyShort, formatDate, CATEGORY_ICONS } from '../lib/utils';
+import { formatCurrencyShort, formatDate, CATEGORY_ICONS, EXCHANGE_RATES } from '../lib/utils';
 import './CalendarView.css';
 
 export default function CalendarView() {
@@ -48,9 +48,10 @@ export default function CalendarView() {
       if (!groups[tx.date]) {
         groups[tx.date] = { income: 0, expense: 0, list: [] };
       }
+      const rate = EXCHANGE_RATES[tx.accounts?.currency || 'IDR'] || 1;
       groups[tx.date].list.push(tx);
-      if (tx.type === 'income') groups[tx.date].income += tx.amount;
-      if (tx.type === 'expense') groups[tx.date].expense += tx.amount;
+      if (tx.type === 'income') groups[tx.date].income += (tx.amount * rate);
+      if (tx.type === 'expense') groups[tx.date].expense += (tx.amount * rate);
     });
     return groups;
   }, [transactions]);
@@ -162,7 +163,7 @@ export default function CalendarView() {
                         <div className="tx-item-meta">{tx.accounts?.name}</div>
                       </div>
                       <div className={`tx-item-amount ${tx.type === 'income' ? 'amount-income' : 'amount-expense'}`}>
-                        {tx.type === 'income' ? '+' : '-'}{formatCurrencyShort(tx.amount)}
+                        {tx.type === 'income' ? '+' : '-'}{formatCurrencyShort(tx.amount, tx.accounts?.currency)}
                       </div>
                     </div>
                   ))}

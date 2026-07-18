@@ -4,7 +4,7 @@ import { useFinanceStore } from '../store/financeStore';
 import { useAuthStore } from '../store/authStore';
 import {
   formatCurrency, formatDate, getCurrentMonth,
-  CATEGORY_ICONS, formatDateInput
+  CATEGORY_ICONS, formatDateInput, EXCHANGE_RATES
 } from '../lib/utils';
 import { scanReceipt } from '../lib/gemini';
 import { exportTransactionsToPDF, exportTransactionsToExcel } from '../lib/exportUtils';
@@ -138,7 +138,7 @@ function TransactionModal({ open, onClose, transaction, accounts, categories, on
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             <div className="form-group" style={{ position: 'relative' }}>
-              <label className="form-label">Nominal (Rp)</label>
+              <label className="form-label">Nominal ({accounts.find(a => a.id === form.account_id)?.currency || 'IDR'})</label>
               <div style={{ display: 'flex', gap: '8px' }}>
                 <input className="form-input tx-amount-input" type="number" value={form.amount}
                   onChange={e => setForm(f => ({ ...f, amount: e.target.value }))}
@@ -268,8 +268,14 @@ export default function TransactionsPage() {
     return list;
   }, [transactions, filters]);
 
-  const totalIncome = displayed.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
-  const totalExpense = displayed.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+  const totalIncome = displayed.filter(t => t.type === 'income').reduce((s, t) => {
+    const rate = EXCHANGE_RATES[t.accounts?.currency || 'IDR'] || 1;
+    return s + (t.amount * rate);
+  }, 0);
+  const totalExpense = displayed.filter(t => t.type === 'expense').reduce((s, t) => {
+    const rate = EXCHANGE_RATES[t.accounts?.currency || 'IDR'] || 1;
+    return s + (t.amount * rate);
+  }, 0);
 
   const handleSave = async (form) => {
     if (editTx) {
@@ -434,7 +440,7 @@ export default function TransactionsPage() {
                 </div>
                 <div className="tx-item-right" style={{ flexDirection: 'row', alignItems: 'center', gap: '16px' }}>
                   <span className={`tx-item-amount ${tx.type === 'income' ? 'amount-income' : 'amount-expense'}`}>
-                    {tx.type === 'income' ? '+' : '-'}{formatCurrency(tx.amount)}
+                    {tx.type === 'income' ? '+' : '-'}{formatCurrency(tx.amount, tx.accounts?.currency)}
                   </span>
                   <div className="tx-item-actions" style={{ gap: '8px' }}>
                     <button className="btn btn-icon btn-ghost" onClick={() => { setEditTx(tx); setModalOpen(true); }} style={{ padding: '6px' }}>

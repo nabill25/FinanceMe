@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
+import { EXCHANGE_RATES } from '../lib/utils';
 
 export const useFinanceStore = create((set, get) => ({
   accounts: [],
@@ -468,7 +469,13 @@ export const useFinanceStore = create((set, get) => ({
   },
 
   // ── COMPUTED ──────────────────────────────────────────────
-  getTotalBalance: () => get().accounts.reduce((sum, a) => sum + (a.balance || 0), 0),
+  getTotalBalance: () => {
+    return get().accounts.reduce((sum, a) => {
+      const currency = a.currency || 'IDR';
+      const rate = EXCHANGE_RATES[currency] || 1;
+      return sum + ((a.balance || 0) * rate);
+    }, 0);
+  },
 
   getMonthSummary: (month) => {
     const [year, mon] = month.split('-');

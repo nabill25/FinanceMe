@@ -1,23 +1,43 @@
+// Exchange Rates (Hardcoded for Step 8 Demo)
+export const EXCHANGE_RATES = {
+  IDR: 1,
+  USD: 16000,
+  EUR: 17000,
+  SGD: 11500,
+};
+
+export const CURRENCIES = [
+  { code: 'IDR', label: 'Indonesian Rupiah (IDR)' },
+  { code: 'USD', label: 'US Dollar (USD)' },
+  { code: 'EUR', label: 'Euro (EUR)' },
+  { code: 'SGD', label: 'Singapore Dollar (SGD)' },
+];
+
 // Currency formatter
-export const formatCurrency = (amount) => {
+export const formatCurrency = (amount, currencyCode = 'IDR') => {
   return new Intl.NumberFormat('id-ID', {
     style: 'currency',
-    currency: 'IDR',
+    currency: currencyCode || 'IDR',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(amount);
 };
 
-export const formatCurrencyShort = (amount) => {
-  return formatCurrency(amount); // Use full formatting everywhere per user request
+export const formatCurrencyShort = (amount, currencyCode = 'IDR') => {
+  return formatCurrency(amount, currencyCode); // Use full formatting everywhere per user request
 };
 
-export const formatCurrencyChart = (amount) => {
+export const formatCurrencyChart = (amount, currencyCode = 'IDR') => {
+  // Simplification for chart: we might just use formatCurrency directly 
+  // or keep the K/M format but prepend the correct symbol.
+  // For now, let's just use formatCurrency for consistency in foreign currencies,
+  // and the shortened version for IDR.
+  if (currencyCode !== 'IDR') return formatCurrency(amount, currencyCode);
+
   if (Math.abs(amount) >= 1_000_000_000) {
     return `Rp ${(amount / 1_000_000_000).toFixed(1)}M`;
   }
   if (Math.abs(amount) >= 1_000_000) {
-    // If it's a clean million, don't show .0
     const millions = amount / 1_000_000;
     return `Rp ${millions % 1 === 0 ? millions : millions.toFixed(1)}jt`;
   }
@@ -25,7 +45,7 @@ export const formatCurrencyChart = (amount) => {
     const thousands = amount / 1_000;
     return `Rp ${thousands % 1 === 0 ? thousands : thousands.toFixed(1)}rb`;
   }
-  return formatCurrency(amount);
+  return formatCurrency(amount, currencyCode);
 };
 
 // Date formatters
