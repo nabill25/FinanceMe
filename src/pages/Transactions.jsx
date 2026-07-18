@@ -22,6 +22,9 @@ function TransactionModal({ open, onClose, transaction, accounts, categories, on
   const fileInputRef = useRef(null);
 
   const { uploadReceipt } = useFinanceStore();
+  
+  const [receiptFile, setReceiptFile] = useState(null);
+  const [receiptPreview, setReceiptPreview] = useState(transaction?.receipt_url || null);
 
   useEffect(() => {
     if (transaction) {
@@ -33,8 +36,10 @@ function TransactionModal({ open, onClose, transaction, accounts, categories, on
         account_id: transaction.account_id,
         category_id: transaction.category_id,
       });
+      setReceiptPreview(transaction.receipt_url || null);
     } else {
       setForm({ ...defaultForm, account_id: accounts[0]?.id || '' });
+      setReceiptPreview(null);
     }
   }, [transaction, open, accounts]);
 
@@ -63,8 +68,6 @@ function TransactionModal({ open, onClose, transaction, accounts, categories, on
     }
   };
 
-  const [receiptFile, setReceiptFile] = useState(null);
-  const [receiptPreview, setReceiptPreview] = useState(transaction?.receipt_url || null);
 
   const handleScan = async (e) => {
     const file = e.target.files?.[0];
