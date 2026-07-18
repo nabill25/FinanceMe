@@ -9,11 +9,21 @@ export const formatCurrency = (amount) => {
 };
 
 export const formatCurrencyShort = (amount) => {
+  return formatCurrency(amount); // Use full formatting everywhere per user request
+};
+
+export const formatCurrencyChart = (amount) => {
   if (Math.abs(amount) >= 1_000_000_000) {
-    return `Rp ${(amount / 1_000_000_000).toFixed(1)} M`;
+    return `Rp ${(amount / 1_000_000_000).toFixed(1)}M`;
   }
   if (Math.abs(amount) >= 1_000_000) {
-    return `Rp ${(amount / 1_000_000).toFixed(1)} Jt`;
+    // If it's a clean million, don't show .0
+    const millions = amount / 1_000_000;
+    return `Rp ${millions % 1 === 0 ? millions : millions.toFixed(1)}jt`;
+  }
+  if (Math.abs(amount) >= 1_000) {
+    const thousands = amount / 1_000;
+    return `Rp ${thousands % 1 === 0 ? thousands : thousands.toFixed(1)}rb`;
   }
   return formatCurrency(amount);
 };

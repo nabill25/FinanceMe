@@ -7,7 +7,7 @@ import {
 import { useFinanceStore } from '../store/financeStore';
 import { useAuthStore } from '../store/authStore';
 import {
-  formatCurrency, formatCurrencyShort, getCurrentMonth, getMonthLabel,
+  formatCurrency, formatCurrencyShort, formatCurrencyChart, getCurrentMonth, getMonthLabel,
   CATEGORY_ICONS
 } from '../lib/utils';
 import './Reports.css';
@@ -97,11 +97,11 @@ export default function ReportsPage() {
       {/* Income vs Expense summary */}
       <div className="grid-2">
         <div className="card reports-summary-card" style={{ '--c': '#10b981' }}>
-          <p className="text-sm text-muted">Total Pemasukan</p>
+          <p className="text-sm" style={{ color: 'var(--accent-success)' }}>Total Pemasukan</p>
           <h3 className="reports-amount amount-income">{formatCurrency(income)}</h3>
         </div>
         <div className="card reports-summary-card" style={{ '--c': '#ef4444' }}>
-          <p className="text-sm text-muted">Total Pengeluaran</p>
+          <p className="text-sm" style={{ color: 'var(--accent-danger)' }}>Total Pengeluaran</p>
           <h3 className="reports-amount amount-expense">{formatCurrency(expense)}</h3>
         </div>
       </div>
@@ -157,7 +157,7 @@ export default function ReportsPage() {
               <BarChart data={trendData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.08)" vertical={false} />
                 <XAxis dataKey="label" tick={{ fill: '#475569', fontSize: 12 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: '#475569', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={formatCurrencyShort} />
+                <YAxis tick={{ fill: '#475569', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={formatCurrencyChart} width={65} />
                 <Tooltip
                   formatter={(v) => formatCurrency(v)}
                   contentStyle={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-default)', borderRadius: '12px', color: 'var(--text-primary)' }}

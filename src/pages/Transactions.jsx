@@ -377,16 +377,16 @@ export default function TransactionsPage() {
                     · {tx.accounts?.name} · {formatDate(tx.date)}
                   </span>
                 </div>
-                <div className="tx-item-right">
+                <div className="tx-item-right" style={{ flexDirection: 'row', alignItems: 'center', gap: '16px' }}>
                   <span className={`tx-item-amount ${tx.type === 'income' ? 'amount-income' : 'amount-expense'}`}>
                     {tx.type === 'income' ? '+' : '-'}{formatCurrency(tx.amount)}
                   </span>
-                  <div className="tx-item-actions">
-                    <button className="btn btn-icon btn-ghost" onClick={() => { setEditTx(tx); setModalOpen(true); }}>
-                      <Edit2 size={13} />
+                  <div className="tx-item-actions" style={{ gap: '8px' }}>
+                    <button className="btn btn-icon btn-ghost" onClick={() => { setEditTx(tx); setModalOpen(true); }} style={{ padding: '6px' }}>
+                      <Edit2 size={20} />
                     </button>
-                    <button className="btn btn-icon btn-ghost" style={{ color: 'var(--accent-danger)' }} onClick={() => handleDelete(tx.id)}>
-                      <Trash2 size={13} />
+                    <button className="btn btn-icon btn-ghost" style={{ color: 'var(--accent-danger)', padding: '6px' }} onClick={() => handleDelete(tx.id)}>
+                      <Trash2 size={20} />
                     </button>
                   </div>
                 </div>

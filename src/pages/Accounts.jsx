@@ -301,16 +301,16 @@ export default function AccountsPage() {
               <div key={acc.id} className="account-card card" style={{ '--acc-color': acc.color }}>
                 <div className="account-card-top">
                   <ProviderLogo account={acc} size={36} />
-                  <div className="account-card-actions">
-                    <button className="btn btn-icon btn-ghost" onClick={() => { setEditAccount(acc); setSyncModalOpen(true); }} title="Sinkronisasi Saldo" style={{ color: 'var(--accent-primary)' }}>
-                      <RefreshCcw size={14} />
+                  <div className="account-card-actions" style={{ gap: '8px' }}>
+                    <button className="btn btn-icon btn-ghost" onClick={() => { setEditAccount(acc); setSyncModalOpen(true); }} title="Sinkronisasi Saldo" style={{ color: 'var(--accent-primary)', padding: '6px' }}>
+                      <RefreshCcw size={20} />
                     </button>
-                    <button className="btn btn-icon btn-ghost" onClick={() => { setEditAccount(acc); setModalOpen(true); }} title="Edit">
-                      <Edit2 size={14} />
+                    <button className="btn btn-icon btn-ghost" onClick={() => { setEditAccount(acc); setModalOpen(true); }} title="Edit" style={{ padding: '6px' }}>
+                      <Edit2 size={20} />
                     </button>
                     <button className="btn btn-icon btn-ghost" onClick={() => handleDelete(acc.id)} title="Hapus"
-                      style={{ color: 'var(--accent-danger)' }}>
-                      <Trash2 size={14} />
+                      style={{ color: 'var(--accent-danger)', padding: '6px' }}>
+                      <Trash2 size={20} />
                     </button>
                   </div>
                 </div>

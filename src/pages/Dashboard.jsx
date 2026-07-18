@@ -99,10 +99,6 @@ export default function Dashboard() {
           </h1>
           <p className="text-secondary text-sm">{monthLabel} — Ringkasan keuangan Anda</p>
         </div>
-        <Link to="/transactions" className="btn btn-primary btn-sm hover-lift">
-          <Plus size={15} />
-          Catat Transaksi
-        </Link>
       </div>
 
       {/* Total Balance Hero */}

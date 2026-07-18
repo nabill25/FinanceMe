@@ -62,13 +62,22 @@ export default function MonthlySpendingDonut() {
           <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)' }}>{formatCurrencyShort(total)}</span>
         </div>
       </div>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '16px', justifyContent: 'center' }}>
-        {data.slice(0, 4).map((d, i) => (
-          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: 'var(--text-secondary)' }}>
-            <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: d.color }} />
-            {d.name}
-          </div>
-        ))}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '16px' }}>
+        {data.slice(0, 5).map((d, i) => {
+          const pct = ((d.value / total) * 100).toFixed(1);
+          return (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', overflow: 'hidden' }}>
+                <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: d.color, flexShrink: 0 }} />
+                <span style={{ color: 'var(--text-secondary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{d.name}</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+                <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{formatCurrencyShort(d.value)}</span>
+                <span style={{ color: 'var(--text-muted)', fontSize: '11px', width: '32px', textAlign: 'right' }}>{pct}%</span>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
