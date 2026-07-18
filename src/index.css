@@ -479,3 +479,75 @@ h1, h2, h3, h4, h5, h6 {
     border-radius: 4px;
   }
 }
+
+/* ===========================
+   GLOBAL MOBILE RESPONSIVENESS
+   =========================== */
+
+/* Grid utilities */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+}
+
+/* Page headers */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+}
+
+@media (max-width: 768px) {
+  /* Grid collapse */
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  /* Page headers full-width button */
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .page-header h1 {
+    font-size: 1.3rem;
+  }
+
+  .page-header .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Make modals more spacious */
+  .modal-body {
+    padding: var(--space-md);
+  }
+
+  .modal-header {
+    padding: var(--space-md);
+  }
+
+  .modal-footer {
+    padding: var(--space-md);
+    flex-direction: row;
+  }
+
+  .modal-footer .btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  /* Tabs full width on mobile */
+  .tabs {
+    width: 100%;
+  }
+
+  /* Make quick-add FAB avoid the bottom safe area */
+  .quick-add-fab {
+    bottom: calc(24px + var(--safe-area-bottom, 0px));
+    right: 20px;
+  }
+}

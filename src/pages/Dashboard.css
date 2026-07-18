@@ -230,3 +230,67 @@
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 768px) {
+  .dashboard {
+    gap: var(--space-md);
+  }
+
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-sm);
+  }
+
+  .dashboard-header .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .dashboard-greeting {
+    font-size: 1.2rem;
+  }
+
+  .balance-hero {
+    padding: var(--space-lg);
+  }
+
+  .balance-hero-amount {
+    font-size: 1.8rem;
+    margin-bottom: var(--space-md);
+  }
+
+  .balance-hero-accounts {
+    gap: var(--space-md);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .stat-card-value {
+    font-size: 1.1rem;
+  }
+
+  .dashboard-row {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+
+  .dashboard-chart,
+  .dashboard-budget {
+    min-width: 0;
+  }
+
+  .recent-tx-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+
+  .recent-tx-desc {
+    font-size: 13px;
+  }
+
+  .recent-tx-amount {
+    font-size: 12px;
+  }
+}

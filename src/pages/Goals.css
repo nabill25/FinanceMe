@@ -105,3 +105,22 @@
   padding-top: var(--space-sm);
   border-top: 1px dashed var(--border-default);
 }
+
+@media (max-width: 768px) {
+  .goals-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .goal-current {
+    font-size: 1.2rem;
+  }
+
+  .goal-actions {
+    opacity: 1;
+  }
+
+  .goal-icon {
+    width: 40px;
+    height: 40px;
+  }
+}

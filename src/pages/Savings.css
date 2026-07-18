@@ -30,3 +30,38 @@
 .pot-target { font-size: 13px; }
 .pot-pct { margin-bottom: 8px; }
 .pot-card-actions { display: flex; gap: 8px; margin-top: 4px; }
+
+@media (max-width: 768px) {
+  .savings-summary {
+    flex-direction: column;
+    gap: var(--space-md);
+    padding: var(--space-md);
+  }
+
+  .savings-summary-divider {
+    display: none;
+  }
+
+  .savings-summary-item {
+    min-width: 0;
+    flex: none;
+    width: 100%;
+  }
+
+  .savings-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pot-actions {
+    opacity: 1;
+  }
+
+  .pot-card-actions {
+    flex-direction: column;
+  }
+
+  .pot-card-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

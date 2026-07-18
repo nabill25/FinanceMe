@@ -56,3 +56,18 @@
     flex-wrap: wrap;
   }
 }
+
+@media (max-width: 768px) {
+  .reports-charts {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+
+  .reports-amount {
+    font-size: 1.3rem;
+  }
+
+  .breakdown-row {
+    flex-wrap: wrap;
+  }
+}

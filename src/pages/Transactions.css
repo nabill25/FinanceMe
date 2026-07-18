@@ -226,7 +226,51 @@
 }
 
 @media (max-width: 768px) {
-  .tx-summary { grid-template-columns: 1fr; }
-  .tx-filters { flex-direction: column; }
-  .tx-search-wrapper { width: 100%; }
+  .tx-summary {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-sm);
+  }
+
+  .tx-filters {
+    flex-direction: column;
+    gap: var(--space-sm);
+    padding: var(--space-sm);
+  }
+
+  .tx-search-wrapper {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .tx-filters input[type="month"],
+  .tx-filters .tabs {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .tx-summary-amount {
+    font-size: 1rem;
+  }
+
+  .tx-item {
+    gap: var(--space-sm);
+  }
+
+  .tx-item-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+
+  .tx-item-desc {
+    font-size: 13px;
+  }
+
+  .tx-item-amount {
+    font-size: 13px;
+  }
+
+  .tx-item-actions {
+    opacity: 1;
+  }
 }

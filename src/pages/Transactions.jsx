@@ -117,88 +117,90 @@ function TransactionModal({ open, onClose, transaction, accounts, categories, on
           <button className="btn btn-icon btn-ghost" onClick={onClose}>✕</button>
         </div>
 
-        {/* Type selector */}
-        <div className="tx-type-tabs" style={{ marginBottom: '20px' }}>
-          {['expense', 'income'].map(t => (
-            <button
-              key={t}
-              type="button"
-              className={`tx-type-btn ${form.type === t ? 'active-' + t : ''}`}
-              onClick={() => setForm(f => ({ ...f, type: t, category_id: '' }))}
-            >
-              {t === 'expense' ? <ArrowDownCircle size={16} /> : <ArrowUpCircle size={16} />}
-              {t === 'expense' ? 'Pengeluaran' : 'Pemasukan'}
-            </button>
-          ))}
-        </div>
-
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-          <div className="form-group" style={{ position: 'relative' }}>
-            <label className="form-label">Jumlah (Rp)</label>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <input className="form-input tx-amount-input" type="number" value={form.amount}
-                onChange={e => setForm(f => ({ ...f, amount: e.target.value }))}
-                placeholder="0" required min="1" style={{ flex: 1 }} />
-              <button type="button" className="btn btn-outline" onClick={() => fileInputRef.current?.click()} disabled={scanning} style={{ padding: '0 12px' }} title="Pilih Bukti (Foto/Galeri)">
-                {scanning ? <Loader2 size={20} className="spin" /> : <ImagePlus size={20} />}
+        <div className="modal-body" style={{ overflowY: 'auto' }}>
+          {/* Type selector */}
+          <div className="tx-type-tabs" style={{ marginBottom: '20px' }}>
+            {['expense', 'income'].map(t => (
+              <button
+                key={t}
+                type="button"
+                className={`tx-type-btn ${form.type === t ? 'active-' + t : ''}`}
+                onClick={() => setForm(f => ({ ...f, type: t, category_id: '' }))}
+              >
+                {t === 'expense' ? <ArrowDownCircle size={16} /> : <ArrowUpCircle size={16} />}
+                {t === 'expense' ? 'Pengeluaran' : 'Pemasukan'}
               </button>
-              <input type="file" ref={fileInputRef} onChange={handleScan} accept="image/*" style={{ display: 'none' }} />
-            </div>
-            {receiptPreview && (
-              <div style={{ marginTop: '10px', position: 'relative', width: 'fit-content' }}>
-                <a href={receiptPreview} target="_blank" rel="noreferrer" title="Lihat ukuran penuh">
-                  <img src={receiptPreview} alt="Bukti Transaksi" style={{ height: '80px', borderRadius: '8px', objectFit: 'cover', border: '1px solid var(--border-default)' }} />
-                </a>
-                <button type="button" onClick={() => { setReceiptFile(null); setReceiptPreview(null); setForm(f => ({ ...f, receipt_url: null })); }} className="btn-icon btn-ghost" style={{ position: 'absolute', top: -10, right: -10, background: 'var(--bg-elevated)', border: '1px solid var(--border-default)', width: 24, height: 24, minWidth: 24, padding: 0 }}>✕</button>
-              </div>
-            )}
+            ))}
           </div>
 
-          <div className="grid-2">
-            <div className="form-group">
-              <label className="form-label">Akun</label>
-              <select className="form-select" value={form.account_id}
-                onChange={e => setForm(f => ({ ...f, account_id: e.target.value }))} required>
-                <option value="">Pilih akun</option>
-                {accounts.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
-              </select>
-            </div>
-            <div className="form-group">
-              <label className="form-label">Tanggal</label>
-              <input className="form-input" type="date" value={form.date}
-                onChange={e => setForm(f => ({ ...f, date: e.target.value }))} required />
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label className="form-label">Kategori</label>
-            <div className="category-grid">
-              {filteredCategories.map(cat => (
-                <button key={cat.id} type="button"
-                  className={`category-chip ${form.category_id === cat.id ? 'selected' : ''}`}
-                  style={{ '--chip-color': cat.color }}
-                  onClick={() => setForm(f => ({ ...f, category_id: cat.id }))}>
-                  <span>{CATEGORY_ICONS[cat.icon] || '📂'}</span>
-                  <span>{cat.name}</span>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <div className="form-group" style={{ position: 'relative' }}>
+              <label className="form-label">Nominal (Rp)</label>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <input className="form-input tx-amount-input" type="number" value={form.amount}
+                  onChange={e => setForm(f => ({ ...f, amount: e.target.value }))}
+                  placeholder="0" required min="1" style={{ flex: 1 }} />
+                <button type="button" className="btn btn-outline" onClick={() => fileInputRef.current?.click()} disabled={scanning} style={{ padding: '0 12px', flexShrink: 0 }} title="Pilih Bukti (Foto/Galeri)">
+                  {scanning ? <Loader2 size={20} className="spin" /> : <ImagePlus size={20} />}
                 </button>
-              ))}
+                <input type="file" ref={fileInputRef} onChange={handleScan} accept="image/*" style={{ display: 'none' }} />
+              </div>
+              {receiptPreview && (
+                <div style={{ marginTop: '10px', position: 'relative', width: 'fit-content' }}>
+                  <a href={receiptPreview} target="_blank" rel="noreferrer" title="Lihat ukuran penuh">
+                    <img src={receiptPreview} alt="Bukti Transaksi" style={{ height: '80px', borderRadius: '8px', objectFit: 'cover', border: '1px solid var(--border-default)' }} />
+                  </a>
+                  <button type="button" onClick={() => { setReceiptFile(null); setReceiptPreview(null); setForm(f => ({ ...f, receipt_url: null })); }} className="btn-icon btn-ghost" style={{ position: 'absolute', top: -10, right: -10, background: 'var(--bg-elevated)', border: '1px solid var(--border-default)', width: 24, height: 24, minWidth: 24, padding: 0 }}>✕</button>
+                </div>
+              )}
             </div>
-          </div>
 
-          <div className="form-group">
-            <label className="form-label">Catatan (opsional)</label>
-            <input className="form-input" type="text" value={form.description}
-              onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
-              placeholder="Deskripsi singkat..." />
-          </div>
+            <div className="grid-2">
+              <div className="form-group">
+                <label className="form-label">Akun</label>
+                <select className="form-select" value={form.account_id}
+                  onChange={e => setForm(f => ({ ...f, account_id: e.target.value }))} required>
+                  <option value="">Pilih akun</option>
+                  {accounts.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+                </select>
+              </div>
+              <div className="form-group">
+                <label className="form-label">Tanggal</label>
+                <input className="form-input" type="date" value={form.date}
+                  onChange={e => setForm(f => ({ ...f, date: e.target.value }))} required />
+              </div>
+            </div>
 
-          <div className="modal-footer" style={{ padding: 0, border: 'none', margin: 0, marginTop: 4 }}>
-            <button type="button" className="btn btn-ghost" onClick={onClose}>Batal</button>
-            <button type="submit" className="btn btn-primary" disabled={saving}>
-              {saving ? <span className="spinner" /> : (transaction ? 'Simpan' : 'Catat')}
-            </button>
-          </div>
-        </form>
+            <div className="form-group">
+              <label className="form-label">Kategori</label>
+              <div className="category-grid">
+                {filteredCategories.map(cat => (
+                  <button key={cat.id} type="button"
+                    className={`category-chip ${form.category_id === cat.id ? 'selected' : ''}`}
+                    style={{ '--chip-color': cat.color }}
+                    onClick={() => setForm(f => ({ ...f, category_id: cat.id }))}>
+                    <span>{CATEGORY_ICONS[cat.icon] || '📂'}</span>
+                    <span>{cat.name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Catatan (opsional)</label>
+              <input className="form-input" type="text" value={form.description}
+                onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
+                placeholder="Deskripsi singkat..." />
+            </div>
+
+            <div className="modal-footer" style={{ padding: 0, border: 'none', margin: 0, marginTop: 4 }}>
+              <button type="button" className="btn btn-ghost" onClick={onClose}>Batal</button>
+              <button type="submit" className="btn btn-primary" disabled={saving}>
+                {saving ? <span className="spinner" /> : (transaction ? 'Simpan' : 'Catat')}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

@@ -182,3 +182,19 @@
   color: var(--text-primary);
 }
 
+
+@media (max-width: 768px) {
+  .auth-page {
+    padding: var(--space-md);
+    align-items: flex-start;
+    padding-top: 60px;
+  }
+
+  .auth-card {
+    max-width: 100%;
+  }
+
+  .auth-logo-text {
+    font-size: 1.4rem;
+  }
+}

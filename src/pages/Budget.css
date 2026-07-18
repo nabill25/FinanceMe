@@ -130,3 +130,44 @@
   letter-spacing: -0.02em;
   text-align: right;
 }
+
+@media (max-width: 768px) {
+  .budget-summary-hero {
+    flex-direction: column;
+  }
+
+  .budget-summary-stats {
+    flex-direction: row;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+  }
+
+  .budget-stat {
+    align-items: flex-start;
+    flex: 1;
+    min-width: 80px;
+  }
+
+  .budget-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .budget-card-actions {
+    opacity: 1;
+  }
+
+  .budget-spent,
+  .budget-remaining {
+    font-size: 1rem;
+  }
+
+  .month-nav {
+    gap: var(--space-md);
+    padding: var(--space-sm);
+  }
+
+  .month-nav-label {
+    font-size: 14px;
+    min-width: 140px;
+  }
+}

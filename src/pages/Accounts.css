@@ -149,3 +149,22 @@
   transform: scale(1.2);
   box-shadow: 0 0 0 2px rgba(99,102,241,0.5);
 }
+
+@media (max-width: 768px) {
+  .accounts-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-sm);
+  }
+
+  .accounts-total-amount {
+    font-size: 1.6rem;
+  }
+
+  .account-card-balance {
+    font-size: 1.1rem;
+  }
+
+  .account-card-name {
+    font-size: 14px;
+  }
+}
