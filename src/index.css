@@ -48,6 +48,9 @@
   --space-xl: 32px;
   
   --sidebar-width: 260px;
+  --bottom-nav-height: calc(64px + env(safe-area-inset-bottom, 20px));
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 * {
@@ -78,6 +81,13 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: var(--shadow-md);
   border: 1px solid var(--border-default);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+@media (max-width: 768px) {
+  .card {
+    padding: var(--space-md);
+    border-radius: var(--radius-lg);
+  }
 }
 
 .card:hover {
@@ -306,4 +316,57 @@ h1, h2, h3, h4, h5, h6 {
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+/* Modal Base Styles */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: var(--space-md);
+}
+.modal-content {
+  background: var(--bg-elevated);
+  border-radius: var(--radius-xl);
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-xl);
+  display: flex;
+  flex-direction: column;
+}
+.modal-header {
+  padding: var(--space-lg);
+  border-bottom: 1px solid var(--border-default);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.modal-body {
+  padding: var(--space-lg);
+}
+.modal-footer {
+  padding: var(--space-lg);
+  border-top: 1px solid var(--border-default);
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+}
+@media (max-width: 768px) {
+  .modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+  .modal-content {
+    max-width: 100%;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    padding-bottom: var(--safe-area-bottom);
+    max-height: 85vh;
+  }
 }

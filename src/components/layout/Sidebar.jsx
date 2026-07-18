@@ -12,13 +12,16 @@ const navItems = [
   { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/accounts', icon: Wallet, label: 'Akun' },
   { to: '/transactions', icon: ArrowLeftRight, label: 'Transaksi' },
+  { to: '/budget', icon: PieChart, label: 'Anggaran' },
   { to: '/savings', icon: PiggyBank, label: 'Tabungan' },
   { to: '/goals', icon: CreditCard, label: 'Target' },
-  { to: '/budget', icon: PieChart, label: 'Anggaran' },
   { to: '/reports', icon: BarChart3, label: 'Laporan' },
   { to: '/decision', icon: HelpCircle, label: 'Cek Pembelian' },
   { to: '/settings', icon: Settings, label: 'Pengaturan' },
 ];
+
+const mobileMainItems = navItems.slice(0, 4);
+const mobileMoreItems = navItems.slice(4);
 
 export default function Sidebar() {
   const { user, signOut } = useAuthStore();
@@ -36,17 +39,8 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* Mobile toggle */}
-      <button className="sidebar-mobile-toggle" onClick={() => setMobileOpen(true)}>
-        <Menu size={20} />
-      </button>
-
-      {/* Overlay */}
-      {mobileOpen && (
-        <div className="sidebar-overlay" onClick={() => setMobileOpen(false)} />
-      )}
-
-      <aside className={`sidebar ${mobileOpen ? 'sidebar-open' : ''}`}>
+      {/* --- DESKTOP SIDEBAR --- */}
+      <aside className="sidebar desktop-only">
         {/* Logo */}
         <div className="sidebar-logo">
           <div className="sidebar-logo-icon">
@@ -54,9 +48,6 @@ export default function Sidebar() {
           </div>
           <span className="sidebar-logo-text">FinanceMe</span>
           <span className="live-badge"><Zap size={10} /> Live</span>
-          <button className="sidebar-mobile-close" onClick={() => setMobileOpen(false)}>
-            <X size={18} />
-          </button>
         </div>
 
         {/* Navigation */}
@@ -71,7 +62,6 @@ export default function Sidebar() {
                 className={({ isActive }) =>
                   `sidebar-nav-item ${isActive ? 'active' : ''}`
                 }
-                onClick={() => setMobileOpen(false)}
               >
                 <Icon size={18} />
                 <span>{label}</span>
@@ -98,6 +88,71 @@ export default function Sidebar() {
           </button>
         </div>
       </aside>
+
+      {/* --- MOBILE BOTTOM NAV --- */}
+      <nav className="bottom-nav mobile-only">
+        {mobileMainItems.map(({ to, icon: Icon, label }) => (
+          <NavLink
+            key={to}
+            to={to}
+            end={to === '/'}
+            className={({ isActive }) => `bottom-nav-item ${isActive ? 'active' : ''}`}
+            onClick={() => setMobileOpen(false)}
+          >
+            <Icon size={20} />
+            <span>{label}</span>
+          </NavLink>
+        ))}
+        <button 
+          className={`bottom-nav-item ${mobileOpen ? 'active' : ''}`} 
+          onClick={() => setMobileOpen(!mobileOpen)}
+        >
+          <Menu size={20} />
+          <span>Lainnya</span>
+        </button>
+      </nav>
+
+      {/* --- MOBILE MORE MENU (BOTTOM SHEET) --- */}
+      {mobileOpen && (
+        <div className="mobile-only">
+          <div className="bottom-sheet-overlay" onClick={() => setMobileOpen(false)} />
+          <div className="bottom-sheet animate-slide-up">
+            <div className="bottom-sheet-header">
+              <div className="bottom-sheet-handle"></div>
+              <div className="sidebar-user" style={{ marginTop: 0, background: 'transparent', border: 'none', padding: '0 0 16px 0', borderBottom: '1px solid var(--border-subtle)', borderRadius: 0 }}>
+                <div className="sidebar-user-avatar">{initials}</div>
+                <div className="sidebar-user-info">
+                  <span className="sidebar-user-name">{user?.user_metadata?.full_name || 'Pengguna'}</span>
+                  <span className="sidebar-user-email">{user?.email}</span>
+                </div>
+              </div>
+            </div>
+            <div className="bottom-sheet-content">
+              {mobileMoreItems.map(({ to, icon: Icon, label }) => (
+                <NavLink
+                  key={to}
+                  to={to}
+                  end={to === '/'}
+                  className={({ isActive }) => `sidebar-nav-item ${isActive ? 'active' : ''}`}
+                  onClick={() => setMobileOpen(false)}
+                  style={{ padding: '14px 16px', fontSize: '15px' }}
+                >
+                  <Icon size={20} />
+                  <span>{label}</span>
+                </NavLink>
+              ))}
+              <button
+                className="sidebar-nav-item"
+                onClick={handleSignOut}
+                style={{ padding: '14px 16px', fontSize: '15px', color: 'var(--accent-danger)' }}
+              >
+                <LogOut size={20} />
+                <span>Keluar</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

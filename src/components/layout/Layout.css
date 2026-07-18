@@ -20,6 +20,7 @@
 @media (max-width: 768px) {
   .layout-content {
     padding: var(--space-md);
-    padding-top: 72px; /* account for mobile toggle button */
+    padding-top: calc(16px + var(--safe-area-top));
+    padding-bottom: calc(var(--space-md) + var(--bottom-nav-height));
   }
 }

@@ -89,6 +89,12 @@
   opacity: 1;
 }
 
+@media (max-width: 768px) {
+  .account-card-actions {
+    opacity: 1;
+  }
+}
+
 .account-card-name {
   font-size: 16px;
   font-weight: 700;
