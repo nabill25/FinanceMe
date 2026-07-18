@@ -362,7 +362,7 @@ export default function TransactionsPage() {
           <h1>Transaksi</h1>
           <p className="text-secondary text-sm">Riwayat pemasukan & pengeluaran</p>
         </div>
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+        <div className="page-header-actions">
           <button className="btn btn-outline" onClick={() => exportTransactionsToPDF(displayed, filters.month)}>
             PDF
           </button>

@@ -285,7 +285,7 @@ export default function BudgetPage() {
           <h1>Anggaran</h1>
           <p className="text-secondary text-sm">Kelola batas pengeluaran per kategori</p>
         </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <div className="page-header-actions">
           <button className="btn btn-outline" onClick={() => setTemplateModalOpen(true)}>
             <Wand2 size={16} /> Template
           </button>

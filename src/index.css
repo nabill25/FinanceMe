@@ -668,10 +668,23 @@ h1, h2, h3, h4, h5, h6 {
   .page-header h1 {
     font-size: 1.3rem;
   }
-  .page-header .btn {
+  
+  .page-header-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    width: 100%;
+  }
+  
+  .page-header-actions .btn {
     width: 100%;
     justify-content: center;
     padding: 12px 20px;
+  }
+  
+  .page-header-actions .btn-primary,
+  .page-header-actions .btn-full-width {
+    grid-column: span 2;
   }
 
   /* Forms on mobile */
