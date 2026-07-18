@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo, useRef } from 'react';
-import { Plus, Trash2, Edit2, Filter, Search, ArrowUpCircle, ArrowDownCircle, Camera, Loader2, ShieldAlert, Shield, ImagePlus } from 'lucide-react';
+import { Plus, Trash2, Edit2, Filter, Search, ArrowUpCircle, ArrowDownCircle, Camera, Loader2, ShieldAlert, Shield, ImagePlus, SlidersHorizontal, X } from 'lucide-react';
 import { useFinanceStore } from '../store/financeStore';
 import { useAuthStore } from '../store/authStore';
 import {
@@ -217,8 +217,17 @@ export default function TransactionsPage() {
   } = useFinanceStore();
 
   const [modalOpen, setModalOpen] = useState(false);
+  const [filterModalOpen, setFilterModalOpen] = useState(false);
   const [editTx, setEditTx] = useState(null);
-  const [filters, setFilters] = useState({ month: getCurrentMonth(), type: '', search: '' });
+  const [filters, setFilters] = useState({ 
+    month: getCurrentMonth(), 
+    type: '', 
+    search: '',
+    categoryId: '',
+    accountId: '',
+    minAmount: '',
+    maxAmount: ''
+  });
 
   useEffect(() => {
     if (!user) return;
@@ -235,6 +244,11 @@ export default function TransactionsPage() {
   const displayed = useMemo(() => {
     let list = transactions;
     if (filters.type) list = list.filter(t => t.type === filters.type);
+    if (filters.categoryId) list = list.filter(t => t.category_id === filters.categoryId);
+    if (filters.accountId) list = list.filter(t => t.account_id === filters.accountId);
+    if (filters.minAmount) list = list.filter(t => t.amount >= Number(filters.minAmount));
+    if (filters.maxAmount) list = list.filter(t => t.amount <= Number(filters.maxAmount));
+    
     if (filters.search) {
       const s = filters.search.toLowerCase();
       list = list.filter(t =>
@@ -244,7 +258,7 @@ export default function TransactionsPage() {
       );
     }
     return list;
-  }, [transactions, filters.type, filters.search]);
+  }, [transactions, filters]);
 
   const totalIncome = displayed.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
   const totalExpense = displayed.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
@@ -335,25 +349,48 @@ export default function TransactionsPage() {
             <p className="text-xs text-muted">Selisih</p>
             <p className={`tx-summary-amount ${totalIncome - totalExpense >= 0 ? 'amount-income' : 'amount-expense'}`}>
               {formatCurrency(Math.abs(totalIncome - totalExpense))}
-            </p>
           </div>
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="tx-filters card">
-        <div className="tx-search-wrapper">
-          <Search size={15} className="tx-search-icon" />
-          <input className="form-input tx-search" placeholder="Cari transaksi..."
-            value={filters.search} onChange={e => setFilters(f => ({ ...f, search: e.target.value }))} />
+      {/* Controls */}
+      <div className="tx-controls">
+        <div className="tx-search">
+          <Search size={18} className="text-muted" />
+          <input
+            type="text"
+            placeholder="Cari nama, kategori, akun..."
+            value={filters.search}
+            onChange={e => setFilters(f => ({ ...f, search: e.target.value }))}
+          />
         </div>
-        <input type="month" className="form-input" style={{ width: 'auto' }}
-          value={filters.month} onChange={e => setFilters(f => ({ ...f, month: e.target.value }))} />
-        <div className="tabs" style={{ width: 'auto', minWidth: '200px' }}>
-          {[['', 'Semua'], ['income', 'Pemasukan'], ['expense', 'Pengeluaran']].map(([v, l]) => (
-            <button key={v} className={`tab ${filters.type === v ? 'active' : ''}`}
-              onClick={() => setFilters(f => ({ ...f, type: v }))}>{l}</button>
-          ))}
+        <div className="tx-filters">
+          <input
+            type="month"
+            className="form-input"
+            value={filters.month}
+            onChange={e => setFilters(f => ({ ...f, month: e.target.value }))}
+          />
+          <select
+            className="form-select"
+            value={filters.type}
+            onChange={e => setFilters(f => ({ ...f, type: e.target.value }))}
+          >
+            <option value="">Semua Tipe</option>
+            <option value="income">Pemasukan</option>
+            <option value="expense">Pengeluaran</option>
+          </select>
+          <button 
+            className="btn btn-outline btn-icon" 
+            title="Filter Lanjutan"
+            onClick={() => setFilterModalOpen(true)}
+            style={{ position: 'relative' }}
+          >
+            <SlidersHorizontal size={18} />
+            {(filters.categoryId || filters.accountId || filters.minAmount || filters.maxAmount) && (
+              <span className="filter-active-dot" />
+            )}
+          </button>
         </div>
       </div>
 
@@ -407,12 +444,90 @@ export default function TransactionsPage() {
 
       <TransactionModal
         open={modalOpen}
-        onClose={() => { setModalOpen(false); setEditTx(null); }}
+        onClose={() => setModalOpen(false)}
         transaction={editTx}
         accounts={accounts}
         categories={categories}
         onSave={handleSave}
       />
+
+      {/* Advanced Filter Modal */}
+      {filterModalOpen && (
+        <div className="modal-overlay" onClick={() => setFilterModalOpen(false)}>
+          <div className="modal-content animate-slide-up" style={{ maxWidth: '400px' }} onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Filter Lanjutan</h2>
+              <button className="modal-close" onClick={() => setFilterModalOpen(false)}><X size={20} /></button>
+            </div>
+            <div className="modal-body">
+              <div className="form-group">
+                <label className="form-label">Kategori</label>
+                <select 
+                  className="form-select" 
+                  value={filters.categoryId}
+                  onChange={e => setFilters(f => ({ ...f, categoryId: e.target.value }))}
+                >
+                  <option value="">Semua Kategori</option>
+                  {categories.map(c => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+              </div>
+              
+              <div className="form-group">
+                <label className="form-label">Akun Pembayaran</label>
+                <select 
+                  className="form-select" 
+                  value={filters.accountId}
+                  onChange={e => setFilters(f => ({ ...f, accountId: e.target.value }))}
+                >
+                  <option value="">Semua Akun</option>
+                  {accounts.map(a => (
+                    <option key={a.id} value={a.id}>{a.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label">Minimal (Rp)</label>
+                  <input 
+                    type="number" 
+                    className="form-input" 
+                    placeholder="0"
+                    value={filters.minAmount}
+                    onChange={e => setFilters(f => ({ ...f, minAmount: e.target.value }))}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Maksimal (Rp)</label>
+                  <input 
+                    type="number" 
+                    className="form-input" 
+                    placeholder="Tak terhingga"
+                    value={filters.maxAmount}
+                    onChange={e => setFilters(f => ({ ...f, maxAmount: e.target.value }))}
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="modal-footer" style={{ display: 'flex', justifyContent: 'space-between', marginTop: 16 }}>
+              <button 
+                className="btn btn-ghost" 
+                onClick={() => {
+                  setFilters(f => ({ ...f, categoryId: '', accountId: '', minAmount: '', maxAmount: '' }));
+                  setFilterModalOpen(false);
+                }}
+              >
+                Reset Filter
+              </button>
+              <button className="btn btn-primary" onClick={() => setFilterModalOpen(false)}>
+                Terapkan
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

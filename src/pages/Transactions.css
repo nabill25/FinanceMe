@@ -264,3 +264,14 @@
     font-size: 1.2rem !important;
   }
 }
+
+.filter-active-dot {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 8px;
+  height: 8px;
+  background-color: var(--accent-primary);
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px var(--bg-main);
+}
