@@ -357,6 +357,7 @@ export default function TransactionsPage() {
             <p className="text-xs text-muted">Selisih</p>
             <p className={`tx-summary-amount ${totalIncome - totalExpense >= 0 ? 'amount-income' : 'amount-expense'}`}>
               {formatCurrency(Math.abs(totalIncome - totalExpense))}
+            </p>
           </div>
         </div>
       </div>
