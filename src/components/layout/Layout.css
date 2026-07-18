@@ -23,6 +23,6 @@
     /* Top: height of mobile app bar + small gap */
     padding-top: calc(68px + env(safe-area-inset-top, 0px)) !important;
     /* Bottom: extra space so FAB doesn't cover content */
-    padding-bottom: calc(24px + env(safe-area-inset-bottom, 16px)) !important;
+    padding-bottom: calc(100px + env(safe-area-inset-bottom, 16px)) !important;
   }
 }

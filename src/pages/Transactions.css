@@ -259,18 +259,21 @@
 
   .tx-item-actions {
     opacity: 1; /* Always visible on mobile */
-    gap: 0px;
+    gap: 4px;
   }
   .tx-item-actions button {
-    padding: 4px !important;
+    padding: 6px !important;
   }
   
   .tx-item-right {
-    gap: 4px;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
   }
 
   .tx-item-info {
-    max-width: calc(100vw - 180px); /* prevent extreme squish */
+    flex: 1;
+    min-width: 0;
   }
 
   .tx-amount-input {

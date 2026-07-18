@@ -4,6 +4,7 @@
   /* Minimalist Light Base */
   --bg-main: #f8fafc;
   --bg-elevated: #ffffff;
+  --bg-appbar: rgba(255, 255, 255, 0.92);
   
   /* Text */
   --text-primary: #0f172a;
@@ -66,6 +67,7 @@
   /* Minimalist Dark Base */
   --bg-main: #0f172a;
   --bg-elevated: #1e293b;
+  --bg-appbar: rgba(30, 41, 59, 0.92);
   
   /* Text */
   --text-primary: #f8fafc;
