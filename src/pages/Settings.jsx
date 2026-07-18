@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Shield, ShieldAlert, ShieldCheck, Clock, Info } from 'lucide-react';
+import { Shield, ShieldAlert, ShieldCheck, Clock, Info, Palette } from 'lucide-react';
 import { useFinanceStore } from '../store/financeStore';
 import { useAuthStore } from '../store/authStore';
 import { formatCurrency } from '../lib/utils';
@@ -80,6 +80,19 @@ export default function SettingsPage() {
       setSaving(false);
     }
   };
+
+  const theme = useFinanceStore(state => state.theme);
+  const accentColor = useFinanceStore(state => state.accentColor);
+  const setTheme = useFinanceStore(state => state.setTheme);
+  const setAccentColor = useFinanceStore(state => state.setAccentColor);
+
+  const ACCENT_COLORS = [
+    { value: 'default', color: '#6366f1' }, // Indigo
+    { value: 'blue', color: '#3b82f6' },
+    { value: 'emerald', color: '#10b981' },
+    { value: 'rose', color: '#f43f5e' },
+    { value: 'amber', color: '#f59e0b' },
+  ];
 
   const isBlocked = spendingGuardState?.blocked;
   const pct = spendingGuardState?.pct ?? 0;
@@ -210,6 +223,51 @@ export default function SettingsPage() {
           </ol>
         </div>
       </div>
+      {/* Appearance Settings */}
+      <div className="card settings-section">
+        <div className="settings-section-header">
+          <Palette size={20} style={{ color: 'var(--accent-primary)' }} />
+          <h2>Tampilan & Tema</h2>
+        </div>
+        
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <div>
+            <label className="form-label">Mode Tema</label>
+            <div className="theme-options">
+              {[
+                { id: 'system', label: '📱 Sistem' },
+                { id: 'light', label: '☀️ Terang' },
+                { id: 'dark', label: '🌙 Gelap' },
+                { id: 'dark-amoled', label: '🌌 AMOLED (Hitam Pekat)' }
+              ].map(t => (
+                <button
+                  key={t.id}
+                  className={`theme-btn ${theme === t.id ? 'active' : ''}`}
+                  onClick={() => setTheme(t.id)}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="form-label">Warna Aksen</label>
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+              {ACCENT_COLORS.map(c => (
+                <button
+                  key={c.value}
+                  className={`accent-color-btn ${accentColor === c.value ? 'active' : ''}`}
+                  style={{ backgroundColor: c.color }}
+                  onClick={() => setAccentColor(c.value)}
+                  title={`Ganti warna ke ${c.value}`}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   );
 }

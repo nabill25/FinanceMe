@@ -37,10 +37,28 @@ export default function App() {
   const financeStore = useFinanceStore;
 
   const theme = financeStore(state => state.theme);
+  const accentColor = financeStore(state => state.accentColor);
 
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-  }, [theme]);
+    const applyTheme = () => {
+      let actualTheme = theme;
+      if (theme === 'system') {
+        actualTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      document.documentElement.setAttribute('data-theme', actualTheme);
+      document.documentElement.setAttribute('data-accent', accentColor);
+    };
+
+    applyTheme();
+
+    // Listen for system changes if theme is 'system'
+    if (theme === 'system') {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const listener = () => applyTheme();
+      mediaQuery.addEventListener('change', listener);
+      return () => mediaQuery.removeEventListener('change', listener);
+    }
+  }, [theme, accentColor]);
 
   useEffect(() => {
     // Get initial session

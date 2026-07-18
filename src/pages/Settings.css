@@ -58,6 +58,62 @@
   border: 1px solid rgba(99,102,241,0.2);
 }
 
+/* Theme Options */
+.theme-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.theme-btn {
+  background: var(--bg-main);
+  border: 1px solid var(--border-default);
+  padding: 12px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.theme-btn:hover {
+  border-color: var(--border-subtle);
+  background: var(--bg-elevated);
+}
+
+.theme-btn.active {
+  border-color: var(--accent-primary);
+  background: rgba(99, 102, 241, 0.05); /* Safe fallback, real color handled by css var */
+  color: var(--accent-primary);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+/* If accent changes, we can use the variable */
+[data-accent] .theme-btn.active {
+  background: color-mix(in srgb, var(--accent-primary) 10%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-primary) 30%, transparent);
+}
+
+.accent-color-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: var(--shadow-sm);
+}
+
+.accent-color-btn:hover {
+  transform: scale(1.1);
+}
+
+.accent-color-btn.active {
+  transform: scale(1.15);
+  box-shadow: 0 0 0 3px var(--bg-elevated), 0 0 0 5px var(--accent-primary);
+}
+
 @media (max-width: 768px) {
   .settings-section {
     padding: var(--space-md);

@@ -14,7 +14,8 @@ export const useFinanceStore = create((set, get) => ({
   // spendingGuardState handled below
   recurringBills: [],
   momStats: null,               // { lastMonthIncome, lastMonthExpense }
-  theme: localStorage.getItem('financeme-theme') || 'light',
+  theme: localStorage.getItem('financeme-theme') || 'system',
+  accentColor: localStorage.getItem('financeme-accent') || 'default',
   loading: {
     accounts: false,
     transactions: false,
@@ -645,12 +646,15 @@ export const useFinanceStore = create((set, get) => ({
     }));
   },
 
-  toggleTheme: () => {
-    const current = get().theme;
-    const next = current === 'light' ? 'dark' : 'light';
-    localStorage.setItem('financeme-theme', next);
-    document.documentElement.setAttribute('data-theme', next);
-    set({ theme: next });
+  setTheme: (theme) => {
+    localStorage.setItem('financeme-theme', theme);
+    set({ theme });
+  },
+
+  setAccentColor: (accentColor) => {
+    localStorage.setItem('financeme-accent', accentColor);
+    document.documentElement.setAttribute('data-accent', accentColor);
+    set({ accentColor });
   },
 
   checkSpendingGuard: (userId, limit) => {
