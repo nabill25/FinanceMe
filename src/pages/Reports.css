@@ -6,13 +6,15 @@
 
 .reports-summary-card {
   border-top: 3px solid var(--c);
+  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .reports-amount {
-  font-size: 1.8rem;
+  font-size: clamp(1.3rem, 4vw, 1.8rem);
   font-weight: 900;
   letter-spacing: -0.03em;
   margin-top: 6px;
+  word-break: break-word;
 }
 
 .reports-charts {
@@ -31,7 +33,8 @@
 .pie-legend-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  overflow: hidden;
 }
 
 .category-breakdown {
@@ -45,16 +48,20 @@
   align-items: center;
   gap: var(--space-md);
   padding: 6px 0;
+  border-bottom: 1px solid var(--border-subtle);
+  transition: background 0.15s ease;
+  border-radius: var(--radius-sm);
+  padding: 8px 4px;
 }
 
-@media (max-width: 900px) {
-  .reports-charts {
-    grid-template-columns: 1fr;
-  }
+.breakdown-row:last-child { border-bottom: none; }
+.breakdown-row:active { background: var(--border-subtle); }
 
-  .breakdown-row {
-    flex-wrap: wrap;
-  }
+/* =====================
+   RESPONSIVE
+   ===================== */
+@media (max-width: 900px) {
+  .reports-charts { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 768px) {
@@ -63,11 +70,13 @@
     gap: var(--space-md);
   }
 
-  .reports-amount {
-    font-size: 1.3rem;
+  .pie-legend {
+    grid-template-columns: 1fr;
+    gap: 6px;
   }
 
   .breakdown-row {
     flex-wrap: wrap;
+    gap: var(--space-sm);
   }
 }

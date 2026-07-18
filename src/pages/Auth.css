@@ -52,6 +52,7 @@
   position: relative;
   z-index: 10;
   box-shadow: var(--shadow-lg), 0 0 60px rgba(99, 102, 241, 0.1);
+  animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .auth-logo {
@@ -186,8 +187,10 @@
 @media (max-width: 768px) {
   .auth-page {
     padding: var(--space-md);
-    align-items: flex-start;
-    padding-top: 60px;
+    align-items: center;
+    padding-top: env(safe-area-inset-top, 24px);
+    padding-bottom: env(safe-area-inset-bottom, 24px);
+    min-height: 100dvh;
   }
 
   .auth-card {

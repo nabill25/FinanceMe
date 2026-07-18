@@ -20,7 +20,9 @@
 @media (max-width: 768px) {
   .layout-content {
     padding: var(--space-md) !important;
-    padding-top: calc(80px + var(--safe-area-top)) !important;
-    padding-bottom: calc(100px + var(--safe-area-bottom)) !important;
+    /* Top: height of mobile app bar + small gap */
+    padding-top: calc(68px + env(safe-area-inset-top, 0px)) !important;
+    /* Bottom: extra space so FAB doesn't cover content */
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 16px)) !important;
   }
 }

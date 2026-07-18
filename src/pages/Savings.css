@@ -1,4 +1,8 @@
-.savings-page { display: flex; flex-direction: column; gap: var(--space-lg); }
+.savings-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
 
 .savings-summary {
   display: flex;
@@ -7,30 +11,91 @@
   padding: var(--space-lg);
   flex-wrap: wrap;
 }
-.savings-summary-item { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 140px; }
-.savings-summary-amount { font-size: 20px; font-weight: 700; margin: 0; }
-.savings-summary-divider { width: 1px; height: 48px; background: var(--border-subtle); }
+
+.savings-summary-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 140px;
+}
+
+.savings-summary-amount {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.savings-summary-divider {
+  width: 1px;
+  height: 48px;
+  background: var(--border-subtle);
+}
 
 .savings-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
   gap: var(--space-md);
 }
 
-.pot-card { padding: var(--space-lg); display: flex; flex-direction: column; gap: 4px; }
-.pot-card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
-.pot-icon {
-  width: 52px; height: 52px; border-radius: 14px;
-  display: flex; align-items: center; justify-content: center;
+.pot-card {
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
-.pot-actions { display: flex; gap: 4px; }
+
+.pot-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+@media (hover: none) {
+  .pot-card:hover { transform: none; box-shadow: var(--shadow-md); }
+  .pot-card:active { transform: scale(0.97); transition: transform 0.1s; }
+}
+
+.pot-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.pot-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pot-actions {
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.pot-card:hover .pot-actions { opacity: 1; }
+
 .pot-name { font-size: 16px; font-weight: 700; margin: 0; }
 .pot-amounts { font-size: 14px; }
 .pot-current { font-weight: 700; font-size: 18px; }
 .pot-target { font-size: 13px; }
 .pot-pct { margin-bottom: 8px; }
-.pot-card-actions { display: flex; gap: 8px; margin-top: 4px; }
 
+.pot-card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+/* =====================
+   RESPONSIVE
+   ===================== */
 @media (max-width: 768px) {
   .savings-summary {
     flex-direction: column;
@@ -38,9 +103,7 @@
     padding: var(--space-md);
   }
 
-  .savings-summary-divider {
-    display: none;
-  }
+  .savings-summary-divider { display: none; }
 
   .savings-summary-item {
     min-width: 0;
@@ -48,18 +111,11 @@
     width: 100%;
   }
 
-  .savings-grid {
-    grid-template-columns: 1fr;
-  }
+  .savings-grid { grid-template-columns: 1fr; }
 
-  .pot-actions {
-    opacity: 1;
-  }
+  .pot-actions { opacity: 1; }
 
-  .pot-card-actions {
-    flex-direction: column;
-  }
-
+  .pot-card-actions { flex-direction: column; }
   .pot-card-actions .btn {
     width: 100%;
     justify-content: center;

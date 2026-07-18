@@ -156,7 +156,7 @@ export default function Dashboard() {
       </div>
 
       {/* Stat cards */}
-      <div className="grid-3" style={{ marginBottom: 'var(--space-lg)' }}>
+      <div className="grid-3 stagger-children" style={{ marginBottom: 'var(--space-lg)' }}>
         <StatCard
           label={`Pemasukan ${monthLabel.split(' ')[0]}`}
           value={obscureShort(formatCurrencyShort(income))}
