@@ -2,7 +2,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, CreditCard, ArrowLeftRight,
   PieChart, BarChart3, HelpCircle, LogOut, Wallet,
-  Menu, X, PiggyBank, Settings, Zap
+  Menu, X, PiggyBank, Settings, Zap, Repeat
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useState } from 'react';
@@ -12,6 +12,7 @@ const navItems = [
   { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/accounts', icon: Wallet, label: 'Akun' },
   { to: '/transactions', icon: ArrowLeftRight, label: 'Transaksi' },
+  { to: '/recurring-bills', icon: Repeat, label: 'Tagihan Rutin' },
   { to: '/budget', icon: PieChart, label: 'Anggaran' },
   { to: '/savings', icon: PiggyBank, label: 'Tabungan' },
   { to: '/goals', icon: CreditCard, label: 'Target' },

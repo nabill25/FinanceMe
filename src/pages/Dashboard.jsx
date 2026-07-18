@@ -14,6 +14,7 @@ import {
 import CashflowChart from '../components/dashboard/CashflowChart';
 import MonthlySpendingDonut from '../components/dashboard/MonthlySpendingDonut';
 import BudgetSimulatorWidget from '../components/dashboard/BudgetSimulatorWidget';
+import UpcomingBillsWidget from '../components/dashboard/UpcomingBillsWidget';
 import GoalProgressCard from '../components/dashboard/GoalProgressCard';
 import ProviderLogo from '../components/ProviderLogo';
 import './Dashboard.css';
@@ -190,8 +191,9 @@ export default function Dashboard() {
         <div style={{ flex: 1 }}>
           <GoalProgressCard />
         </div>
-        <div style={{ flex: 1 }}>
+        <div className="dashboard-budget stagger-children">
           <BudgetSimulatorWidget />
+          <UpcomingBillsWidget />
         </div>
       </div>
 

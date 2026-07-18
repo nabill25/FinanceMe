@@ -321,6 +321,57 @@ export const useFinanceStore = create((set, get) => ({
     set((s) => ({ recurringBills: s.recurringBills.filter((r) => r.id !== id) }));
   },
 
+  processRecurringBills: async (userId) => {
+    const { data: bills, error: fetchError } = await supabase
+      .from('recurring_bills')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('is_active', true);
+      
+    if (fetchError || !bills) return;
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    for (const bill of bills) {
+      const nextDue = new Date(bill.next_due);
+      nextDue.setHours(0, 0, 0, 0);
+      
+      if (nextDue <= today) {
+        // Create transaction
+        const tx = {
+          user_id: userId,
+          amount: bill.amount,
+          type: bill.type,
+          category_id: bill.category_id,
+          account_id: bill.account_id,
+          description: `Auto-pay: ${bill.name}`,
+          date: nextDue.toISOString().split('T')[0]
+        };
+        
+        try {
+          // Use internal method to add transaction (which handles balances etc)
+          await get().addTransaction(tx);
+          
+          // Calculate new next_due
+          const newNextDue = new Date(nextDue);
+          if (bill.frequency === 'daily') newNextDue.setDate(newNextDue.getDate() + 1);
+          if (bill.frequency === 'weekly') newNextDue.setDate(newNextDue.getDate() + 7);
+          if (bill.frequency === 'monthly') newNextDue.setMonth(newNextDue.getMonth() + 1);
+          if (bill.frequency === 'yearly') newNextDue.setFullYear(newNextDue.getFullYear() + 1);
+          
+          // Update bill
+          await get().updateRecurringBill(bill.id, {
+            last_paid: nextDue.toISOString().split('T')[0],
+            next_due: newNextDue.toISOString().split('T')[0]
+          });
+        } catch (e) {
+          console.error('Failed to process bill', bill.id, e);
+        }
+      }
+    }
+  },
+
   // ── COMPUTED ──────────────────────────────────────────────
   getTotalBalance: () => get().accounts.reduce((sum, a) => sum + (a.balance || 0), 0),
 

@@ -17,6 +17,7 @@ import DecisionHelper from './pages/DecisionHelper';
 import GoalsPage from './pages/Goals';
 import SavingsPage from './pages/Savings';
 import SettingsPage from './pages/Settings';
+import RecurringBills from './pages/RecurringBills';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuthStore();
@@ -91,6 +92,7 @@ export default function App() {
                   <Route path="/decision" element={<DecisionHelper />} />
                   <Route path="/goals" element={<GoalsPage />} />
                   <Route path="/settings" element={<SettingsPage />} />
+                  <Route path="/recurring-bills" element={<RecurringBills />} />
                 </Routes>
               </Layout>
             </ProtectedRoute>
