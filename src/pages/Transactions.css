@@ -275,3 +275,36 @@
   border-radius: 50%;
   box-shadow: 0 0 0 2px var(--bg-main);
 }
+
+/* Receipt AI Scanning Animation */
+.scanning-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+.scanner-line {
+  position: absolute;
+  width: 100%;
+  height: 3px;
+  background: #3b82f6;
+  box-shadow: 0 0 10px #3b82f6, 0 0 20px #3b82f6;
+  top: 0;
+  animation: scan 2s linear infinite;
+}
+.scanner-text {
+  color: white;
+  font-weight: 600;
+  font-size: 13px;
+  z-index: 2;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+  animation: pulse 1.5s infinite;
+}
+@keyframes scan {
+  0% { top: 0%; }
+  50% { top: 100%; }
+  100% { top: 0%; }
+}

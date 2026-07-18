@@ -83,15 +83,17 @@ export default function QuickAddModal() {
       reader.onloadend = async () => {
         const base64String = reader.result.split(',')[1];
         try {
-          const result = await scanReceipt(base64String, file.type);
+          const result = await scanReceipt(base64String, file.type, categories);
           
           setForm(f => ({
             ...f,
             type: result.category_type || f.type,
             amount: result.amount || f.amount,
-            description: result.description || f.description
+            description: result.description || f.description,
+            category_id: result.category_id || f.category_id,
+            date: result.date || f.date
           }));
-          toast.success('Struk berhasil diproses dan foto dilampirkan!');
+          toast.success('Struk berhasil diproses dan dikategorikan!');
         } catch (scanErr) {
           toast.error('Gagal scan AI: ' + scanErr.message);
         } finally {
@@ -175,12 +177,19 @@ export default function QuickAddModal() {
                   </button>
                   <input type="file" ref={fileInputRef} onChange={handleScan} accept="image/*" style={{ display: 'none' }} />
                 </div>
+                {/* Receipt Preview */}
                 {receiptPreview && (
-                  <div style={{ marginTop: '10px', position: 'relative', width: 'fit-content' }}>
-                    <a href={receiptPreview} target="_blank" rel="noreferrer" title="Lihat ukuran penuh">
-                      <img src={receiptPreview} alt="Bukti Transaksi" style={{ height: '80px', borderRadius: '8px', objectFit: 'cover', border: '1px solid var(--border-default)' }} />
-                    </a>
-                    <button type="button" onClick={() => { setReceiptFile(null); setReceiptPreview(null); setForm(f => ({ ...f, receipt_url: null })); }} className="btn-icon btn-ghost" style={{ position: 'absolute', top: -10, right: -10, background: 'var(--bg-elevated)', border: '1px solid var(--border-default)', width: 24, height: 24, minWidth: 24, padding: 0 }}>✕</button>
+                  <div className="receipt-preview-container" style={{ position: 'relative', overflow: 'hidden', borderRadius: '8px', marginTop: '12px' }}>
+                    <img src={receiptPreview} alt="Receipt Preview" className="receipt-preview" style={{ width: '100%', maxHeight: '200px', objectFit: 'cover' }} />
+                    {scanning && (
+                      <div className="scanning-overlay">
+                        <div className="scanner-line"></div>
+                        <div className="scanner-text">AI sedang membaca struk...</div>
+                      </div>
+                    )}
+                    {!scanning && (
+                      <button type="button" onClick={() => { setReceiptFile(null); setReceiptPreview(null); setForm(f => ({ ...f, receipt_url: null })); }} className="btn-icon btn-ghost" style={{ position: 'absolute', top: 4, right: 4, background: 'var(--bg-elevated)', border: '1px solid var(--border-default)', width: 24, height: 24, minWidth: 24, padding: 0 }}>✕</button>
+                    )}
                   </div>
                 )}
               </div>
