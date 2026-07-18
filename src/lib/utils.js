@@ -77,6 +77,12 @@ export const getCurrentMonth = () => {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 };
 
+export const getLastMonth = (currentMonthStr) => {
+  const [year, month] = currentMonthStr.split('-');
+  const d = new Date(Number(year), Number(month) - 2); // -2 because month is 1-indexed, and we want previous month
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+};
+
 export const getMonthLabel = (monthStr) => {
   const [year, month] = monthStr.split('-');
   return new Intl.DateTimeFormat('id-ID', { month: 'long', year: 'numeric' })

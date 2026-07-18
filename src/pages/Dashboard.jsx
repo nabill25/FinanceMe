@@ -9,7 +9,7 @@ import { useFinanceStore } from '../store/financeStore';
 import { useAuthStore } from '../store/authStore';
 import {
   formatCurrency, formatCurrencyShort, formatDate,
-  getCurrentMonth, getMonthLabel, CATEGORY_ICONS, ACCOUNT_TYPES, ACCOUNT_PROVIDERS
+  getCurrentMonth, getLastMonth, getMonthLabel, CATEGORY_ICONS, ACCOUNT_TYPES, ACCOUNT_PROVIDERS
 } from '../lib/utils';
 import CashflowChart from '../components/dashboard/CashflowChart';
 import MonthlySpendingDonut from '../components/dashboard/MonthlySpendingDonut';
@@ -20,7 +20,7 @@ import FinancialHealthWidget from '../components/dashboard/FinancialHealthWidget
 import ProviderLogo from '../components/ProviderLogo';
 import './Dashboard.css';
 
-const StatCard = ({ label, value, icon: Icon, color, trend, trendLabel, rawValue, showBalance }) => (
+const StatCard = ({ label, value, icon: Icon, color, trend, trendLabel, rawValue, showBalance, trendColor }) => (
   <div className="stat-card card hover-lift">
     <div className="stat-card-header">
       <span className="stat-card-label">{label}</span>
@@ -43,7 +43,7 @@ const StatCard = ({ label, value, icon: Icon, color, trend, trendLabel, rawValue
       )}
     </div>
     {trend !== undefined && (
-      <div className={`stat-card-trend ${trend >= 0 ? 'trend-up' : 'trend-down'}`}>
+      <div className={`stat-card-trend ${trendColor === 'success' ? 'trend-up' : trendColor === 'danger' ? 'trend-down' : trend >= 0 ? 'trend-up' : 'trend-down'}`}>
         {trend >= 0 ? <TrendingUp size={13} /> : <TrendingDown size={13} />}
         <span>{trendLabel}</span>
       </div>
@@ -57,6 +57,7 @@ export default function Dashboard() {
     accounts, transactions, budgets, categories, goals, showBalance, setShowBalance,
     fetchAccounts, fetchTransactions, fetchBudgets, fetchCategories, fetchGoals,
     getTotalBalance, getMonthSummary, getCategorySpending,
+    momStats, fetchMoMStats
   } = useFinanceStore();
 
   const currentMonth = getCurrentMonth();
@@ -69,6 +70,7 @@ export default function Dashboard() {
     fetchBudgets(user.id, currentMonth);
     fetchCategories(user.id);
     fetchGoals(user.id);
+    fetchMoMStats(user.id, getLastMonth(currentMonth));
   }, [user]);
 
   const totalBalance = getTotalBalance();
@@ -84,6 +86,23 @@ export default function Dashboard() {
       return { ...b, spent, pct, isOver };
     }).slice(0, 4);
   }, [budgets, categorySpending]);
+
+  let incomeTrend, incomeTrendLabel, incomeTrendColor;
+  let expenseTrend, expenseTrendLabel, expenseTrendColor;
+
+  if (momStats) {
+    const incDiff = income - momStats.lastMonthIncome;
+    const incPct = momStats.lastMonthIncome > 0 ? (incDiff / momStats.lastMonthIncome) * 100 : (income > 0 ? 100 : 0);
+    incomeTrend = incPct;
+    incomeTrendLabel = `${Math.abs(incPct).toFixed(0)}% dr bln lalu`;
+    incomeTrendColor = incPct >= 0 ? 'success' : 'danger';
+
+    const expDiff = expense - momStats.lastMonthExpense;
+    const expPct = momStats.lastMonthExpense > 0 ? (expDiff / momStats.lastMonthExpense) * 100 : (expense > 0 ? 100 : 0);
+    expenseTrend = expPct;
+    expenseTrendLabel = `${Math.abs(expPct).toFixed(0)}% dr bln lalu`;
+    expenseTrendColor = expPct <= 0 ? 'success' : 'danger';
+  }
 
   const firstName = user?.user_metadata?.full_name?.split(' ')[0] || 'Anda';
 
@@ -166,6 +185,9 @@ export default function Dashboard() {
           showBalance={showBalance}
           icon={TrendingUp}
           color="linear-gradient(135deg,#10b981,#06b6d4)"
+          trend={incomeTrend}
+          trendLabel={incomeTrendLabel}
+          trendColor={incomeTrendColor}
         />
         <StatCard
           label={`Pengeluaran ${monthLabel.split(' ')[0]}`}
@@ -174,6 +196,9 @@ export default function Dashboard() {
           showBalance={showBalance}
           icon={TrendingDown}
           color="linear-gradient(135deg,#ef4444,#f97316)"
+          trend={expenseTrend}
+          trendLabel={expenseTrendLabel}
+          trendColor={expenseTrendColor}
         />
         <StatCard
           label="Net Bulan Ini"
@@ -186,6 +211,18 @@ export default function Dashboard() {
           trend={net}
         />
       </div>
+
+      {expenseTrend < 0 && (
+        <div style={{ marginBottom: 'var(--space-lg)', padding: '12px 16px', background: 'var(--bg-elevated)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-default)', display: 'flex', alignItems: 'center', gap: '12px', animation: 'scaleIn 0.3s ease-out' }}>
+          <div style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--accent-success)', padding: '8px', borderRadius: '50%' }}>
+            <TrendingDown size={20} />
+          </div>
+          <div>
+            <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '14px' }}>Hebat! Pengeluaran Anda lebih hemat</div>
+            <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Anda berhasil menekan pengeluaran {Math.abs(expenseTrend).toFixed(0)}% lebih rendah dibandingkan bulan lalu.</div>
+          </div>
+        </div>
+      )}
 
       {/* Goal Progress & Budget Simulator Row */}
       {/* Goal Progress, Financial Health & Budget Simulator Row */}

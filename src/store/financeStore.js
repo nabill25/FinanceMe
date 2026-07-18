@@ -13,6 +13,7 @@ export const useFinanceStore = create((set, get) => ({
   spendingLimit: null,          // { id, limit_amount, period, cooldown_hours, is_active }
   // spendingGuardState handled below
   recurringBills: [],
+  momStats: null,               // { lastMonthIncome, lastMonthExpense }
   loading: {
     accounts: false,
     transactions: false,
@@ -114,6 +115,32 @@ export const useFinanceStore = create((set, get) => ({
     const { data, error } = await query;
     if (!error) set({ transactions: data });
     set((s) => ({ loading: { ...s.loading, transactions: false } }));
+  },
+
+  fetchMoMStats: async (userId, lastMonth) => {
+    const [year, month] = lastMonth.split('-');
+    const start = `${year}-${month}-01`;
+    const end = new Date(year, month, 0).toISOString().split('T')[0];
+    
+    const { data, error } = await supabase
+      .from('transactions')
+      .select('amount, type, accounts(currency)')
+      .eq('user_id', userId)
+      .gte('date', start)
+      .lte('date', end);
+      
+    if (error) return;
+
+    let lastMonthIncome = 0;
+    let lastMonthExpense = 0;
+    
+    data.forEach(t => {
+      const rate = EXCHANGE_RATES[t.accounts?.currency || 'IDR'] || 1;
+      if (t.type === 'income') lastMonthIncome += (t.amount * rate);
+      if (t.type === 'expense') lastMonthExpense += (t.amount * rate);
+    });
+
+    set({ momStats: { lastMonthIncome, lastMonthExpense } });
   },
 
   uploadReceipt: async (file) => {
