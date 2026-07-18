@@ -4,8 +4,9 @@ import {
   PieChart, BarChart3, HelpCircle, LogOut, Wallet,
   Menu, X, PiggyBank, Settings, Zap, Repeat
 } from 'lucide-react';
-import { useAuthStore } from '../../store/authStore';
 import { useState } from 'react';
+import NotificationBell from './NotificationBell';
+import { useAuthStore } from '../../store/authStore';
 import './Sidebar.css';
 
 const navItems = [
@@ -49,12 +50,16 @@ export default function Sidebar() {
         </div>
         
         {/* Logo */}
-        <div className="sidebar-logo">
-          <div className="sidebar-logo-icon">
-            <Wallet size={20} strokeWidth={2.5} />
+        <div className="sidebar-logo" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div className="sidebar-logo-icon">
+              <Wallet size={20} strokeWidth={2.5} />
+            </div>
+            <span className="sidebar-logo-text">FinanceMe</span>
           </div>
-          <span className="sidebar-logo-text">FinanceMe</span>
-          <span className="live-badge"><Zap size={10} /> Live</span>
+          <div className="desktop-only">
+            <NotificationBell />
+          </div>
         </div>
 
         {/* Navigation */}
@@ -105,7 +110,9 @@ export default function Sidebar() {
         <div className="sidebar-logo" style={{ padding: 0 }}>
           <span className="sidebar-logo-text">FinanceMe</span>
         </div>
-        <div style={{ width: 24 }}></div>
+        <div style={{ width: 40, display: 'flex', justifyContent: 'flex-end' }}>
+          <NotificationBell />
+        </div>
       </div>
 
       {/* --- OVERLAY --- */}

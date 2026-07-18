@@ -102,9 +102,31 @@ export function subscribeToRealtime(userId, store) {
       store.getState().fetchSavingsPots?.(userId);
     })
 
+    // NOTIFICATIONS
+    .on('postgres_changes', {
+      event: 'INSERT', schema: 'public', table: 'notifications',
+      filter: `user_id=eq.${userId}`,
+    }, (payload) => {
+      store.setState((s) => {
+        // Show browser notification if possible
+        if ('Notification' in window && Notification.permission === 'granted') {
+          new Notification(payload.new.title, { body: payload.new.message });
+        }
+        return { notifications: [payload.new, ...s.notifications] };
+      });
+    })
+    .on('postgres_changes', {
+      event: 'UPDATE', schema: 'public', table: 'notifications',
+      filter: `user_id=eq.${userId}`,
+    }, (payload) => {
+      store.setState((s) => ({
+        notifications: s.notifications.map(n => n.id === payload.new.id ? payload.new : n)
+      }));
+    })
+
     .subscribe((status) => {
       if (status === 'SUBSCRIBED') {
-        console.log('[Realtime] Connected — listening for live changes...');
+        console.log(`Realtime tracking active for user ${userId}`);
       }
     });
 

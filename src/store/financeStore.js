@@ -8,6 +8,7 @@ export const useFinanceStore = create((set, get) => ({
   budgets: [],
   goals: [],
   savingsPots: [],
+  notifications: [],
   spendingLimit: null,          // { id, limit_amount, period, cooldown_hours, is_active }
   spendingGuardState: null,     // { blocked: bool, unblock_at: string }
   recurringBills: [],
@@ -19,6 +20,7 @@ export const useFinanceStore = create((set, get) => ({
     goals: false,
     savingsPots: false,
     recurringBills: false,
+    notifications: false,
   },
   spendingGuardState: {
     blocked: false,
@@ -160,6 +162,31 @@ export const useFinanceStore = create((set, get) => ({
     const delta = transaction.type === 'income' ? transaction.amount : -transaction.amount;
     await supabase.rpc('update_account_balance', { account_id: transaction.account_id, delta });
     get().updateAccountBalance(transaction.account_id, delta);
+
+    // Re-check spending guard and notify if needed
+    if (state && transaction.type === 'expense') {
+      const prevTotal = state.totalSpent || 0;
+      const newTotal = prevTotal + transaction.amount;
+      const limitAmt = get().spendingLimit?.limit_amount || 1;
+      const prevPct = (prevTotal / limitAmt) * 100;
+      const newPct = (newTotal / limitAmt) * 100;
+
+      if (newPct >= 100 && prevPct < 100) {
+        get().addNotification({
+          user_id: transaction.user_id,
+          title: 'Batas Anggaran Tercapai!',
+          message: `Anda telah melebihi batas anggaran ${get().spendingLimit?.period === 'daily' ? 'harian' : 'mingguan'}. Transaksi akan diblokir sementara.`,
+          type: 'danger'
+        });
+      } else if (newPct >= 80 && prevPct < 80) {
+        get().addNotification({
+          user_id: transaction.user_id,
+          title: 'Peringatan Anggaran',
+          message: `Pengeluaran Anda sudah mencapai ${Math.round(newPct)}% dari batas yang ditentukan.`,
+          type: 'warning'
+        });
+      }
+    }
 
     // Trigger confetti 🎉
     import('canvas-confetti').then((confetti) => {
@@ -365,10 +392,78 @@ export const useFinanceStore = create((set, get) => ({
             last_paid: nextDue.toISOString().split('T')[0],
             next_due: newNextDue.toISOString().split('T')[0]
           });
+          
+          // Notify
+          get().addNotification({
+            user_id: userId,
+            title: 'Tagihan Rutin Dibayar',
+            message: `${bill.name} sebesar Rp ${bill.amount.toLocaleString('id-ID')} telah dipotong dari akun Anda.`,
+            type: 'info'
+          });
         } catch (e) {
           console.error('Failed to process bill', bill.id, e);
+          get().addNotification({
+            user_id: userId,
+            title: 'Gagal Membayar Tagihan',
+            message: `Gagal memproses pembayaran otomatis untuk ${bill.name}.`,
+            type: 'danger'
+          });
         }
       }
+    }
+  },
+
+  // ── NOTIFICATIONS ────────────────────────────────────────────────
+  fetchNotifications: async (userId) => {
+    set((s) => ({ loading: { ...s.loading, notifications: true } }));
+    const { data, error } = await supabase
+      .from('notifications')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(20);
+    if (!error) set({ notifications: data });
+    set((s) => ({ loading: { ...s.loading, notifications: false } }));
+  },
+
+  addNotification: async (notification) => {
+    // Attempt browser notification if supported and granted
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification(notification.title, { body: notification.message });
+    }
+
+    const { data, error } = await supabase
+      .from('notifications')
+      .insert([notification])
+      .select()
+      .single();
+    if (!error) {
+      set((s) => ({ notifications: [data, ...s.notifications] }));
+    }
+  },
+
+  markNotificationAsRead: async (id) => {
+    const { error } = await supabase
+      .from('notifications')
+      .update({ is_read: true })
+      .eq('id', id);
+    if (!error) {
+      set((s) => ({
+        notifications: s.notifications.map((n) => (n.id === id ? { ...n, is_read: true } : n)),
+      }));
+    }
+  },
+
+  markAllNotificationsAsRead: async (userId) => {
+    const { error } = await supabase
+      .from('notifications')
+      .update({ is_read: true })
+      .eq('user_id', userId)
+      .eq('is_read', false);
+    if (!error) {
+      set((s) => ({
+        notifications: s.notifications.map((n) => ({ ...n, is_read: true })),
+      }));
     }
   },
 
