@@ -22,6 +22,9 @@ function TransactionModal({ open, onClose, transaction, accounts, categories, on
   const [scanning, setScanning] = useState(false);
   const fileInputRef = useRef(null);
 
+  const [isSplit, setIsSplit] = useState(false);
+  const [splitDetails, setSplitDetails] = useState([]);
+
   const { uploadReceipt } = useFinanceStore();
   
   const [receiptFile, setReceiptFile] = useState(null);
@@ -38,9 +41,13 @@ function TransactionModal({ open, onClose, transaction, accounts, categories, on
         category_id: transaction.category_id,
       });
       setReceiptPreview(transaction.receipt_url || null);
+      setIsSplit(transaction.is_split || false);
+      setSplitDetails(transaction.split_details || []);
     } else {
       setForm({ ...defaultForm, account_id: accounts[0]?.id || '' });
       setReceiptPreview(null);
+      setIsSplit(false);
+      setSplitDetails([]);
     }
   }, [transaction, open, accounts]);
 
@@ -53,7 +60,12 @@ function TransactionModal({ open, onClose, transaction, accounts, categories, on
     if (!form.amount || !form.account_id || !form.category_id) return;
     setSaving(true);
     try {
-      let finalForm = { ...form, amount: Number(form.amount) };
+      let finalForm = { 
+        ...form, 
+        amount: Number(form.amount),
+        is_split: form.type === 'expense' ? isSplit : false,
+        split_details: form.type === 'expense' && isSplit ? splitDetails : null
+      };
       if (receiptFile) {
         const url = await uploadReceipt(receiptFile);
         if (url) finalForm.receipt_url = url;
@@ -194,6 +206,52 @@ function TransactionModal({ open, onClose, transaction, accounts, categories, on
                 ))}
               </div>
             </div>
+
+            {form.type === 'expense' && (
+              <div className="form-group split-bill-section" style={{ padding: '16px', background: 'var(--bg-main)', borderRadius: '12px', border: '1px solid var(--border-default)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isSplit ? '16px' : '0' }}>
+                  <div>
+                    <div style={{ fontWeight: 600, fontSize: '14px' }}>🍕 Split Bill (Patungan)</div>
+                    <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Bagikan tagihan ini dengan teman</div>
+                  </div>
+                  <label className="switch">
+                    <input type="checkbox" checked={isSplit} onChange={(e) => setIsSplit(e.target.checked)} />
+                    <span className="slider round"></span>
+                  </label>
+                </div>
+
+                {isSplit && (
+                  <div className="split-bill-details" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    {splitDetails.map((detail, idx) => (
+                      <div key={detail.id || idx} style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        <input type="text" className="form-input" placeholder="Nama" value={detail.name} style={{ flex: 1 }}
+                          onChange={e => {
+                            const newDetails = [...splitDetails];
+                            newDetails[idx].name = e.target.value;
+                            setSplitDetails(newDetails);
+                          }} required />
+                        <input type="number" className="form-input" placeholder="Nominal" value={detail.amount} style={{ width: '120px' }} min="1"
+                          onChange={e => {
+                            const newDetails = [...splitDetails];
+                            newDetails[idx].amount = Number(e.target.value);
+                            setSplitDetails(newDetails);
+                          }} required />
+                        <button type="button" className="btn-icon btn-ghost" onClick={() => {
+                          setSplitDetails(splitDetails.filter((_, i) => i !== idx));
+                        }}>
+                          <Trash2 size={16} color="var(--accent-danger)" />
+                        </button>
+                      </div>
+                    ))}
+                    <button type="button" className="btn btn-outline btn-sm" onClick={() => {
+                      setSplitDetails([...splitDetails, { id: Date.now(), name: '', amount: '', is_paid: false }]);
+                    }} style={{ alignSelf: 'flex-start', marginTop: '4px' }}>
+                      <Plus size={14} /> Tambah Teman
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="form-group">
               <label className="form-label">Catatan (opsional)</label>
@@ -430,6 +488,7 @@ export default function TransactionsPage() {
                   <span className="tx-item-desc">
                     {tx.description || tx.categories?.name || 'Transaksi'}
                     {tx.receipt_url && <span title="Ada Lampiran Bukti" style={{ marginLeft: 6, color: 'var(--text-muted)' }}>📎</span>}
+                    {tx.is_split && <span title="Patungan (Split Bill)" style={{ marginLeft: 6, fontSize: '12px' }}>🍕</span>}
                   </span>
                   <span className="tx-item-meta">
                     <span className="badge" style={{ background: (tx.categories?.color || '#6b7280') + '22', color: tx.categories?.color || 'var(--text-secondary)', fontSize: '11px' }}>
@@ -437,8 +496,19 @@ export default function TransactionsPage() {
                     </span>
                     · {tx.accounts?.name} · {formatDate(tx.date)}
                   </span>
+                  {tx.is_split && tx.split_details?.length > 0 && (
+                    <div style={{ marginTop: '8px', padding: '8px 12px', background: 'var(--bg-main)', borderRadius: '8px', fontSize: '12px', border: '1px solid var(--border-default)' }}>
+                      <div style={{ fontWeight: 600, marginBottom: '4px', color: 'var(--text-secondary)' }}>Detail Patungan:</div>
+                      {tx.split_details.map((sd, i) => (
+                        <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                          <span>{sd.name}</span>
+                          <span style={{ fontWeight: 600 }}>{formatCurrency(sd.amount)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <div className="tx-item-right" style={{ flexDirection: 'row', alignItems: 'center', gap: '16px' }}>
+                <div className="tx-item-right" style={{ flexDirection: 'row', alignItems: 'flex-start', gap: '16px' }}>
                   <span className={`tx-item-amount ${tx.type === 'income' ? 'amount-income' : 'amount-expense'}`}>
                     {tx.type === 'income' ? '+' : '-'}{formatCurrency(tx.amount, tx.accounts?.currency)}
                   </span>
