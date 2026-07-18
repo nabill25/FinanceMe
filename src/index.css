@@ -419,3 +419,63 @@ h1, h2, h3, h4, h5, h6 {
 .sidebar-nav a:hover {
   transform: translateX(4px);
 }
+
+/* Tabs Component */
+.tabs {
+  display: flex;
+  background-color: var(--surface-default);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: 4px;
+  gap: 4px;
+}
+
+.tab {
+  flex: 1;
+  padding: 8px 16px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  border-radius: calc(var(--radius-md) - 4px);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.tab:hover {
+  color: var(--text-primary);
+}
+
+.tab.active {
+  background-color: var(--primary-main);
+  color: white;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Grid Layouts */
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-md);
+}
+
+@media (max-width: 768px) {
+  .grid-3 {
+    grid-template-columns: none;
+    grid-auto-columns: minmax(130px, 1fr);
+    grid-auto-flow: column;
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+  
+  .grid-3::-webkit-scrollbar {
+    height: 4px;
+  }
+  
+  .grid-3::-webkit-scrollbar-thumb {
+    background-color: var(--border-default);
+    border-radius: 4px;
+  }
+}

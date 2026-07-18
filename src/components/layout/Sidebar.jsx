@@ -39,8 +39,14 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* --- DESKTOP SIDEBAR --- */}
-      <aside className="sidebar desktop-only">
+      {/* --- SIDEBAR --- */}
+      <aside className={`sidebar ${mobileOpen ? 'mobile-open' : 'desktop-only'}`}>
+        <div className="sidebar-header mobile-only" style={{ display: 'flex', justifyContent: 'flex-end', paddingBottom: '0' }}>
+          <button className="btn btn-icon btn-ghost" onClick={() => setMobileOpen(false)}>
+            <X size={24} />
+          </button>
+        </div>
+        
         {/* Logo */}
         <div className="sidebar-logo">
           <div className="sidebar-logo-icon">
@@ -59,6 +65,7 @@ export default function Sidebar() {
                 key={to}
                 to={to}
                 end={to === '/'}
+                onClick={() => setMobileOpen(false)}
                 className={({ isActive }) =>
                   `sidebar-nav-item ${isActive ? 'active' : ''}`
                 }
@@ -89,69 +96,20 @@ export default function Sidebar() {
         </div>
       </aside>
 
-      {/* --- MOBILE BOTTOM NAV --- */}
-      <nav className="bottom-nav mobile-only">
-        {mobileMainItems.map(({ to, icon: Icon, label }) => (
-          <NavLink
-            key={to}
-            to={to}
-            end={to === '/'}
-            className={({ isActive }) => `bottom-nav-item ${isActive ? 'active' : ''}`}
-            onClick={() => setMobileOpen(false)}
-          >
-            <Icon size={20} />
-            <span>{label}</span>
-          </NavLink>
-        ))}
-        <button 
-          className={`bottom-nav-item ${mobileOpen ? 'active' : ''}`} 
-          onClick={() => setMobileOpen(!mobileOpen)}
-        >
-          <Menu size={20} />
-          <span>Lainnya</span>
+      {/* --- MOBILE TOP APP BAR --- */}
+      <div className="mobile-app-bar mobile-only">
+        <button className="hamburger-btn" onClick={() => setMobileOpen(true)}>
+          <Menu size={24} />
         </button>
-      </nav>
-
-      {/* --- MOBILE MORE MENU (BOTTOM SHEET) --- */}
-      {mobileOpen && (
-        <div className="mobile-only">
-          <div className="bottom-sheet-overlay" onClick={() => setMobileOpen(false)} />
-          <div className="bottom-sheet animate-slide-up">
-            <div className="bottom-sheet-header">
-              <div className="bottom-sheet-handle"></div>
-              <div className="sidebar-user" style={{ marginTop: 0, background: 'transparent', border: 'none', padding: '0 0 16px 0', borderBottom: '1px solid var(--border-subtle)', borderRadius: 0 }}>
-                <div className="sidebar-user-avatar">{initials}</div>
-                <div className="sidebar-user-info">
-                  <span className="sidebar-user-name">{user?.user_metadata?.full_name || 'Pengguna'}</span>
-                  <span className="sidebar-user-email">{user?.email}</span>
-                </div>
-              </div>
-            </div>
-            <div className="bottom-sheet-content">
-              {mobileMoreItems.map(({ to, icon: Icon, label }) => (
-                <NavLink
-                  key={to}
-                  to={to}
-                  end={to === '/'}
-                  className={({ isActive }) => `sidebar-nav-item ${isActive ? 'active' : ''}`}
-                  onClick={() => setMobileOpen(false)}
-                  style={{ padding: '14px 16px', fontSize: '15px' }}
-                >
-                  <Icon size={20} />
-                  <span>{label}</span>
-                </NavLink>
-              ))}
-              <button
-                className="sidebar-nav-item"
-                onClick={handleSignOut}
-                style={{ padding: '14px 16px', fontSize: '15px', color: 'var(--accent-danger)' }}
-              >
-                <LogOut size={20} />
-                <span>Keluar</span>
-              </button>
-            </div>
-          </div>
+        <div className="sidebar-logo" style={{ padding: 0 }}>
+          <span className="sidebar-logo-text">FinanceMe</span>
         </div>
+        <div style={{ width: 24 }}></div>
+      </div>
+
+      {/* --- OVERLAY --- */}
+      {mobileOpen && (
+        <div className="sidebar-overlay mobile-only" onClick={() => setMobileOpen(false)} />
       )}
     </>
   );

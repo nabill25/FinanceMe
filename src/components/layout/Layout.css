@@ -20,7 +20,7 @@
 @media (max-width: 768px) {
   .layout-content {
     padding: var(--space-md);
-    padding-top: calc(16px + var(--safe-area-top));
-    padding-bottom: calc(var(--space-md) + var(--bottom-nav-height));
+    padding-top: calc(76px + var(--safe-area-top)); /* 60px app bar + 16px */
+    padding-bottom: calc(var(--space-md) + var(--safe-area-bottom));
   }
 }

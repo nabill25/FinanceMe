@@ -8,16 +8,12 @@ export const formatCurrency = (amount) => {
   }).format(amount);
 };
 
-// Short currency formatter
 export const formatCurrencyShort = (amount) => {
   if (Math.abs(amount) >= 1_000_000_000) {
-    return `Rp ${(amount / 1_000_000_000).toFixed(1)}M`;
+    return `Rp ${(amount / 1_000_000_000).toFixed(1)} M`;
   }
   if (Math.abs(amount) >= 1_000_000) {
-    return `Rp ${(amount / 1_000_000).toFixed(1)}jt`;
-  }
-  if (Math.abs(amount) >= 1_000) {
-    return `Rp ${(amount / 1_000).toFixed(0)}rb`;
+    return `Rp ${(amount / 1_000_000).toFixed(1)} Jt`;
   }
   return formatCurrency(amount);
 };

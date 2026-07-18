@@ -123,7 +123,12 @@ export const useFinanceStore = create((set, get) => ({
       .from('receipts')
       .upload(filePath, file);
 
-    if (uploadError) throw uploadError;
+    if (uploadError) {
+      if (uploadError.message.includes('Bucket not found')) {
+        throw new Error('Gagal menyimpan: Bucket "receipts" belum ada di Supabase Anda. Silakan jalankan script SQL yang diberikan untuk membuatnya.');
+      }
+      throw uploadError;
+    }
 
     const { data } = supabase.storage.from('receipts').getPublicUrl(filePath);
     return data.publicUrl;

@@ -12,6 +12,9 @@ import {
   getCurrentMonth, getMonthLabel, CATEGORY_ICONS, ACCOUNT_TYPES, ACCOUNT_PROVIDERS
 } from '../lib/utils';
 import CashflowChart from '../components/dashboard/CashflowChart';
+import MonthlySpendingDonut from '../components/dashboard/MonthlySpendingDonut';
+import BudgetSimulatorWidget from '../components/dashboard/BudgetSimulatorWidget';
+import GoalProgressCard from '../components/dashboard/GoalProgressCard';
 import ProviderLogo from '../components/ProviderLogo';
 import './Dashboard.css';
 
@@ -49,8 +52,8 @@ const StatCard = ({ label, value, icon: Icon, color, trend, trendLabel, rawValue
 export default function Dashboard() {
   const { user } = useAuthStore();
   const {
-    accounts, transactions, budgets, categories, showBalance, setShowBalance,
-    fetchAccounts, fetchTransactions, fetchBudgets, fetchCategories,
+    accounts, transactions, budgets, categories, goals, showBalance, setShowBalance,
+    fetchAccounts, fetchTransactions, fetchBudgets, fetchCategories, fetchGoals,
     getTotalBalance, getMonthSummary, getCategorySpending,
   } = useFinanceStore();
 
@@ -63,6 +66,7 @@ export default function Dashboard() {
     fetchTransactions(user.id, { month: currentMonth });
     fetchBudgets(user.id, currentMonth);
     fetchCategories(user.id);
+    fetchGoals(user.id);
   }, [user]);
 
   const totalBalance = getTotalBalance();
@@ -185,13 +189,28 @@ export default function Dashboard() {
         />
       </div>
 
-      {/* Chart + Budget row */}
-      <div className="dashboard-row">
-        <div className="dashboard-chart">
+      {/* Goal Progress & Budget Simulator Row */}
+      <div className="dashboard-row" style={{ marginBottom: 'var(--space-lg)' }}>
+        <div style={{ flex: 1 }}>
+          <GoalProgressCard />
+        </div>
+        <div style={{ flex: 1 }}>
+          <BudgetSimulatorWidget />
+        </div>
+      </div>
+
+      {/* Chart & Donut Row */}
+      <div className="dashboard-row" style={{ marginBottom: 'var(--space-lg)' }}>
+        <div className="dashboard-chart" style={{ flex: 2 }}>
           <CashflowChart days={30} />
         </div>
+        <div style={{ flex: 1, minWidth: '300px' }}>
+          <MonthlySpendingDonut />
+        </div>
+      </div>
 
-        {/* Budget summary */}
+      {/* Budget & Transactions Row */}
+      <div className="dashboard-row">
         <div className="card dashboard-budget">
           <div className="flex items-center justify-between" style={{ marginBottom: '16px' }}>
             <h3 style={{ fontSize: '15px' }}>Anggaran Bulan Ini</h3>
@@ -253,8 +272,6 @@ export default function Dashboard() {
             </div>
           )}
         </div>
-      </div>
-
       {/* Recent transactions */}
       <div className="card">
         <div className="flex items-center justify-between" style={{ marginBottom: '16px' }}>
@@ -294,5 +311,6 @@ export default function Dashboard() {
         )}
       </div>
     </div>
+  </div>
   );
 }
