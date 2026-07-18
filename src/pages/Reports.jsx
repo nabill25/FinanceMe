@@ -10,6 +10,7 @@ import {
   formatCurrency, formatCurrencyShort, formatCurrencyChart, getCurrentMonth, getMonthLabel,
   CATEGORY_ICONS
 } from '../lib/utils';
+import { exportReportToPDF } from '../lib/exportUtils';
 import './Reports.css';
 
 const CustomPieTooltip = ({ active, payload }) => {
@@ -92,6 +93,12 @@ export default function ReportsPage() {
             <ChevronRight size={16} />
           </button>
         </div>
+        <button 
+          className="btn btn-primary" 
+          onClick={() => exportReportToPDF({ income, expense, net: income - expense }, categorySpending, getMonthLabel(currentMonth))}
+        >
+          Download PDF
+        </button>
       </div>
 
       {/* Income vs Expense summary */}

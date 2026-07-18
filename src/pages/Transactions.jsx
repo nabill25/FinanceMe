@@ -7,6 +7,7 @@ import {
   CATEGORY_ICONS, formatDateInput
 } from '../lib/utils';
 import { scanReceipt } from '../lib/gemini';
+import { exportTransactionsToPDF, exportTransactionsToExcel } from '../lib/exportUtils';
 import { toast } from 'sonner';
 import './Transactions.css';
 
@@ -275,9 +276,17 @@ export default function TransactionsPage() {
           <h1>Transaksi</h1>
           <p className="text-secondary text-sm">Riwayat pemasukan & pengeluaran</p>
         </div>
-        <button className="btn btn-primary" onClick={() => { setEditTx(null); setModalOpen(true); }}>
-          <Plus size={16} /> Catat Transaksi
-        </button>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          <button className="btn btn-outline" onClick={() => exportTransactionsToPDF(displayed, filters.month)}>
+            PDF
+          </button>
+          <button className="btn btn-outline" onClick={() => exportTransactionsToExcel(displayed, filters.month)}>
+            Excel
+          </button>
+          <button className="btn btn-primary" onClick={() => { setEditTx(null); setModalOpen(true); }}>
+            <Plus size={16} /> Catat
+          </button>
+        </div>
       </div>
 
       {/* Spending Guard Banner */}
