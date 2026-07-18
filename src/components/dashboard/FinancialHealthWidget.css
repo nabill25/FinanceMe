@@ -1,0 +1,76 @@
+.health-widget {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-md);
+  gap: var(--space-md);
+}
+
+.health-header h3 {
+  margin: 0;
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.health-body {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+}
+
+.health-gauge {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  flex-shrink: 0;
+}
+
+.health-score-text {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.health-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.health-status-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.health-message {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+@media (max-width: 480px) {
+  .health-body {
+    flex-direction: row;
+    gap: var(--space-md);
+  }
+  .health-gauge {
+    width: 80px;
+    height: 80px;
+  }
+  .health-gauge svg {
+    width: 80px;
+    height: 80px;
+  }
+  .health-score-text {
+    font-size: 22px;
+  }
+}
