@@ -1,19 +1,30 @@
 .advisor-page {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - var(--safe-area-top) - var(--bottom-nav-height));
-  position: relative;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--bg-main);
+  z-index: 99; /* Pastikan di atas App Bar mobile */
   overflow: hidden;
 }
 
 @media (min-width: 769px) {
   .advisor-page {
-    height: 100vh;
+    position: relative;
+    z-index: 1;
+    height: calc(100vh - (var(--space-xl) * 2));
+    border-radius: 16px;
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-md);
   }
 }
 
 .advisor-header {
   padding: var(--space-md) var(--space-lg);
+  padding-top: calc(var(--space-md) + env(safe-area-inset-top, 0px));
   background: var(--bg-elevated);
   border-bottom: 1px solid var(--border-subtle);
   display: flex;

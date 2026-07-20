@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Trash2 } from 'lucide-react';
+import { Send, Bot, User, Trash2, ArrowLeft } from 'lucide-react';
 import { useFinanceStore } from '../store/financeStore';
 import { useAuthStore } from '../store/authStore';
 import { askFinancialAdvisor } from '../lib/gemini';
@@ -7,6 +7,7 @@ import { formatCurrency } from '../lib/utils';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 import './AiAdvisor.css';
 
 // Configure marked to not sanitize, we'll use DOMPurify
@@ -18,6 +19,7 @@ marked.setOptions({
 export default function AiAdvisor() {
   const { user } = useAuthStore();
   const { accounts, transactions } = useFinanceStore();
+  const navigate = useNavigate();
   
   const [messages, setMessages] = useState(() => {
     const saved = localStorage.getItem('financeme-advisor-chat');
@@ -111,6 +113,14 @@ export default function AiAdvisor() {
   return (
     <div className="advisor-page animate-fade-in">
       <div className="advisor-header">
+        <button 
+          className="btn btn-icon btn-ghost" 
+          onClick={() => navigate(-1)} 
+          style={{ marginRight: '8px' }}
+          title="Kembali"
+        >
+          <ArrowLeft size={20} />
+        </button>
         <div className="advisor-avatar">
           <Bot size={24} />
         </div>
