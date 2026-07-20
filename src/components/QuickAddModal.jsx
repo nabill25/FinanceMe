@@ -5,11 +5,13 @@ import { useAuthStore } from '../store/authStore';
 import { toast } from 'sonner';
 import { scanReceipt } from '../lib/gemini';
 import { getCurrentMonth, formatCurrency } from '../lib/utils';
+import { useLocation } from 'react-router-dom';
 import './QuickAddModal.css';
 
 export default function QuickAddModal() {
   const { user } = useAuthStore();
   const { addTransaction, accounts, categories, spendingLimit, spendingGuardState, budgets, getCategorySpending, uploadReceipt } = useFinanceStore();
+  const location = useLocation();
   const [open, setOpen] = useState(false);
   const [scanning, setScanning] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -123,11 +125,17 @@ export default function QuickAddModal() {
     }
   }
 
+  // Sembunyikan FAB di rute tertentu yang tidak membutuhkan tambah transaksi cepat
+  const hiddenRoutes = ['/advisor', '/decision', '/settings', '/reports'];
+  const showFab = !hiddenRoutes.includes(location.pathname);
+
   return (
     <>
-      <button className="quick-add-fab" onClick={() => setOpen(true)}>
-        <Plus size={24} />
-      </button>
+      {showFab && (
+        <button className="quick-add-fab" onClick={() => setOpen(true)}>
+          <Plus size={24} />
+        </button>
+      )}
 
       {open && (
         <div className="modal-overlay" onClick={() => setOpen(false)}>
