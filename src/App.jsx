@@ -19,6 +19,7 @@ import SavingsPage from './pages/Savings';
 import SettingsPage from './pages/Settings';
 import RecurringBills from './pages/RecurringBills';
 import CalendarView from './pages/CalendarView';
+import AiAdvisor from './pages/AiAdvisor';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuthStore();
@@ -119,6 +120,7 @@ export default function App() {
                   <Route path="/settings" element={<SettingsPage />} />
                   <Route path="/recurring-bills" element={<RecurringBills />} />
                   <Route path="/calendar" element={<CalendarView />} />
+                  <Route path="/advisor" element={<AiAdvisor />} />
                 </Routes>
               </Layout>
             </ProtectedRoute>

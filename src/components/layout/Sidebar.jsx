@@ -3,7 +3,7 @@ import {
   LayoutDashboard, CreditCard, ArrowLeftRight,
   PieChart, BarChart3, HelpCircle, LogOut, Wallet,
   Menu, X, PiggyBank, Settings, Zap, Repeat, CalendarDays,
-  Sun, Moon
+  Sun, Moon, Bot
 } from 'lucide-react';
 import { useState } from 'react';
 import NotificationBell from './NotificationBell';
@@ -21,6 +21,7 @@ const navItems = [
   { to: '/savings', icon: PiggyBank, label: 'Tabungan' },
   { to: '/goals', icon: CreditCard, label: 'Target' },
   { to: '/reports', icon: BarChart3, label: 'Laporan' },
+  { to: '/advisor', icon: Bot, label: 'Asisten AI' },
   { to: '/decision', icon: HelpCircle, label: 'Cek Pembelian' },
   { to: '/settings', icon: Settings, label: 'Pengaturan' },
 ];
