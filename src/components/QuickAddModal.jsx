@@ -152,7 +152,7 @@ export default function QuickAddModal() {
   }
 
   // Sembunyikan FAB di rute tertentu yang tidak membutuhkan tambah transaksi cepat
-  const hiddenRoutes = ['/advisor', '/decision', '/settings', '/reports'];
+  const hiddenRoutes = ['/advisor', '/decision', '/settings', '/reports', '/forecast'];
   const showFab = !hiddenRoutes.includes(location.pathname);
 
   return (

@@ -144,6 +144,14 @@
   -webkit-overflow-scrolling: touch;
 }
 
+button {
+  transition: transform 0.15s ease, background-color 0.2s ease, opacity 0.2s ease;
+}
+
+button:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
 body {
   font-family: 'Inter', sans-serif;
   background-color: var(--bg-main);

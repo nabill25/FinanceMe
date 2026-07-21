@@ -5,7 +5,7 @@
   top: 0;
   left: 0;
   right: 0;
-  bottom: 0;
+  height: 100dvh;
   background: var(--bg-main);
   z-index: 99; /* Pastikan di atas App Bar mobile */
   overflow: hidden;
@@ -13,7 +13,10 @@
 
 @media (min-width: 769px) {
   .advisor-page {
-    position: relative;
+    position: sticky;
+    top: var(--space-xl);
+    left: auto;
+    right: auto;
     z-index: 1;
     height: calc(100vh - (var(--space-xl) * 2));
     border-radius: 16px;
@@ -158,7 +161,9 @@
 
 .advisor-input-area {
   padding: var(--space-md);
-  background: var(--bg-elevated);
+  background: var(--bg-appbar, rgba(255, 255, 255, 0.92));
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border-top: 1px solid var(--border-subtle);
   display: flex;
   gap: 12px;
