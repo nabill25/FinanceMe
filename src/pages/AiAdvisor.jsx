@@ -19,7 +19,7 @@ marked.setOptions({
 
 export default function AiAdvisor() {
   const { user } = useAuthStore();
-  const { accounts, transactions } = useFinanceStore();
+  const { accounts, transactions, aiPersonality } = useFinanceStore();
   const { t, language } = useLanguageStore();
   const navigate = useNavigate();
   
@@ -104,7 +104,7 @@ export default function AiAdvisor() {
         m.text !== 'Halo! Saya Asisten AI FinanceMe. Ada yang bisa saya bantu terkait keuangan Anda hari ini?'
       );
       
-      const aiResponse = await askFinancialAdvisor(historyToSend, userMsg, contextData, language);
+      const aiResponse = await askFinancialAdvisor(historyToSend, userMsg, contextData, language, aiPersonality);
       
       setMessages([...newMessages, { role: 'model', text: aiResponse }]);
     } catch (error) {
@@ -113,6 +113,18 @@ export default function AiAdvisor() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const personalityIcons = {
+    professional: '👔',
+    roast: '🔥',
+    zen: '🧘'
+  };
+
+  const personalityLabels = {
+    professional: t('settings.aiPro') || 'Profesional',
+    roast: 'Roast Mode',
+    zen: 'Zen Mode'
   };
 
   return (
@@ -126,11 +138,16 @@ export default function AiAdvisor() {
         >
           <ArrowLeft size={20} />
         </button>
-        <div className="advisor-avatar">
+        <div className="advisor-avatar" style={{ backgroundColor: aiPersonality === 'roast' ? '#ef4444' : aiPersonality === 'zen' ? '#10b981' : '#6366f1' }}>
           <Bot size={24} color="white" />
         </div>
         <div className="advisor-title-area">
-          <h1 className="advisor-title">{t('advisor.title')}</h1>
+          <h1 className="advisor-title">
+            {t('advisor.title')}
+            <span style={{ fontSize: '14px', marginLeft: '8px' }} title={`Mode: ${personalityLabels[aiPersonality]}`}>
+              {personalityIcons[aiPersonality]}
+            </span>
+          </h1>
           <p className="advisor-subtitle">{t('advisor.subtitle')}</p>
         </div>
         <div style={{ marginLeft: 'auto' }}>

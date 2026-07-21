@@ -43,7 +43,7 @@ function Countdown({ targetDate }) {
 
 export default function SettingsPage() {
   const { user } = useAuthStore();
-  const { spendingLimit, spendingGuardState, fetchSpendingLimit, upsertSpendingLimit, checkSpendingGuard } = useFinanceStore();
+  const { spendingLimit, spendingGuardState, fetchSpendingLimit, upsertSpendingLimit, checkSpendingGuard, aiPersonality, setAiPersonality } = useFinanceStore();
   const { t, language, setLanguage } = useLanguageStore();
 
   const [form, setForm] = useState({
@@ -266,6 +266,28 @@ export default function SettingsPage() {
                 />
               ))}
             </div>
+          </div>
+        </div>
+
+        {/* AI Personality Selection */}
+        <div className="settings-section" style={{ marginTop: '32px' }}>
+          <div className="settings-section-header">
+            <h2>🧠 {t('settings.aiPersonality') || 'Kepribadian Asisten AI'}</h2>
+          </div>
+          <p className="text-sm text-muted" style={{ marginBottom: '20px' }}>
+            {t('settings.aiPersonalityDesc') || 'Pilih gaya bahasa yang digunakan oleh Asisten AI Gemini saat merespons pertanyaan Anda.'}
+          </p>
+          <div className="form-group" style={{ maxWidth: '300px' }}>
+            <label className="form-label">{t('settings.selectAiPersonality') || 'Pilih Kepribadian'}</label>
+            <select 
+              className="form-select" 
+              value={aiPersonality} 
+              onChange={e => setAiPersonality(e.target.value)}
+            >
+              <option value="professional">👔 {t('settings.aiPro') || 'Profesional & Ramah (Default)'}</option>
+              <option value="roast">🔥 {t('settings.aiRoast') || 'Roast Mode (Galak & Sarkas)'}</option>
+              <option value="zen">🧘 {t('settings.aiZen') || 'Zen Mode (Suportif & Sabar)'}</option>
+            </select>
           </div>
         </div>
 
