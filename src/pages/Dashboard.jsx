@@ -30,19 +30,15 @@ const StatCard = ({ label, value, icon: Icon, color, trend, trendLabel, rawValue
         <Icon size={18} color="white" />
       </div>
     </div>
-    <div className="stat-card-value" style={{ transition: 'all 0.3s' }}>
-      {showBalance ? (
-        <CountUp
-          start={0}
-          end={rawValue}
-          duration={1.5}
-          separator="."
-          prefix="Rp "
-          formattingFn={formatCurrencyShort}
-        />
-      ) : (
-        value
-      )}
+    <div className="stat-card-value amount-text" style={{ transition: 'all 0.3s' }}>
+      <CountUp
+        start={0}
+        end={rawValue}
+        duration={1.5}
+        separator="."
+        prefix="Rp "
+        formattingFn={formatCurrencyShort}
+      />
     </div>
     {trend !== undefined && (
       <div className={`stat-card-trend ${trendColor === 'success' ? 'trend-up' : trendColor === 'danger' ? 'trend-down' : trend >= 0 ? 'trend-up' : 'trend-down'}`}>
@@ -166,9 +162,7 @@ export default function Dashboard() {
       <div className="grid-3 stagger-children" style={{ marginBottom: 'var(--space-lg)' }}>
         <StatCard
           label={`Pemasukan ${monthLabel.split(' ')[0]}`}
-          value={obscureShort(formatCurrencyShort(income))}
           rawValue={income}
-          showBalance={showBalance}
           icon={TrendingUp}
           color="linear-gradient(135deg,#10b981,#06b6d4)"
           trend={incomeTrend}
@@ -177,9 +171,7 @@ export default function Dashboard() {
         />
         <StatCard
           label={`Pengeluaran ${monthLabel.split(' ')[0]}`}
-          value={obscureShort(formatCurrencyShort(expense))}
           rawValue={expense}
-          showBalance={showBalance}
           icon={TrendingDown}
           color="linear-gradient(135deg,#ef4444,#f97316)"
           trend={expenseTrend}
@@ -188,9 +180,7 @@ export default function Dashboard() {
         />
         <StatCard
           label="Net Bulan Ini"
-          value={obscureShort(formatCurrencyShort(Math.abs(net)))}
           rawValue={Math.abs(net)}
-          showBalance={showBalance}
           icon={Wallet}
           color={net >= 0 ? 'linear-gradient(135deg,#6366f1,#8b5cf6)' : 'linear-gradient(135deg,#f59e0b,#f97316)'}
           trendLabel={net >= 0 ? 'Surplus' : 'Defisit'}
