@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Camera, Plus, Trash2, Users, Loader2, Share2, Check, ArrowLeft, Scissors } from 'lucide-react';
+import { Camera, Plus, Trash2, Users, Loader2, Share2, Check, ArrowLeft, Scissors, Sparkles, ScanLine } from 'lucide-react';
 import { useFinanceStore } from '../store/financeStore';
 import { useLanguageStore } from '../store/languageStore';
 import { scanReceipt } from '../lib/gemini';
@@ -272,9 +272,12 @@ export default function SplitBill() {
           </div>
 
           {scanning && (
-            <div className="scanning-indicator">
-              <Loader2 className="spinner-icon" size={24} />
-              <p>{t('splitBill.scanning') || 'AI Sedang Membaca...'}</p>
+            <div className="scanning-indicator-ai">
+              <div className="ai-scanner-pulse">
+                <Sparkles className="sparkle-icon" size={32} />
+              </div>
+              <p className="ai-loading-text">{t('splitBill.scanning') || 'Gemini AI sedang membaca struk...'}</p>
+              <span className="text-xs text-muted">Mendeteksi pesanan & harga</span>
             </div>
           )}
 

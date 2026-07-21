@@ -73,32 +73,80 @@
   gap: 8px;
 }
 
-.scanning-indicator {
+.scanning-indicator-ai {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 48px;
+  padding: 48px 24px;
   gap: 16px;
+  background: linear-gradient(180deg, rgba(99, 102, 241, 0.05) 0%, transparent 100%);
+  border-radius: 16px;
+  margin: 16px 0;
+}
+
+.ai-scanner-pulse {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(99, 102, 241, 0.1);
+}
+
+.ai-scanner-pulse::before,
+.ai-scanner-pulse::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 50%;
+  border: 2px solid var(--accent-color);
+  animation: ripple 2s linear infinite;
+  opacity: 0;
+}
+
+.ai-scanner-pulse::after {
+  animation-delay: 1s;
+}
+
+.sparkle-icon {
   color: var(--accent-color);
+  animation: float-sparkle 2s ease-in-out infinite, pulse-color 2s alternate infinite;
 }
 
-.bill-item.clickable {
-  cursor: pointer;
-  transition: background-color 0.2s, transform 0.1s;
+.ai-loading-text {
+  font-weight: 600;
+  font-size: 16px;
+  background: linear-gradient(90deg, var(--accent-color), #8b5cf6, var(--accent-color));
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradient-shift 3s linear infinite;
+  margin: 0;
 }
 
-.bill-item.clickable:hover {
-  background-color: var(--bg-hover);
+@keyframes ripple {
+  0% { transform: scale(0.8); opacity: 0.8; border-width: 3px; }
+  100% { transform: scale(1.5); opacity: 0; border-width: 1px; }
 }
 
-.bill-item.clickable:active {
-  transform: scale(0.99);
+@keyframes float-sparkle {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-8px) scale(1.1); }
 }
 
-.scanning-indicator p {
-  font-weight: 500;
-  color: var(--text-primary);
+@keyframes pulse-color {
+  0% { color: var(--accent-color); filter: drop-shadow(0 0 4px var(--accent-color)); }
+  100% { color: #8b5cf6; filter: drop-shadow(0 0 12px #8b5cf6); }
+}
+
+@keyframes gradient-shift {
+  to { background-position: 200% center; }
 }
 
 .items-list {
