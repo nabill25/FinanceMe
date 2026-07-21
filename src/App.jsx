@@ -21,6 +21,7 @@ import RecurringBills from './pages/RecurringBills';
 import CalendarView from './pages/CalendarView';
 import AiAdvisor from './pages/AiAdvisor';
 import Forecast from './pages/Forecast';
+import SplitBill from './pages/SplitBill';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuthStore();
@@ -123,6 +124,7 @@ export default function App() {
                   <Route path="/calendar" element={<CalendarView />} />
                   <Route path="/advisor" element={<AiAdvisor />} />
                   <Route path="/forecast" element={<Forecast />} />
+                  <Route path="/split-bill" element={<SplitBill />} />
                 </Routes>
               </Layout>
             </ProtectedRoute>

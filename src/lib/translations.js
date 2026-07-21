@@ -10,9 +10,35 @@ export const translations = {
       forecast: 'Proyeksi',
       advisor: 'Asisten AI',
       decision: 'Cek Pembelian',
+      splitBill: 'Patungan',
       settings: 'Pengaturan',
       logout: 'Keluar',
-      login: 'Masuk'
+      login: 'Masuk',
+      recurring: 'Tagihan Rutin',
+      calendar: 'Kalender'
+    },
+    // Split Bill
+    splitBill: {
+      title: 'Patungan Cerdas',
+      subtitle: 'Foto struk, bagi tagihan otomatis',
+      upload: 'Unggah Struk (AI)',
+      scanning: 'AI Sedang Membaca...',
+      addFriend: 'Tambah Teman',
+      friendName: 'Ketik nama...',
+      friends: 'Teman',
+      items: 'Rincian Pesanan',
+      tax: 'Pajak & Layanan',
+      taxProportional: 'Pajak (Proporsional)',
+      subtotal: 'Subtotal',
+      totalBill: 'Total Struk',
+      totalAllocated: 'Total Dibagikan',
+      unallocated: 'Belum Dibagikan',
+      assignTo: 'Siapa yang pesan?',
+      share: 'Kirim (WA)',
+      copyText: 'Salin Teks',
+      copied: 'Teks disalin!',
+      empty: 'Belum ada data. Silakan unggah struk terlebih dahulu.',
+      shareMsg: 'Halo {name}! 👋\\nIni rincian patungan kita:\\n\\n{items}\\n- Pajak & Servis: {tax}\\n\\n*Total kamu: {total}*\\n\\nTransfer ke: {paymentInfo}\\nTerima kasih!'
     },
     // Common
     common: {
@@ -62,6 +88,9 @@ export const translations = {
       aiPro: 'Profesional & Ramah (Default)',
       aiRoast: 'Roast Mode (Galak & Sarkas)',
       aiZen: 'Zen Mode (Suportif & Sabar)',
+      paymentInfoTitle: 'Informasi Pembayaran',
+      paymentInfoDesc: 'Informasi rekening yang akan otomatis disisipkan saat mengirim pesan tagihan (Split Bill).',
+      paymentInfoLabel: 'Nomor Rekening / E-Wallet',
       blocked: 'Transaksi Diblokir Sementara',
       blockedDesc: 'Batas terlampaui. Coba lagi dalam:',
       warning: 'Mendekati Batas Pengeluaran!',
@@ -203,9 +232,35 @@ export const translations = {
       forecast: 'Forecast',
       advisor: 'AI Advisor',
       decision: 'Buy Checker',
+      splitBill: 'Split Bill',
       settings: 'Settings',
       logout: 'Logout',
-      login: 'Login'
+      login: 'Login',
+      recurring: 'Recurring Bills',
+      calendar: 'Calendar'
+    },
+    // Split Bill
+    splitBill: {
+      title: 'Smart Split Bill',
+      subtitle: 'Snap receipt, split bill automatically',
+      upload: 'Upload Receipt (AI)',
+      scanning: 'AI is Analyzing...',
+      addFriend: 'Add Friend',
+      friendName: 'Type name...',
+      friends: 'Friends',
+      items: 'Order Items',
+      tax: 'Tax & Service',
+      taxProportional: 'Tax (Proportional)',
+      subtotal: 'Subtotal',
+      totalBill: 'Total Bill',
+      totalAllocated: 'Total Allocated',
+      unallocated: 'Unallocated',
+      assignTo: 'Who ordered this?',
+      share: 'Share (WA)',
+      copyText: 'Copy Text',
+      copied: 'Text copied!',
+      empty: 'No data yet. Please upload a receipt first.',
+      shareMsg: 'Hi {name}! 👋\\nHere is our split bill detail:\\n\\n{items}\\n- Tax & Service: {tax}\\n\\n*Your Total: {total}*\\n\\nPlease transfer to: {paymentInfo}\\nThanks!'
     },
     // Common
     common: {
@@ -261,6 +316,9 @@ export const translations = {
       aiPro: 'Professional & Friendly (Default)',
       aiRoast: 'Roast Mode (Sarcastic & Harsh)',
       aiZen: 'Zen Mode (Supportive & Patient)',
+      paymentInfoTitle: 'Payment Information',
+      paymentInfoDesc: 'Account information that will be automatically inserted when sending bill messages (Split Bill).',
+      paymentInfoLabel: 'Bank Account / E-Wallet',
       blocked: 'Transactions Temporarily Blocked',
       blockedDesc: 'Limit exceeded. Try again in:',
       warning: 'Approaching Spending Limit!',

@@ -17,6 +17,7 @@ export const useFinanceStore = create((set, get) => ({
   theme: localStorage.getItem('financeme-theme') || 'system',
   accentColor: localStorage.getItem('financeme-accent') || 'default',
   aiPersonality: localStorage.getItem('financeme-ai-personality') || 'professional',
+  paymentInfo: localStorage.getItem('financeme-payment-info') || '',
   loading: {
     accounts: false,
     transactions: false,
@@ -745,6 +746,11 @@ export const useFinanceStore = create((set, get) => ({
   setAiPersonality: (aiPersonality) => {
     localStorage.setItem('financeme-ai-personality', aiPersonality);
     set({ aiPersonality });
+  },
+
+  setPaymentInfo: (paymentInfo) => {
+    localStorage.setItem('financeme-payment-info', paymentInfo);
+    set({ paymentInfo });
   },
 
   checkSpendingGuard: (userId, limit) => {

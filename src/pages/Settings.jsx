@@ -43,7 +43,7 @@ function Countdown({ targetDate }) {
 
 export default function SettingsPage() {
   const { user } = useAuthStore();
-  const { spendingLimit, spendingGuardState, fetchSpendingLimit, upsertSpendingLimit, checkSpendingGuard, aiPersonality, setAiPersonality } = useFinanceStore();
+  const { spendingLimit, spendingGuardState, fetchSpendingLimit, upsertSpendingLimit, checkSpendingGuard, aiPersonality, setAiPersonality, paymentInfo, setPaymentInfo } = useFinanceStore();
   const { t, language, setLanguage } = useLanguageStore();
 
   const [form, setForm] = useState({
@@ -299,16 +299,36 @@ export default function SettingsPage() {
           <p className="text-sm text-muted" style={{ marginBottom: '20px' }}>
             {t('settings.languageDesc') || 'Pilih bahasa antarmuka aplikasi.'}
           </p>
-          <div className="form-group" style={{ maxWidth: '240px' }}>
+          <div className="form-group" style={{ maxWidth: '300px' }}>
             <label className="form-label">{t('settings.selectLanguage') || 'Pilih Bahasa'}</label>
             <select 
               className="form-select" 
               value={language} 
               onChange={e => setLanguage(e.target.value)}
             >
-              <option value="id">{t('settings.indonesian') || 'Bahasa Indonesia'}</option>
-              <option value="en">{t('settings.english') || 'English'}</option>
+              <option value="id">🇮🇩 {t('settings.indonesian') || 'Bahasa Indonesia'}</option>
+              <option value="en">🇺🇸 {t('settings.english') || 'English'}</option>
             </select>
+          </div>
+        </div>
+
+        {/* Payment Info */}
+        <div className="settings-section" style={{ marginTop: '32px' }}>
+          <div className="settings-section-header">
+            <h2>💳 {t('settings.paymentInfoTitle') || 'Informasi Pembayaran'}</h2>
+          </div>
+          <p className="text-sm text-muted" style={{ marginBottom: '20px' }}>
+            {t('settings.paymentInfoDesc') || 'Informasi rekening yang akan otomatis disisipkan saat mengirim pesan tagihan (Split Bill).'}
+          </p>
+          <div className="form-group" style={{ maxWidth: '400px' }}>
+            <label className="form-label">{t('settings.paymentInfoLabel') || 'Nomor Rekening / E-Wallet'}</label>
+            <input 
+              className="form-input" 
+              type="text" 
+              value={paymentInfo} 
+              onChange={e => setPaymentInfo(e.target.value)}
+              placeholder="Contoh: BCA 1234567890 a.n Budi"
+            />
           </div>
         </div>
 

@@ -3,7 +3,7 @@ import {
   LayoutDashboard, CreditCard, ArrowLeftRight,
   PieChart, BarChart3, HelpCircle, LogOut, Wallet,
   Menu, X, PiggyBank, Settings, Zap, Repeat, CalendarDays,
-  Sun, Moon, Bot, TrendingUp
+  Sun, Moon, Bot, TrendingUp, Scissors
 } from 'lucide-react';
 import { useState } from 'react';
 import NotificationBell from './NotificationBell';
@@ -25,6 +25,7 @@ const navItems = [
   { to: '/forecast', icon: TrendingUp, labelKey: 'nav.forecast' },
   { to: '/advisor', icon: Bot, labelKey: 'nav.advisor' },
   { to: '/decision', icon: HelpCircle, labelKey: 'nav.decision' },
+  { to: '/split-bill', icon: Scissors, labelKey: 'nav.splitBill' },
   { to: '/settings', icon: Settings, labelKey: 'nav.settings' },
 ];
 
