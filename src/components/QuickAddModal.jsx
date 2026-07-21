@@ -3,7 +3,7 @@ import { Plus, Camera, Loader2, ShieldAlert, Shield, ImagePlus, ArrowLeftRight }
 import { useFinanceStore } from '../store/financeStore';
 import { useAuthStore } from '../store/authStore';
 import { toast } from 'sonner';
-import { scanReceipt } from '../lib/gemini';
+import { scanReceipt, guessCategory } from '../lib/gemini';
 import { getCurrentMonth, formatCurrency } from '../lib/utils';
 import { useLocation } from 'react-router-dom';
 import TransferModal from './TransferModal';
@@ -16,6 +16,7 @@ export default function QuickAddModal() {
   const [open, setOpen] = useState(false);
   const [transferOpen, setTransferOpen] = useState(false);
   const [scanning, setScanning] = useState(false);
+  const [guessingCategory, setGuessingCategory] = useState(false);
   const [saving, setSaving] = useState(false);
   const fileInputRef = useRef(null);
   
@@ -108,6 +109,28 @@ export default function QuickAddModal() {
     } catch (error) {
       setScanning(false);
       toast.error('Gagal membaca file gambar');
+    }
+  };
+
+  const handleGuessCategory = async () => {
+    if (!form.description || form.description.length < 3) return;
+    
+    setGuessingCategory(true);
+    try {
+      const guessedId = await guessCategory(form.description, form.type, categories);
+      if (guessedId) {
+        setForm(f => ({ ...f, category_id: guessedId }));
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setGuessingCategory(false);
+    }
+  };
+
+  const handleDescriptionBlur = () => {
+    if (form.description && !form.category_id) {
+      handleGuessCategory();
     }
   };
 
@@ -217,7 +240,23 @@ export default function QuickAddModal() {
               
               <div className="form-group">
                 <label className="form-label">Keterangan / Deskripsi</label>
-                <input type="text" className="form-input" value={form.description} onChange={e => setForm({...form, description: e.target.value})} placeholder="Contoh: Makan siang" />
+                <div style={{ position: 'relative' }}>
+                  <input type="text" className="form-input" value={form.description} 
+                    onChange={e => setForm({...form, description: e.target.value})} 
+                    onBlur={handleDescriptionBlur}
+                    placeholder="Contoh: Makan siang" 
+                    style={{ paddingRight: '40px' }}
+                  />
+                  <button type="button" 
+                    className="btn-icon btn-ghost" 
+                    title="Tebak Kategori dengan AI"
+                    onClick={handleGuessCategory}
+                    disabled={guessingCategory || !form.description}
+                    style={{ position: 'absolute', right: 4, top: '50%', transform: 'translateY(-50%)', opacity: (!form.description || guessingCategory) ? 0.5 : 1 }}
+                  >
+                    {guessingCategory ? <Loader2 size={16} className="spin" /> : '✨'}
+                  </button>
+                </div>
               </div>
 
               <div className="form-group">
@@ -229,7 +268,10 @@ export default function QuickAddModal() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Kategori</label>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                  <label className="form-label" style={{ margin: 0 }}>Kategori</label>
+                  {guessingCategory && <span style={{ fontSize: '11px', color: 'var(--accent-primary)' }} className="animate-pulse">✨ AI berpikir...</span>}
+                </div>
                 <div className="category-chips">
                   {filteredCategories.map(c => (
                     <button key={c.id} type="button" 

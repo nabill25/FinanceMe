@@ -6,7 +6,7 @@ import {
   formatCurrency, formatDate, getCurrentMonth,
   CATEGORY_ICONS, formatDateInput, EXCHANGE_RATES
 } from '../lib/utils';
-import { scanReceipt } from '../lib/gemini';
+import { scanReceipt, guessCategory } from '../lib/gemini';
 import { exportTransactionsToPDF, exportTransactionsToExcel } from '../lib/exportUtils';
 import { toast } from 'sonner';
 import './Transactions.css';
@@ -20,6 +20,7 @@ function TransactionModal({ open, onClose, transaction, accounts, categories, on
   const [form, setForm] = useState(defaultForm);
   const [saving, setSaving] = useState(false);
   const [scanning, setScanning] = useState(false);
+  const [guessingCategory, setGuessingCategory] = useState(false);
   const fileInputRef = useRef(null);
 
   const [isSplit, setIsSplit] = useState(false);
@@ -193,7 +194,10 @@ function TransactionModal({ open, onClose, transaction, accounts, categories, on
             </div>
 
             <div className="form-group">
-              <label className="form-label">Kategori</label>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                <label className="form-label" style={{ margin: 0 }}>Kategori</label>
+                {guessingCategory && <span style={{ fontSize: '11px', color: 'var(--accent-primary)' }} className="animate-pulse">✨ AI berpikir...</span>}
+              </div>
               <div className="category-grid">
                 {filteredCategories.map(cat => (
                   <button key={cat.id} type="button"
@@ -255,9 +259,23 @@ function TransactionModal({ open, onClose, transaction, accounts, categories, on
 
             <div className="form-group">
               <label className="form-label">Catatan (opsional)</label>
-              <input className="form-input" type="text" value={form.description}
-                onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
-                placeholder="Deskripsi singkat..." />
+              <div style={{ position: 'relative' }}>
+                <input className="form-input" type="text" value={form.description}
+                  onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
+                  onBlur={handleDescriptionBlur}
+                  placeholder="Deskripsi singkat..." 
+                  style={{ paddingRight: '40px' }}
+                />
+                <button type="button" 
+                  className="btn-icon btn-ghost" 
+                  title="Tebak Kategori dengan AI"
+                  onClick={handleGuessCategory}
+                  disabled={guessingCategory || !form.description}
+                  style={{ position: 'absolute', right: 4, top: '50%', transform: 'translateY(-50%)', opacity: (!form.description || guessingCategory) ? 0.5 : 1 }}
+                >
+                  {guessingCategory ? <Loader2 size={16} className="spin" /> : '✨'}
+                </button>
+              </div>
             </div>
 
             <div className="modal-footer" style={{ padding: 0, border: 'none', margin: 0, marginTop: 4 }}>

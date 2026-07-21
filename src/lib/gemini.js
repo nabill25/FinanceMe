@@ -86,6 +86,51 @@ export const scanReceipt = async (base64Image, mimeType, categories = []) => {
 };
 
 /**
+ * Tebak kategori transaksi menggunakan Gemini berdasarkan deskripsi
+ * @param {string} description - Keterangan/deskripsi transaksi (misal "Isi bensin")
+ * @param {string} type - Tipe transaksi ('expense' atau 'income')
+ * @param {Array<{id: string, name: string, type: string}>} categories - Daftar kategori yang tersedia
+ * @returns {Promise<string|null>} - ID kategori yang cocok, atau null jika tidak ada/error
+ */
+export const guessCategory = async (description, type, categories = []) => {
+  if (!aiClient) return null;
+  if (!description || description.trim().length < 3) return null;
+  if (categories.length === 0) return null;
+
+  const filteredCategories = categories.filter(c => c.type === type);
+  const categoryListStr = filteredCategories.map(c => `- ID: "${c.id}", Nama: "${c.name}"`).join('\n');
+
+  const prompt = `
+    Saya memiliki transaksi bertipe "${type}" dengan deskripsi: "${description}".
+    
+    Berikut adalah daftar kategori yang saya miliki:
+    ${categoryListStr}
+    
+    Tugas Anda: Pilih SATU kategori dari daftar di atas yang paling cocok untuk transaksi ini.
+    HANYA kembalikan ID kategorinya saja, tanpa teks tambahan apapun.
+    Jika benar-benar tidak ada yang cocok, kembalikan string kosong.
+  `;
+
+  try {
+    const response = await aiClient.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      config: { temperature: 0.1 }
+    });
+
+    const resultId = response.text.trim();
+    if (filteredCategories.some(c => c.id === resultId)) {
+      return resultId;
+    }
+    return null;
+  } catch (error) {
+    console.error('Gemini API Error (guessCategory):', error);
+    return null;
+  }
+};
+
+
+/**
  * Chat with Gemini 2.5 Flash as a Financial Advisor
  * @param {Array<{role: string, text: string}>} history - Array of previous messages
  * @param {string} prompt - The user's new message
