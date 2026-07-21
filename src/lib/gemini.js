@@ -8,6 +8,34 @@ if (apiKey) {
 }
 
 /**
+ * Helper function to execute a Gemini API call with retries
+ */
+const executeWithRetry = async (apiCall, maxRetries = 3) => {
+  let lastError;
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await apiCall();
+    } catch (error) {
+      lastError = error;
+      const errorMessage = error.message || '';
+      
+      // Check if it's a 503 Service Unavailable or 429 Too Many Requests
+      if (errorMessage.includes('503') || errorMessage.includes('UNAVAILABLE') || 
+          errorMessage.includes('429') || errorMessage.includes('RESOURCE_EXHAUSTED')) {
+        console.warn(`Gemini API retry ${i + 1}/${maxRetries} due to high demand/rate limit...`);
+        // Exponential backoff: 1s, 2s, 4s
+        await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
+        continue;
+      }
+      
+      // If it's another type of error, throw immediately
+      throw error;
+    }
+  }
+  throw lastError;
+};
+
+/**
  * Scan a receipt or transfer proof using Gemini 1.5 Flash
  * @param {string} base64Image - Base64 encoded image string (without data:image/... prefix)
  * @param {string} mimeType - The mime type of the image (e.g. image/jpeg)
@@ -53,7 +81,7 @@ export const scanReceipt = async (base64Image, mimeType, categories = []) => {
   `;
 
   try {
-    const response = await aiClient.models.generateContent({
+    const response = await executeWithRetry(() => aiClient.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: [
         {
@@ -69,7 +97,7 @@ export const scanReceipt = async (base64Image, mimeType, categories = []) => {
           ]
         }
       ]
-    });
+    }));
 
     const text = response.text;
     
@@ -119,11 +147,11 @@ export const guessCategory = async (description, type, categories = []) => {
   `;
 
   try {
-    const response = await aiClient.models.generateContent({
+    const response = await executeWithRetry(() => aiClient.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       config: { temperature: 0.1 }
-    });
+    }));
 
     const resultId = response.text.trim();
     if (filteredCategories.some(c => c.id === resultId)) {
@@ -202,14 +230,14 @@ ATURAN MENJAWAB:
       }
     ];
 
-    const response = await aiClient.models.generateContent({
+    const response = await executeWithRetry(() => aiClient.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: contents,
       config: {
         systemInstruction: systemInstruction,
         temperature: 0.7,
       }
-    });
+    }));
 
     return response.text;
   } catch (error) {
@@ -250,11 +278,11 @@ export const forecastFinancials = async (data, language = 'id') => {
   `;
 
   try {
-    const response = await aiClient.models.generateContent({
+    const response = await executeWithRetry(() => aiClient.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       config: { temperature: 0.7 }
-    });
+    }));
     return response.text.trim();
   } catch (error) {
     console.error('Gemini Forecast Error:', error);
@@ -295,11 +323,11 @@ export const analyzeHabits = async (trendData, categoryData, monthLabel, languag
   `;
 
   try {
-    const response = await aiClient.models.generateContent({
+    const response = await executeWithRetry(() => aiClient.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       config: { temperature: 0.7 }
-    });
+    }));
     return response.text.trim();
   } catch (error) {
     console.error('Gemini Habit Analysis Error:', error);
