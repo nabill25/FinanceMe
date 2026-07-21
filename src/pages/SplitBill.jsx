@@ -6,6 +6,7 @@ import { scanReceipt } from '../lib/gemini';
 import { toast } from 'sonner';
 import { formatCurrency } from '../lib/utils';
 import { useNavigate } from 'react-router-dom';
+import BottomSheet from '../components/BottomSheet';
 import './SplitBill.css';
 
 export default function SplitBill() {
@@ -22,6 +23,9 @@ export default function SplitBill() {
   const [items, setItems] = useState([]); // { id, name, amount, assignees: [] }
   const [people, setPeople] = useState([]); // { id, name }
   const [newPersonName, setNewPersonName] = useState('');
+  
+  // UI State
+  const [selectedItem, setSelectedItem] = useState(null); // the item currently being edited/assigned in BottomSheet
   
   const fileInputRef = useRef(null);
 
@@ -110,6 +114,25 @@ export default function SplitBill() {
     }));
   };
 
+  const handleAddManualItem = () => {
+    const newItem = {
+      id: Date.now().toString(),
+      name: 'Item Manual',
+      amount: 0,
+      assignees: []
+    };
+    setItems([...items, newItem]);
+    setSelectedItem(newItem); // open edit sheet immediately
+  };
+
+  const handleSaveItemEdit = (e) => {
+    e.preventDefault();
+    if (!selectedItem) return;
+    
+    setItems(items.map(item => item.id === selectedItem.id ? selectedItem : item));
+    setSelectedItem(null);
+  };
+
   // Calculations
   const subtotalItems = items.reduce((sum, item) => sum + item.amount, 0);
   const taxAndService = Math.max(0, totalBill - subtotalItems);
@@ -192,7 +215,8 @@ export default function SplitBill() {
   };
 
   return (
-    <div className="page-container animate-fade-in split-bill-page">
+    <>
+      <div className="split-bill-container animate-fade-in pb-24">
       <header className="page-header">
         <div className="page-title-group">
           <button 
@@ -256,39 +280,36 @@ export default function SplitBill() {
 
           {!scanning && items.length > 0 && (
             <div className="card items-card animate-slide-up">
-              <div className="card-header">
-                <h3 className="card-title">{t('splitBill.items') || 'Rincian Pesanan'}</h3>
-                <span className="badge badge-primary">{items.length} item</span>
+              <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h3 className="card-title">{t('splitBill.items') || 'Rincian Pesanan'} <span className="badge badge-primary">{items.length} item</span></h3>
+                <button className="btn btn-outline btn-sm" onClick={handleAddManualItem}>
+                  <Plus size={16} /> Tambah Manual
+                </button>
               </div>
               <div className="card-body p-0">
                 <div className="items-list">
                   {items.map(item => (
-                    <div key={item.id} className="bill-item">
+                    <div key={item.id} className="bill-item clickable" onClick={() => setSelectedItem(item)}>
                       <div className="bill-item-info">
                         <div className="bill-item-name">{item.name}</div>
                         <div className="bill-item-price">{formatCurrency(item.amount)}</div>
                       </div>
                       <div className="bill-item-assignees">
-                        {people.length === 0 ? (
+                        {item.assignees.length === 0 ? (
                           <span className="text-sm text-muted" style={{ fontStyle: 'italic' }}>
-                            Tambah teman dulu
+                            Belum ditugaskan
                           </span>
                         ) : (
                           <div className="assignee-bubbles">
-                            {people.map(person => (
-                              <button
-                                key={person.id}
-                                className={`assignee-bubble ${item.assignees.includes(person.id) ? 'active' : ''}`}
-                                onClick={() => toggleAssignee(item.id, person.id)}
-                                title={person.name}
-                              >
-                                {item.assignees.includes(person.id) ? (
-                                  <Check size={14} />
-                                ) : (
-                                  person.name.charAt(0).toUpperCase()
-                                )}
-                              </button>
-                            ))}
+                            {item.assignees.map(personId => {
+                              const p = people.find(x => x.id === personId);
+                              if (!p) return null;
+                              return (
+                                <div key={p.id} className="assignee-bubble active" title={p.name}>
+                                  {p.name.charAt(0).toUpperCase()}
+                                </div>
+                              );
+                            })}
                           </div>
                         )}
                       </div>
@@ -407,5 +428,73 @@ export default function SplitBill() {
         </div>
       </div>
     </div>
+
+      {/* Edit & Assign Item BottomSheet */}
+      <BottomSheet isOpen={!!selectedItem} onClose={() => setSelectedItem(null)} title="Edit & Tugaskan">
+        {selectedItem && (
+          <div className="modal-body" style={{ padding: 0 }}>
+            <form onSubmit={handleSaveItemEdit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div className="form-group">
+                <label className="form-label">Nama Menu</label>
+                <input 
+                  type="text" 
+                  className="form-input" 
+                  value={selectedItem.name} 
+                  onChange={e => setSelectedItem({...selectedItem, name: e.target.value})}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Harga (Rp)</label>
+                <input 
+                  type="number" 
+                  min="0"
+                  className="form-input" 
+                  value={selectedItem.amount} 
+                  onChange={e => setSelectedItem({...selectedItem, amount: Number(e.target.value)})}
+                  required
+                />
+              </div>
+              
+              <div className="form-group">
+                <label className="form-label">Ditugaskan Kepada (Siapa yang makan?)</label>
+                {people.length === 0 ? (
+                  <div className="text-muted text-sm p-3" style={{ background: 'var(--bg-elevated)', borderRadius: '8px' }}>
+                    Belum ada teman. Tambahkan teman di menu sebelah kanan / bawah terlebih dahulu.
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '200px', overflowY: 'auto' }}>
+                    {people.map(person => (
+                      <label key={person.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', background: 'var(--bg-elevated)', border: '1px solid var(--border-default)', borderRadius: '8px', cursor: 'pointer' }}>
+                        <input 
+                          type="checkbox" 
+                          checked={selectedItem.assignees.includes(person.id)}
+                          onChange={() => {
+                            const isAssigned = selectedItem.assignees.includes(person.id);
+                            setSelectedItem({
+                              ...selectedItem,
+                              assignees: isAssigned 
+                                ? selectedItem.assignees.filter(id => id !== person.id)
+                                : [...selectedItem.assignees, person.id]
+                            });
+                          }}
+                          style={{ width: '20px', height: '20px', accentColor: 'var(--accent-color)' }}
+                        />
+                        <div style={{ flex: 1, fontWeight: '500' }}>{person.name}</div>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="modal-footer" style={{ padding: 0, margin: 0, border: 'none' }}>
+                <button type="button" className="btn btn-ghost" onClick={() => setSelectedItem(null)}>Batal</button>
+                <button type="submit" className="btn btn-primary">Simpan Perubahan</button>
+              </div>
+            </form>
+          </div>
+        )}
+      </BottomSheet>
+    </>
   );
 }

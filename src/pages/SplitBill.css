@@ -83,6 +83,19 @@
   color: var(--accent-color);
 }
 
+.bill-item.clickable {
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.bill-item.clickable:hover {
+  background-color: var(--bg-hover);
+}
+
+.bill-item.clickable:active {
+  transform: scale(0.99);
+}
+
 .scanning-indicator p {
   font-weight: 500;
   color: var(--text-primary);
