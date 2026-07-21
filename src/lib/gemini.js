@@ -142,11 +142,14 @@ export const guessCategory = async (description, type, categories = []) => {
  * @param {Array<{role: string, text: string}>} history - Array of previous messages
  * @param {string} prompt - The user's new message
  * @param {Object} contextData - The user's financial data (accounts, transactions, etc.)
+ * @param {string} language - Target language ('id' or 'en')
  */
-export const askFinancialAdvisor = async (history, prompt, contextData) => {
+export const askFinancialAdvisor = async (history, prompt, contextData, language = 'id') => {
   if (!aiClient) {
     throw new Error('API Key Gemini belum diatur (VITE_GEMINI_API_KEY). Silakan tambahkan di .env.local');
   }
+
+  const isEn = language === 'en';
 
   const systemInstruction = `
 Anda adalah "FinanceMe Advisor", seorang Konsultan Keuangan Pribadi AI yang ahli, ramah, dan empatik.
@@ -162,7 +165,7 @@ Daftar 10 Transaksi Terakhir (sebagai referensi):
 ${contextData.recentTransactions || 'Tidak ada data'}
 
 ATURAN MENJAWAB:
-1. Gunakan bahasa Indonesia yang santai, sopan, dan mudah dipahami (seperti teman yang ahli keuangan).
+1. Anda HARUS membalas dalam bahasa ${isEn ? 'Inggris (English)' : 'Indonesia'}. Ini sangat penting!
 2. Jika pengguna bertanya tentang keadaaan uang mereka, rujuk ke DATA KEUANGAN di atas.
 3. Berikan saran yang praktis, realistis, dan bisa langsung diterapkan.
 4. Jangan ragu memuji jika pengeluaran mereka terkendali, atau mengingatkan dengan halus jika boros.
@@ -206,9 +209,10 @@ ATURAN MENJAWAB:
 /**
  * Generate a financial forecast based on current month's data
  * @param {Object} data - Contains burnRate, predictedExpense, income, etc.
+ * @param {string} language - Target language ('id' or 'en')
  * @returns {Promise<string>}
  */
-export const forecastFinancials = async (data) => {
+export const forecastFinancials = async (data, language = 'id') => {
   if (!aiClient) {
     throw new Error('API Key Gemini belum diatur.');
   }
@@ -230,6 +234,7 @@ export const forecastFinancials = async (data) => {
     Jika "Sisa aman" negatif, peringatkan bahwa mereka akan kehabisan uang/overbudget dan sarankan untuk mengerem pengeluaran.
     Jika positif, puji dan sebutkan potensi tabungan.
     Gunakan markdown ringan (bold) untuk menegaskan angka penting.
+    PENTING: Jawab dalam bahasa ${language === 'en' ? 'Inggris' : 'Indonesia'}.
   `;
 
   try {
@@ -250,9 +255,10 @@ export const forecastFinancials = async (data) => {
  * @param {Array} trendData - 6 months trend data
  * @param {Array} categoryData - Category breakdown for current month
  * @param {string} monthLabel - Current month label
+ * @param {string} language - Target language ('id' or 'en')
  * @returns {Promise<string>}
  */
-export const analyzeHabits = async (trendData, categoryData, monthLabel) => {
+export const analyzeHabits = async (trendData, categoryData, monthLabel, language = 'id') => {
   if (!aiClient) {
     throw new Error('API Key Gemini belum diatur.');
   }
@@ -273,6 +279,7 @@ export const analyzeHabits = async (trendData, categoryData, monthLabel) => {
     - Berikan 1-2 rekomendasi taktis (contoh: "Kurangi porsi makan di luar karena mengambil 30% pengeluaran").
 
     Gunakan format markdown dengan bullet points dan emoji yang relevan. Buat bahasanya santai, empatik, namun tegas seperti teman yang mengingatkan. Maksimal 3 paragraf pendek.
+    PENTING: Jawab dalam bahasa ${language === 'en' ? 'Inggris' : 'Indonesia'}.
   `;
 
   try {

@@ -9,22 +9,23 @@ import { useState } from 'react';
 import NotificationBell from './NotificationBell';
 import { useAuthStore } from '../../store/authStore';
 import { useFinanceStore } from '../../store/financeStore';
+import { useLanguageStore } from '../../store/languageStore';
 import './Sidebar.css';
 
 const navItems = [
-  { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/accounts', icon: Wallet, label: 'Akun' },
-  { to: '/transactions', icon: ArrowLeftRight, label: 'Transaksi' },
-  { to: '/calendar', icon: CalendarDays, label: 'Kalender' },
-  { to: '/recurring-bills', icon: Repeat, label: 'Tagihan Rutin' },
-  { to: '/budget', icon: PieChart, label: 'Anggaran' },
-  { to: '/savings', icon: PiggyBank, label: 'Tabungan' },
-  { to: '/goals', icon: CreditCard, label: 'Target' },
-  { to: '/reports', icon: BarChart3, label: 'Laporan' },
-  { to: '/forecast', icon: TrendingUp, label: 'Proyeksi' },
-  { to: '/advisor', icon: Bot, label: 'Asisten AI' },
-  { to: '/decision', icon: HelpCircle, label: 'Cek Pembelian' },
-  { to: '/settings', icon: Settings, label: 'Pengaturan' },
+  { to: '/', icon: LayoutDashboard, labelKey: 'nav.dashboard' },
+  { to: '/accounts', icon: Wallet, labelKey: 'common.account' },
+  { to: '/transactions', icon: ArrowLeftRight, labelKey: 'nav.transactions' },
+  { to: '/calendar', icon: CalendarDays, labelKey: 'nav.calendar' },
+  { to: '/recurring-bills', icon: Repeat, labelKey: 'nav.recurring' },
+  { to: '/budget', icon: PieChart, labelKey: 'nav.budget' },
+  { to: '/savings', icon: PiggyBank, labelKey: 'nav.savings' },
+  { to: '/goals', icon: CreditCard, labelKey: 'nav.goals' },
+  { to: '/reports', icon: BarChart3, labelKey: 'nav.reports' },
+  { to: '/forecast', icon: TrendingUp, labelKey: 'nav.forecast' },
+  { to: '/advisor', icon: Bot, labelKey: 'nav.advisor' },
+  { to: '/decision', icon: HelpCircle, labelKey: 'nav.decision' },
+  { to: '/settings', icon: Settings, labelKey: 'nav.settings' },
 ];
 
 const mobileMainItems = navItems.slice(0, 4);
@@ -33,6 +34,7 @@ const mobileMoreItems = navItems.slice(4);
 export default function Sidebar() {
   const { user, signOut } = useAuthStore();
   const { theme, toggleTheme } = useFinanceStore();
+  const { t } = useLanguageStore();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -72,7 +74,7 @@ export default function Sidebar() {
         <nav className="sidebar-nav">
           <div className="sidebar-nav-section">
             <span className="sidebar-nav-label">Menu</span>
-            {navItems.map(({ to, icon: Icon, label }) => (
+            {navItems.map(({ to, icon: Icon, labelKey }) => (
               <NavLink
                 key={to}
                 to={to}
@@ -83,7 +85,7 @@ export default function Sidebar() {
                 }
               >
                 <Icon size={18} />
-                <span>{label}</span>
+                <span>{t(labelKey)}</span>
               </NavLink>
             ))}
           </div>

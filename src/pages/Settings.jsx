@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Shield, ShieldAlert, ShieldCheck, Clock, Info, Palette } from 'lucide-react';
 import { useFinanceStore } from '../store/financeStore';
 import { useAuthStore } from '../store/authStore';
+import { useLanguageStore } from '../store/languageStore';
 import { formatCurrency } from '../lib/utils';
 import { toast } from 'sonner';
 import './Settings.css';
@@ -43,6 +44,7 @@ function Countdown({ targetDate }) {
 export default function SettingsPage() {
   const { user } = useAuthStore();
   const { spendingLimit, spendingGuardState, fetchSpendingLimit, upsertSpendingLimit, checkSpendingGuard } = useFinanceStore();
+  const { t, language, setLanguage } = useLanguageStore();
 
   const [form, setForm] = useState({
     limit_amount: '',
@@ -266,8 +268,29 @@ export default function SettingsPage() {
             </div>
           </div>
         </div>
-      </div>
 
+        {/* Language Selection */}
+        <div className="settings-section" style={{ marginTop: '32px' }}>
+          <div className="settings-section-header">
+            <h2>🌍 {t('settings.language') || 'Bahasa'}</h2>
+          </div>
+          <p className="text-sm text-muted" style={{ marginBottom: '20px' }}>
+            {t('settings.languageDesc') || 'Pilih bahasa antarmuka aplikasi.'}
+          </p>
+          <div className="form-group" style={{ maxWidth: '240px' }}>
+            <label className="form-label">{t('settings.selectLanguage') || 'Pilih Bahasa'}</label>
+            <select 
+              className="form-select" 
+              value={language} 
+              onChange={e => setLanguage(e.target.value)}
+            >
+              <option value="id">{t('settings.indonesian') || 'Bahasa Indonesia'}</option>
+              <option value="en">{t('settings.english') || 'English'}</option>
+            </select>
+          </div>
+        </div>
+
+      </div>
     </div>
   );
 }

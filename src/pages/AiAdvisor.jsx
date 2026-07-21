@@ -8,6 +8,7 @@ import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { useLanguageStore } from '../store/languageStore';
 import './AiAdvisor.css';
 
 // Configure marked to not sanitize, we'll use DOMPurify
@@ -19,6 +20,7 @@ marked.setOptions({
 export default function AiAdvisor() {
   const { user } = useAuthStore();
   const { accounts, transactions } = useFinanceStore();
+  const { t, language } = useLanguageStore();
   const navigate = useNavigate();
   
   const [messages, setMessages] = useState(() => {
@@ -26,8 +28,9 @@ export default function AiAdvisor() {
     if (saved) {
       try { return JSON.parse(saved); } catch (e) { return []; }
     }
+    // We can't easily translate initial message if we load from localStorage, but let's use t() for fallback
     return [
-      { role: 'model', text: 'Halo! Saya Asisten AI FinanceMe. Ada yang bisa saya bantu terkait keuangan Anda hari ini?' }
+      { role: 'model', text: t('advisor.welcome') }
     ];
   });
   
@@ -45,8 +48,8 @@ export default function AiAdvisor() {
   }, [messages]);
 
   const handleClear = () => {
-    if (window.confirm('Hapus semua riwayat percakapan?')) {
-      const init = [{ role: 'model', text: 'Riwayat percakapan telah dihapus. Apa yang ingin Anda diskusikan sekarang?' }];
+    if (window.confirm(t('advisor.clearConfirm'))) {
+      const init = [{ role: 'model', text: t('advisor.cleared') }];
       setMessages(init);
       localStorage.setItem('financeme-advisor-chat', JSON.stringify(init));
     }
@@ -96,15 +99,17 @@ export default function AiAdvisor() {
     try {
       const contextData = getFinancialContext();
       // Filter out the initial welcome message from history sent to AI if it's the default one
-      const historyToSend = newMessages.filter(m => m.text !== 'Halo! Saya Asisten AI FinanceMe. Ada yang bisa saya bantu terkait keuangan Anda hari ini?');
+      const historyToSend = newMessages.filter(m => 
+        m.text !== t('advisor.welcome') && 
+        m.text !== 'Halo! Saya Asisten AI FinanceMe. Ada yang bisa saya bantu terkait keuangan Anda hari ini?'
+      );
       
-      const reply = await askFinancialAdvisor(historyToSend, userMsg, contextData);
+      const aiResponse = await askFinancialAdvisor(historyToSend, userMsg, contextData, language);
       
-      setMessages(prev => [...prev, { role: 'model', text: reply }]);
+      setMessages([...newMessages, { role: 'model', text: aiResponse }]);
     } catch (error) {
       toast.error(error.message);
-      // Remove the user message if failed? Or just show error.
-      setMessages(prev => [...prev, { role: 'model', text: '⚠️ Maaf, terjadi kesalahan saat menghubungi AI. Silakan coba lagi.' }]);
+      setMessages([...newMessages, { role: 'model', text: t('advisor.error') }]);
     } finally {
       setLoading(false);
     }
@@ -117,20 +122,22 @@ export default function AiAdvisor() {
           className="btn btn-icon btn-ghost" 
           onClick={() => navigate(-1)} 
           style={{ marginRight: '8px' }}
-          title="Kembali"
+          title={t('common.back')}
         >
           <ArrowLeft size={20} />
         </button>
         <div className="advisor-avatar">
-          <Bot size={24} />
+          <Bot size={24} color="white" />
         </div>
-        <div style={{ flex: 1 }}>
-          <h1 className="advisor-title">Asisten Keuangan AI</h1>
-          <p className="advisor-subtitle">Didukung oleh Gemini</p>
+        <div className="advisor-title-area">
+          <h1 className="advisor-title">{t('advisor.title')}</h1>
+          <p className="advisor-subtitle">{t('advisor.subtitle')}</p>
         </div>
-        <button className="btn btn-icon btn-ghost" onClick={handleClear} title="Hapus Obrolan">
-          <Trash2 size={18} />
-        </button>
+        <div style={{ marginLeft: 'auto' }}>
+          <button className="btn btn-icon btn-ghost" onClick={handleClear} title={t('advisor.clearChat')} disabled={messages.length <= 1}>
+            <Trash2 size={18} />
+          </button>
+        </div>
       </div>
 
       <div className="advisor-chat-area">
