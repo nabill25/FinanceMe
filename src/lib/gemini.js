@@ -31,18 +31,25 @@ export const scanReceipt = async (base64Image, mimeType, categories = []) => {
       "description": "<nama toko, merchant, penerima, atau keterangan transaksi singkat>",
       "category_type": "<income atau expense>",
       "category_id": "<ID kategori yang paling cocok dari daftar yang diberikan, biarkan kosong string jika tidak ada yang cocok>",
-      "date": "<Tanggal transaksi dalam format YYYY-MM-DD, biarkan kosong string jika tidak ditemukan>"
+      "date": "<Tanggal transaksi dalam format YYYY-MM-DD, biarkan kosong string jika tidak ditemukan>",
+      "items": [
+        {
+          "name": "<nama barang/layanan spesifik yang dibeli>",
+          "amount": <angka harga total untuk barang tersebut, tipe number>
+        }
+      ]
     }
     
     Daftar Kategori yang Tersedia:
     ${categoryListStr}
     
     Aturan Kritis:
-    1. Abaikan pajak, subtotal, atau nominal kembalian. Cari TOTAL AKHIR yang dibayar/diterima.
+    1. Abaikan pajak, subtotal, atau nominal kembalian. Cari TOTAL AKHIR yang dibayar/diterima untuk "amount".
     2. category_type adalah "expense" jika ini adalah struk belanja/pembayaran/transfer keluar.
     3. category_type adalah "income" jika ini adalah bukti terima uang/top up/transfer masuk.
-    4. Analisis barang/layanan/nama merchant pada struk, dan pilih SATU "category_id" dari daftar kategori di atas yang konteksnya paling cocok (misal struk Alfamart -> kategori Makanan/Groceries, struk SPBU -> Transportasi).
-    5. HANYA KEMBALIKAN TEKS JSON SAJA, tanpa blok kode markdown (\`\`\`json), tanpa teks pendahuluan.
+    4. Analisis barang/layanan/nama merchant pada struk, dan pilih SATU "category_id" dari daftar kategori di atas yang konteksnya paling cocok.
+    5. Jika terdapat daftar barang belanjaan di dalam struk, masukkan semuanya ke dalam array "items". Jika tidak ada daftar rincian barang, kembalikan array "items" kosong [].
+    6. HANYA KEMBALIKAN TEKS JSON SAJA, tanpa blok kode markdown (\`\`\`json), tanpa teks pendahuluan.
   `;
 
   try {

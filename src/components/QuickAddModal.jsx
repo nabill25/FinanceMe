@@ -94,7 +94,12 @@ export default function QuickAddModal() {
             category_id: result.category_id || f.category_id,
             date: result.date || f.date
           }));
-          toast.success('Struk berhasil diproses dan dikategorikan!');
+          
+          if (result.items && Array.isArray(result.items) && result.items.length > 0) {
+            toast.success(`Struk diproses! Ada ${result.items.length} rincian barang. Buka via menu Transaksi jika ingin rincian otomatis disimpan.`);
+          } else {
+            toast.success('Struk berhasil diproses dan dikategorikan!');
+          }
         } catch (scanErr) {
           toast.error('Gagal scan AI: ' + scanErr.message);
         } finally {

@@ -113,7 +113,17 @@ function TransactionModal({ open, onClose, transaction, accounts, categories, on
             category_id: result.category_id || f.category_id,
             date: result.date || f.date
           }));
-          toast.success('Struk berhasil diproses dan dikategorikan!');
+          
+          if (result.items && Array.isArray(result.items) && result.items.length > 0) {
+            setIsSplit(true);
+            setSplitDetails(result.items.map(item => ({
+              name: item.name,
+              amount: item.amount
+            })));
+            toast.success(`Struk diproses! ${result.items.length} barang terdeteksi sebagai Split Bill.`);
+          } else {
+            toast.success('Struk berhasil diproses dan dikategorikan!');
+          }
         } catch (scanErr) {
           toast.error('Gagal scan AI: ' + scanErr.message);
         } finally {
