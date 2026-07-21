@@ -56,7 +56,7 @@ export default function SettingsPage() {
 
   useEffect(() => {
     if (user) fetchSpendingLimit(user.id);
-  }, [user]);
+  }, [user, fetchSpendingLimit]);
 
   useEffect(() => {
     if (spendingLimit) {

@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo, useRef } from 'react';
-import { Plus, Trash2, Edit2, Filter, Search, ArrowUpCircle, ArrowDownCircle, Camera, Loader2, ShieldAlert, Shield, ImagePlus, SlidersHorizontal, X } from 'lucide-react';
+import { Plus, Trash2, Edit2, Search, ArrowUpCircle, ArrowDownCircle, Loader2, ShieldAlert, Shield, ImagePlus, SlidersHorizontal, X } from 'lucide-react';
 import { useFinanceStore } from '../store/financeStore';
 import { useAuthStore } from '../store/authStore';
 import {
@@ -134,6 +134,30 @@ function TransactionModal({ open, onClose, transaction, accounts, categories, on
     } catch (error) {
       setScanning(false);
       toast.error('Gagal membaca file gambar');
+    }
+  };
+
+  const handleGuessCategory = async () => {
+    if (!form.description || form.description.length < 3) return;
+    if (!import.meta.env.VITE_GEMINI_API_KEY) return;
+    
+    setGuessingCategory(true);
+    try {
+      const guessedId = await guessCategory(form.description, form.type, categories);
+      if (guessedId && guessedId !== form.category_id) {
+        setForm(f => ({ ...f, category_id: guessedId }));
+        toast.success('Kategori ditebak oleh AI!');
+      }
+    } catch (err) {
+      console.error('Guess category err:', err);
+    } finally {
+      setGuessingCategory(false);
+    }
+  };
+
+  const handleDescriptionBlur = () => {
+    if (form.description && form.description.length >= 3 && !form.category_id) {
+      handleGuessCategory();
     }
   };
 
@@ -335,12 +359,12 @@ export default function TransactionsPage() {
     fetchAccounts(user.id);
     fetchCategories(user.id);
     fetchSpendingLimit(user.id);
-  }, [user]);
+  }, [user, fetchAccounts, fetchCategories, fetchSpendingLimit]);
 
   useEffect(() => {
     if (!user) return;
     fetchTransactions(user.id, { month: filters.month });
-  }, [user, filters.month]);
+  }, [user, filters.month, fetchTransactions]);
 
   const displayed = useMemo(() => {
     let list = transactions;
