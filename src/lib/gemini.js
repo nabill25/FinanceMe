@@ -202,3 +202,45 @@ ATURAN MENJAWAB:
     throw new Error('Gagal merespons: ' + error.message);
   }
 };
+
+/**
+ * Generate a financial forecast based on current month's data
+ * @param {Object} data - Contains burnRate, predictedExpense, income, etc.
+ * @returns {Promise<string>}
+ */
+export const forecastFinancials = async (data) => {
+  if (!aiClient) {
+    throw new Error('API Key Gemini belum diatur.');
+  }
+
+  const prompt = `
+    Anda adalah analis keuangan AI "FinanceMe". 
+    Berikan satu paragraf proyeksi dan peringatan (insight) untuk sisa bulan ini.
+    
+    Data Saat Ini:
+    - Rata-rata pengeluaran per hari (Burn Rate): Rp ${data.burnRate}
+    - Total pengeluaran bulan ini (sejauh ini): Rp ${data.currentExpense}
+    - Total pemasukan bulan ini: Rp ${data.income}
+    - Prediksi pengeluaran hingga akhir bulan: Rp ${data.predictedExpense}
+    - Sisa aman (Pemasukan - Prediksi): Rp ${data.income - data.predictedExpense}
+    - Tanggal saat ini: ${new Date().toLocaleDateString()}
+    
+    Tugas:
+    Buat kalimat singkat (max 3 kalimat) yang informatif dan ramah. 
+    Jika "Sisa aman" negatif, peringatkan bahwa mereka akan kehabisan uang/overbudget dan sarankan untuk mengerem pengeluaran.
+    Jika positif, puji dan sebutkan potensi tabungan.
+    Gunakan markdown ringan (bold) untuk menegaskan angka penting.
+  `;
+
+  try {
+    const response = await aiClient.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      config: { temperature: 0.7 }
+    });
+    return response.text.trim();
+  } catch (error) {
+    console.error('Gemini Forecast Error:', error);
+    return 'Gagal memuat proyeksi AI.';
+  }
+};
