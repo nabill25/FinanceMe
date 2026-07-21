@@ -4,6 +4,7 @@ import { useFinanceStore } from '../store/financeStore';
 import { useAuthStore } from '../store/authStore';
 import { formatCurrency, clamp } from '../lib/utils';
 import { toast } from 'sonner';
+import confetti from 'canvas-confetti';
 import BottomSheet from '../components/BottomSheet';
 import './Savings.css';
 
@@ -115,6 +116,14 @@ function TransferModal({ open, onClose, pot, type }) {
       if (type === 'topup') {
         await topUpSavingsPot(pot.id, Number(amount), accountId);
         toast.success(`Rp ${Number(amount).toLocaleString('id-ID')} berhasil ditabung!`);
+        
+        // Gamification: Trigger confetti!
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ['#6366f1', '#10b981', '#f59e0b', '#ec4899']
+        });
       } else {
         await withdrawSavingsPot(pot.id, Number(amount), accountId);
         toast.success(`Rp ${Number(amount).toLocaleString('id-ID')} berhasil ditarik!`);

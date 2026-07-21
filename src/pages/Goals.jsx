@@ -3,6 +3,7 @@ import { Target, Plus, Edit2, Trash2, CheckCircle, TrendingUp } from 'lucide-rea
 import { useFinanceStore } from '../store/financeStore';
 import { useAuthStore } from '../store/authStore';
 import { formatCurrency } from '../lib/utils';
+import confetti from 'canvas-confetti';
 import BottomSheet from '../components/BottomSheet';
 import './Goals.css';
 
@@ -53,8 +54,22 @@ export default function GoalsPage() {
         color: form.color,
       };
 
-      if (editingId) await updateGoal(editingId, payload);
-      else await addGoal(payload);
+      if (editingId) {
+        await updateGoal(editingId, payload);
+        if (payload.current_amount >= payload.target_amount) {
+          confetti({
+            particleCount: 150,
+            spread: 90,
+            origin: { y: 0.5 },
+            colors: ['#0ea5e9', '#ec4899', '#f59e0b', '#10b981']
+          });
+        }
+      } else {
+        await addGoal(payload);
+        if (payload.current_amount >= payload.target_amount) {
+          confetti({ particleCount: 150, spread: 90, origin: { y: 0.5 } });
+        }
+      }
 
       setShowForm(false);
     } catch (error) {

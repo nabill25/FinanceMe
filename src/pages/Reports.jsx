@@ -58,20 +58,41 @@ export default function ReportsPage() {
 
   // Build 6-month trend data
   const trendData = useMemo(() => {
-    const [year, month] = currentMonth.split('-').map(Number);
-    const months = [];
+    const data = [];
     for (let i = 5; i >= 0; i--) {
-      const d = new Date(year, month - 1 - i);
-      const m = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-      const txs = transactions.filter(t => t.date?.startsWith(m));
-      months.push({
-        label: new Intl.DateTimeFormat('id-ID', { month: 'short' }).format(d),
-        income: txs.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0),
-        expense: txs.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0),
+      const m = new Date();
+      m.setMonth(m.getMonth() - i);
+      const mStr = `${m.getFullYear()}-${String(m.getMonth() + 1).padStart(2, '0')}`;
+      const sum = getMonthSummary(mStr);
+      data.push({
+        label: getMonthLabel(mStr).substring(0, 3),
+        income: sum.income,
+        expense: sum.expense,
       });
     }
-    return months;
-  }, [transactions, currentMonth]);
+    return data;
+  }, [getMonthSummary]);
+
+  // Build Word Cloud data from expenses
+  const wordCloudData = useMemo(() => {
+    const expenses = transactions.filter(t => t.type === 'expense' && t.description);
+    const wordCounts = {};
+    const stopWords = ['di', 'ke', 'dari', 'yang', 'untuk', 'pada', 'dan', 'atau', 'dengan', 'buat', 'beli', 'bayar'];
+    
+    expenses.forEach(t => {
+      const words = t.description.toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/);
+      words.forEach(w => {
+        if (w.length > 2 && !stopWords.includes(w)) {
+          wordCounts[w] = (wordCounts[w] || 0) + 1;
+        }
+      });
+    });
+
+    return Object.entries(wordCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 25)
+      .map(([text, value]) => ({ text, value }));
+  }, [transactions]);
 
   const navigateMonth = (dir) => {
     const [year, month] = currentMonth.split('-').map(Number);
@@ -219,6 +240,42 @@ export default function ReportsPage() {
                     </span>
                   </div>
                 </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Word Cloud */}
+      {wordCloudData.length > 0 && (
+        <div className="card word-cloud-card" style={{ marginTop: '24px' }}>
+          <h3 style={{ marginBottom: '16px', fontSize: '15px' }}>☁️ Jejak Kata Pengeluaran</h3>
+          <div className="word-cloud-container">
+            {wordCloudData.map((word, i) => {
+              // Calculate font size (min 14px, max 48px)
+              const maxCount = wordCloudData[0].value;
+              const minCount = wordCloudData[wordCloudData.length - 1].value || 1;
+              const range = maxCount - minCount || 1;
+              const size = 14 + ((word.value - minCount) / range) * 34;
+              
+              // Random color from palette
+              const colors = ['#6366f1', '#ec4899', '#f59e0b', '#10b981', '#0ea5e9', '#8b5cf6'];
+              const color = colors[i % colors.length];
+              
+              return (
+                <span 
+                  key={i} 
+                  className="cloud-word"
+                  style={{ 
+                    fontSize: `${size}px`, 
+                    color,
+                    opacity: size > 24 ? 1 : 0.7,
+                    fontWeight: size > 30 ? 800 : (size > 20 ? 600 : 500)
+                  }}
+                  title={`Muncul ${word.value} kali`}
+                >
+                  {word.text}
+                </span>
               );
             })}
           </div>

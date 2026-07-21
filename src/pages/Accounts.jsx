@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Plus, Edit2, Trash2, Wallet, CreditCard, Smartphone, TrendingUp, RefreshCcw, ArrowLeftRight } from 'lucide-react';
 import { useFinanceStore } from '../store/financeStore';
@@ -200,6 +200,45 @@ function SyncModal({ open, onClose, account, onSave }) {
   );
 }
 
+function TiltCard({ children, accColor }) {
+  const cardRef = useRef(null);
+
+  const handleMouseMove = (e) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    
+    // Calculate rotation (-10deg to +10deg max)
+    const rotateX = ((y - centerY) / centerY) * -15;
+    const rotateY = ((x - centerX) / centerX) * 15;
+    
+    cardRef.current.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+    cardRef.current.style.transition = 'none';
+  };
+
+  const handleMouseLeave = () => {
+    if (!cardRef.current) return;
+    cardRef.current.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+    cardRef.current.style.transition = 'transform 0.5s ease-out';
+  };
+
+  return (
+    <div 
+      className="account-card card tiltable-card" 
+      ref={cardRef}
+      style={{ '--acc-color': accColor }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+    >
+      {children}
+    </div>
+  );
+}
+
 export default function AccountsPage() {
   const { user } = useAuthStore();
   const location = useLocation();
@@ -320,7 +359,7 @@ export default function AccountsPage() {
             const provider = ACCOUNT_PROVIDERS[acc.type]?.find(p => p.id === acc.icon);
             const Icon = ACCOUNT_ICONS[acc.type] || Wallet;
             return (
-              <div key={acc.id} className="account-card card" style={{ '--acc-color': acc.color }}>
+              <TiltCard key={acc.id} accColor={acc.color}>
                 <div className="account-card-top">
                   <ProviderLogo account={acc} size={36} />
                   <div className="account-card-actions" style={{ gap: '8px' }}>
@@ -342,7 +381,7 @@ export default function AccountsPage() {
                 <div className="account-card-bar" style={{ background: acc.color + '33' }}>
                   <div className="account-card-bar-fill" style={{ background: acc.color }} />
                 </div>
-              </div>
+              </TiltCard>
             );
           })}
         </div>

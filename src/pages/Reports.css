@@ -80,3 +80,28 @@
     gap: var(--space-sm);
   }
 }
+
+/* =====================
+   Word Cloud Styles
+   ===================== */
+.word-cloud-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px 0;
+}
+
+.cloud-word {
+  line-height: 1.1;
+  transition: transform 0.3s ease, filter 0.3s ease;
+  cursor: default;
+  font-family: 'Outfit', sans-serif;
+}
+
+.cloud-word:hover {
+  transform: scale(1.1);
+  filter: brightness(1.2);
+  z-index: 10;
+}

@@ -57,6 +57,30 @@
   box-shadow: var(--shadow-lg);
 }
 
+.tiltable-card {
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.tiltable-card::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at center, rgba(255,255,255,0.8) 0%, transparent 50%);
+  opacity: 0;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+  transition: opacity 0.3s;
+  transform: translateZ(1px); /* Elevate highlight slightly */
+}
+
+.tiltable-card:hover::after {
+  opacity: 0.15;
+}
+
 @media (hover: none) {
   .account-card:hover {
     transform: none;
