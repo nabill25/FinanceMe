@@ -126,11 +126,11 @@
   position: absolute;
   top: 32px;
   right: 0;
-  background: var(--bg-card);
+  background: var(--bg-elevated);
   border-radius: var(--radius-lg);
   padding: 8px;
-  box-shadow: var(--shadow-lg);
-  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--border-default);
   display: flex;
   flex-direction: column;
   min-width: 180px;
@@ -156,12 +156,12 @@
 }
 
 .dropdown-item:hover {
-  background: var(--bg-hover);
+  background: var(--bg-main);
 }
 
 .dropdown-divider {
   height: 1px;
-  background: var(--border-color);
+  background: var(--border-default);
   margin: 4px 0;
 }
 
