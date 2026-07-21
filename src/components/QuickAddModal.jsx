@@ -8,6 +8,7 @@ import { getCurrentMonth, formatCurrency } from '../lib/utils';
 import { useLocation } from 'react-router-dom';
 import TransferModal from './TransferModal';
 import TagInput from './TagInput';
+import BottomSheet from './BottomSheet';
 import './QuickAddModal.css';
 
 export default function QuickAddModal() {
@@ -174,13 +175,7 @@ export default function QuickAddModal() {
         </div>
       )}
 
-      {open && (
-        <div className="modal-overlay" onClick={() => setOpen(false)}>
-          <div className="modal-content animate-slide-up" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>Tambah Transaksi Cepat</h3>
-              <button className="btn-icon btn-ghost" onClick={() => setOpen(false)}>✕</button>
-            </div>
+      <BottomSheet isOpen={open} onClose={() => setOpen(false)} title="Tambah Transaksi Cepat">
             
             <form onSubmit={handleSubmit} className="modal-body quick-add-form">
               <div className="type-toggle">
@@ -305,9 +300,7 @@ export default function QuickAddModal() {
                 <button type="submit" className="btn btn-primary">Simpan</button>
               </div>
             </form>
-          </div>
-        </div>
-      )}
+      </BottomSheet>
       <TransferModal isOpen={transferOpen} onClose={() => setTransferOpen(false)} />
     </>
   );

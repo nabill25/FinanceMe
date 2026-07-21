@@ -10,6 +10,7 @@ import { scanReceipt, guessCategory } from '../lib/gemini';
 import { exportTransactionsToPDF, exportTransactionsToExcel } from '../lib/exportUtils';
 import { toast } from 'sonner';
 import TagInput from '../components/TagInput';
+import BottomSheet from '../components/BottomSheet';
 import './Transactions.css';
 
 const defaultForm = {
@@ -162,12 +163,7 @@ function TransactionModal({ open, onClose, transaction, accounts, categories, on
   };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal animate-slide-up">
-        <div className="modal-header">
-          <span className="modal-title">{transaction ? 'Edit Transaksi' : 'Transaksi Baru'}</span>
-          <button className="btn btn-icon btn-ghost" onClick={onClose}>✕</button>
-        </div>
+    <BottomSheet isOpen={open} onClose={onClose} title={transaction ? 'Edit Transaksi' : 'Transaksi Baru'}>
 
         <div className="modal-body" style={{ overflowY: 'auto' }}>
           {/* Type selector */}
@@ -327,8 +323,7 @@ function TransactionModal({ open, onClose, transaction, accounts, categories, on
             </div>
           </form>
         </div>
-      </div>
-    </div>
+    </BottomSheet>
   );
 }
 

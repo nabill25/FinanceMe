@@ -4,6 +4,7 @@ import { useFinanceStore } from '../store/financeStore';
 import { useAuthStore } from '../store/authStore';
 import { formatCurrency } from '../lib/utils';
 import { toast } from 'sonner';
+import BottomSheet from './BottomSheet';
 import './TransferModal.css';
 
 export default function TransferModal({ isOpen, onClose }) {
@@ -65,23 +66,14 @@ export default function TransferModal({ isOpen, onClose }) {
     }
   };
 
-  if (!isOpen) return null;
+  // Removed if (!isOpen) return null; because BottomSheet handles it
 
   return (
-    <div className="transfer-overlay" onClick={onClose}>
-      <div className="transfer-modal animate-slide-up" onClick={e => e.stopPropagation()}>
-        {/* Header */}
-        <div className="transfer-header">
-          <div className="transfer-header-icon">
-            <ArrowLeftRight size={20} />
-          </div>
-          <div>
-            <h3 className="transfer-title">Transfer Antar Akun</h3>
-            <p className="transfer-subtitle">Pindah saldo tanpa keluar masuk manual</p>
-          </div>
-          <button className="btn btn-icon btn-ghost transfer-close" onClick={onClose}>
-            <X size={18} />
-          </button>
+    <BottomSheet isOpen={isOpen} onClose={onClose} title="Transfer Antar Akun">
+      <div className="transfer-modal">
+        {/* Header content moved to subtitle since BottomSheet handles title */}
+        <div style={{ marginBottom: 16 }}>
+          <p className="transfer-subtitle" style={{ marginTop: 0 }}>Pindah saldo tanpa keluar masuk manual</p>
         </div>
 
         <form onSubmit={handleSubmit} className="transfer-body">
@@ -214,6 +206,6 @@ export default function TransferModal({ isOpen, onClose }) {
           </div>
         </form>
       </div>
-    </div>
+    </BottomSheet>
   );
 }
