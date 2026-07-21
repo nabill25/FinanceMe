@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import {
   PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer,
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
@@ -11,6 +11,8 @@ import {
   CATEGORY_ICONS
 } from '../lib/utils';
 import { exportReportToPDF } from '../lib/exportUtils';
+import { analyzeHabits } from '../lib/gemini';
+import ReactMarkdown from 'react-markdown';
 import './Reports.css';
 
 const CustomPieTooltip = ({ active, payload }) => {
@@ -34,6 +36,8 @@ export default function ReportsPage() {
   } = useFinanceStore();
 
   const [currentMonth, setCurrentMonth] = useState(getCurrentMonth());
+  const [habitInsight, setHabitInsight] = useState('');
+  const [analyzing, setAnalyzing] = useState(false);
 
   useEffect(() => {
     if (user) fetchTransactions(user.id, { month: currentMonth });
@@ -73,6 +77,19 @@ export default function ReportsPage() {
     const [year, month] = currentMonth.split('-').map(Number);
     const d = new Date(year, month - 1 + dir);
     setCurrentMonth(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`);
+  };
+
+  const handleAnalyze = async () => {
+    setAnalyzing(true);
+    setHabitInsight('');
+    try {
+      const insight = await analyzeHabits(trendData, categorySpending, getMonthLabel(currentMonth));
+      setHabitInsight(insight);
+    } catch (err) {
+      setHabitInsight('Gagal memuat analisis. Silakan coba lagi.');
+    } finally {
+      setAnalyzing(false);
+    }
   };
 
   return (
@@ -207,6 +224,40 @@ export default function ReportsPage() {
           </div>
         </div>
       )}
+
+      {/* AI Habit Analysis */}
+      <div className="card" style={{ marginTop: '24px', background: 'var(--bg-elevated)', border: '1px solid var(--accent-primary)', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '4px', background: 'linear-gradient(90deg, #6366f1, #8b5cf6, #d946ef)' }} />
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', paddingTop: '8px' }}>
+          <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '16px', margin: 0 }}>
+            <Sparkles size={20} className="text-primary" />
+            Analisis Kebiasaan Belanja AI
+          </h3>
+          {!habitInsight && !analyzing && (
+            <button className="btn btn-primary btn-sm" onClick={handleAnalyze}>
+              Analisis Bulan Ini
+            </button>
+          )}
+        </div>
+        
+        {analyzing ? (
+          <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>
+            <span className="spinner" style={{ marginBottom: '16px' }} />
+            <p>Membaca pola kebiasaan belanja Anda...</p>
+          </div>
+        ) : habitInsight ? (
+          <div className="insight-content" style={{ lineHeight: 1.6, fontSize: '15px' }}>
+            <ReactMarkdown>{habitInsight}</ReactMarkdown>
+            <div style={{ marginTop: '16px', textAlign: 'right' }}>
+              <button className="btn btn-outline btn-sm" onClick={handleAnalyze}>Analisis Ulang</button>
+            </div>
+          </div>
+        ) : (
+          <p className="text-secondary text-sm" style={{ margin: 0 }}>
+            Klik tombol di atas untuk mendapatkan wawasan tentang pola pengeluaran Anda bulan ini dibandingkan 5 bulan terakhir.
+          </p>
+        )}
+      </div>
     </div>
   );
 }

@@ -244,3 +244,46 @@ export const forecastFinancials = async (data) => {
     return 'Gagal memuat proyeksi AI.';
   }
 };
+
+/**
+ * Analyze spending habits based on trend and category data
+ * @param {Array} trendData - 6 months trend data
+ * @param {Array} categoryData - Category breakdown for current month
+ * @param {string} monthLabel - Current month label
+ * @returns {Promise<string>}
+ */
+export const analyzeHabits = async (trendData, categoryData, monthLabel) => {
+  if (!aiClient) {
+    throw new Error('API Key Gemini belum diatur.');
+  }
+
+  const prompt = `
+    Anda adalah analis perilaku keuangan AI "FinanceMe".
+    Tugas Anda adalah membaca data pengeluaran bulan "${monthLabel}" dan membandingkannya dengan tren 6 bulan terakhir untuk menemukan "kebocoran halus" atau kebiasaan buruk/baik pengguna.
+
+    Data Tren 6 Bulan Terakhir (Bulan terlama ke terbaru):
+    ${JSON.stringify(trendData, null, 2)}
+
+    Rincian Pengeluaran per Kategori Bulan Ini:
+    ${JSON.stringify(categoryData, null, 2)}
+
+    Fokus pada:
+    - Kategori apa yang memakan porsi terbesar atau terlihat tidak wajar bulan ini?
+    - Apakah bulan ini lebih boros/hemat dibanding rata-rata 5 bulan sebelumnya?
+    - Berikan 1-2 rekomendasi taktis (contoh: "Kurangi porsi makan di luar karena mengambil 30% pengeluaran").
+
+    Gunakan format markdown dengan bullet points dan emoji yang relevan. Buat bahasanya santai, empatik, namun tegas seperti teman yang mengingatkan. Maksimal 3 paragraf pendek.
+  `;
+
+  try {
+    const response = await aiClient.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      config: { temperature: 0.7 }
+    });
+    return response.text.trim();
+  } catch (error) {
+    console.error('Gemini Habit Analysis Error:', error);
+    return 'Gagal memuat analisis kebiasaan belanja AI.';
+  }
+};
