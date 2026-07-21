@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Plus, Edit2, Trash2, Wallet, CreditCard, Smartphone, TrendingUp, RefreshCcw, ArrowLeftRight } from 'lucide-react';
+import { Plus, Edit2, Trash2, Wallet, CreditCard, Smartphone, TrendingUp, RefreshCcw, ArrowLeftRight, MoreVertical } from 'lucide-react';
 import { useFinanceStore } from '../store/financeStore';
 import { useAuthStore } from '../store/authStore';
 import { formatCurrency, ACCOUNT_TYPES, ACCOUNT_PROVIDERS, CURRENCIES } from '../lib/utils';
@@ -248,6 +248,14 @@ export default function AccountsPage() {
   const [syncModalOpen, setSyncModalOpen] = useState(false);
   const [transferModalOpen, setTransferModalOpen] = useState(false);
   const [editAccount, setEditAccount] = useState(null);
+  const [activeDropdown, setActiveDropdown] = useState(null);
+
+  // Close dropdown when clicking anywhere
+  useEffect(() => {
+    const handleClickOutside = () => setActiveDropdown(null);
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -362,17 +370,31 @@ export default function AccountsPage() {
               <TiltCard key={acc.id} accColor={acc.color}>
                 <div className="account-card-top">
                   <ProviderLogo account={acc} size={36} />
-                  <div className="account-card-actions" style={{ gap: '8px' }}>
-                    <button className="btn btn-icon btn-ghost" onClick={() => { setEditAccount(acc); setSyncModalOpen(true); }} title="Sinkronisasi Saldo" style={{ color: 'var(--accent-primary)', padding: '6px' }}>
-                      <RefreshCcw size={20} />
+                  <div className="account-card-actions" style={{ gap: '8px', position: 'relative' }}>
+                    <button 
+                      className="btn btn-icon btn-ghost" 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveDropdown(activeDropdown === acc.id ? null : acc.id);
+                      }} 
+                      style={{ color: 'white' }}
+                    >
+                      <MoreVertical size={20} />
                     </button>
-                    <button className="btn btn-icon btn-ghost" onClick={() => { setEditAccount(acc); setModalOpen(true); }} title="Edit" style={{ padding: '6px' }}>
-                      <Edit2 size={20} />
-                    </button>
-                    <button className="btn btn-icon btn-ghost" onClick={() => handleDelete(acc.id)} title="Hapus"
-                      style={{ color: 'var(--accent-danger)', padding: '6px' }}>
-                      <Trash2 size={20} />
-                    </button>
+                    {activeDropdown === acc.id && (
+                      <div className="dropdown-menu" onClick={(e) => e.stopPropagation()}>
+                        <button className="dropdown-item" onClick={() => { setEditAccount(acc); setSyncModalOpen(true); setActiveDropdown(null); }}>
+                          <RefreshCcw size={16} /> Sesuaikan Saldo
+                        </button>
+                        <button className="dropdown-item" onClick={() => { setEditAccount(acc); setModalOpen(true); setActiveDropdown(null); }}>
+                          <Edit2 size={16} /> Edit Akun
+                        </button>
+                        <div className="dropdown-divider"></div>
+                        <button className="dropdown-item text-danger" onClick={() => { handleDelete(acc.id); setActiveDropdown(null); }}>
+                          <Trash2 size={16} /> Hapus Akun
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="account-card-name">{acc.name}</div>
