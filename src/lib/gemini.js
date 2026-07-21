@@ -82,7 +82,7 @@ export const scanReceipt = async (base64Image, mimeType, categories = []) => {
 
   try {
     const response = await executeWithRetry(() => aiClient.models.generateContent({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.0-flash',
       contents: [
         {
           role: 'user',
@@ -148,7 +148,7 @@ export const guessCategory = async (description, type, categories = []) => {
 
   try {
     const response = await executeWithRetry(() => aiClient.models.generateContent({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.0-flash',
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       config: { temperature: 0.1 }
     }));
@@ -231,7 +231,7 @@ ATURAN MENJAWAB:
     ];
 
     const response = await executeWithRetry(() => aiClient.models.generateContent({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.0-flash',
       contents: contents,
       config: {
         systemInstruction: systemInstruction,
@@ -279,7 +279,7 @@ export const forecastFinancials = async (data, language = 'id') => {
 
   try {
     const response = await executeWithRetry(() => aiClient.models.generateContent({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.0-flash',
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       config: { temperature: 0.7 }
     }));
@@ -324,7 +324,7 @@ export const analyzeHabits = async (trendData, categoryData, monthLabel, languag
 
   try {
     const response = await executeWithRetry(() => aiClient.models.generateContent({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.0-flash',
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       config: { temperature: 0.7 }
     }));
@@ -375,7 +375,7 @@ export const parseVoiceCommand = async (text, categories = []) => {
 
   try {
     const response = await executeWithRetry(() => aiClient.models.generateContent({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.0-flash',
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       config: { temperature: 0.2 }
     }));
