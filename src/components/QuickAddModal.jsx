@@ -7,6 +7,7 @@ import { scanReceipt, guessCategory } from '../lib/gemini';
 import { getCurrentMonth, formatCurrency } from '../lib/utils';
 import { useLocation } from 'react-router-dom';
 import TransferModal from './TransferModal';
+import TagInput from './TagInput';
 import './QuickAddModal.css';
 
 export default function QuickAddModal() {
@@ -23,13 +24,8 @@ export default function QuickAddModal() {
   const [receiptFile, setReceiptFile] = useState(null);
   const [receiptPreview, setReceiptPreview] = useState(null);
 
-  const [form, setForm] = useState({
-    type: 'expense',
-    amount: '',
-    account_id: '',
-    category_id: '',
-    description: '',
-    date: new Date().toISOString().split('T')[0]
+  const [form, setForm] = useState({ 
+    type: 'expense', amount: '', description: '', account_id: '', category_id: '', date: new Date().toISOString().split('T')[0], tags: []
   });
 
   useEffect(() => {
@@ -283,6 +279,11 @@ export default function QuickAddModal() {
                     </button>
                   ))}
                 </div>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Tag / Label</label>
+                <TagInput tags={form.tags} onChange={tags => setForm({ ...form, tags })} />
               </div>
               
               {budgetWarning && (

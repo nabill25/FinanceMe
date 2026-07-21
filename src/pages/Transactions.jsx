@@ -9,11 +9,12 @@ import {
 import { scanReceipt, guessCategory } from '../lib/gemini';
 import { exportTransactionsToPDF, exportTransactionsToExcel } from '../lib/exportUtils';
 import { toast } from 'sonner';
+import TagInput from '../components/TagInput';
 import './Transactions.css';
 
 const defaultForm = {
   type: 'expense', amount: '', description: '', date: formatDateInput(new Date()),
-  account_id: '', category_id: '',
+  account_id: '', category_id: '', tags: []
 };
 
 function TransactionModal({ open, onClose, transaction, accounts, categories, onSave }) {
@@ -40,6 +41,7 @@ function TransactionModal({ open, onClose, transaction, accounts, categories, on
         date: transaction.date,
         account_id: transaction.account_id,
         category_id: transaction.category_id,
+        tags: transaction.tags || [],
       });
       setReceiptPreview(transaction.receipt_url || null);
       setIsSplit(transaction.is_split || false);
@@ -278,6 +280,11 @@ function TransactionModal({ open, onClose, transaction, accounts, categories, on
               </div>
             </div>
 
+            <div className="form-group">
+              <label className="form-label">Tag / Label</label>
+              <TagInput tags={form.tags} onChange={tags => setForm({ ...form, tags })} />
+            </div>
+
             <div className="modal-footer" style={{ padding: 0, border: 'none', margin: 0, marginTop: 4 }}>
               <button type="button" className="btn btn-ghost" onClick={onClose}>Batal</button>
               <button type="submit" className="btn btn-primary" disabled={saving}>
@@ -479,7 +486,7 @@ export default function TransactionsPage() {
             style={{ position: 'relative' }}
           >
             <SlidersHorizontal size={18} />
-            {(filters.categoryId || filters.accountId || filters.minAmount || filters.maxAmount) && (
+            {(filters.categoryId || filters.accountId || filters.minAmount || filters.maxAmount || filters.tag) && (
               <span className="filter-active-dot" />
             )}
           </button>
@@ -509,6 +516,22 @@ export default function TransactionsPage() {
                     {tx.receipt_url && <span title="Ada Lampiran Bukti" style={{ marginLeft: 6, color: 'var(--text-muted)' }}>📎</span>}
                     {tx.is_split && <span title="Patungan (Split Bill)" style={{ marginLeft: 6, fontSize: '12px' }}>🍕</span>}
                   </span>
+                  {tx.tags && tx.tags.length > 0 && (
+                    <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginTop: '4px', marginBottom: '2px' }}>
+                      {tx.tags.map((tag, i) => (
+                        <span key={i} style={{ 
+                          fontSize: '10px', 
+                          padding: '1px 6px', 
+                          borderRadius: '4px', 
+                          background: 'var(--bg-main)', 
+                          border: '1px solid var(--border-default)',
+                          color: 'var(--text-secondary)'
+                        }}>
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                   <span className="tx-item-meta">
                     <span className="badge" style={{ background: (tx.categories?.color || '#6b7280') + '22', color: tx.categories?.color || 'var(--text-secondary)', fontSize: '11px' }}>
                       {CATEGORY_ICONS[tx.categories?.icon]} {tx.categories?.name}
@@ -590,6 +613,17 @@ export default function TransactionsPage() {
                     <option key={a.id} value={a.id}>{a.name}</option>
                   ))}
                 </select>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Tag / Label</label>
+                <input 
+                  type="text" 
+                  className="form-input" 
+                  placeholder="Misal: LiburanBali"
+                  value={filters.tag || ''}
+                  onChange={e => setFilters(f => ({ ...f, tag: e.target.value.trim().replace(/^#/, '') }))}
+                />
               </div>
 
               <div className="form-row">

@@ -113,6 +113,7 @@ export const useFinanceStore = create((set, get) => ({
     if (filters.account_id) query = query.eq('account_id', filters.account_id);
     if (filters.category_id) query = query.eq('category_id', filters.category_id);
     if (filters.type) query = query.eq('type', filters.type);
+    if (filters.tag) query = query.contains('tags', [filters.tag]);
 
     const { data, error } = await query;
     if (!error) set({ transactions: data });
