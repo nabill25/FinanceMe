@@ -334,3 +334,61 @@ export const analyzeHabits = async (trendData, categoryData, monthLabel, languag
     return 'Gagal memuat analisis kebiasaan belanja AI.';
   }
 };
+
+/**
+ * Parse a natural language voice command to extract transaction details
+ * @param {string} text - The spoken text (e.g. "Beli kopi di starbucks 50 ribu")
+ * @param {Array} categories - Available categories to map to
+ * @returns {Promise<{ amount: number, description: string, category_type: 'income' | 'expense', category_id?: string }>}
+ */
+export const parseVoiceCommand = async (text, categories = []) => {
+  if (!aiClient) {
+    throw new Error('API Key Gemini belum diatur (VITE_GEMINI_API_KEY). Silakan tambahkan di .env.local');
+  }
+
+  const categoryListStr = categories.length > 0 
+    ? categories.map(c => `- ID: "${c.id}", Nama: "${c.name}", Tipe: "${c.type}"`).join('\n')
+    : 'Tidak ada daftar kategori yang diberikan.';
+
+  const prompt = `
+    Anda adalah asisten pencatat keuangan pintar. Pengguna memberikan perintah suara berikut:
+    "${text}"
+
+    Tugas Anda adalah mengekstrak data dari ucapan tersebut dan mengembalikannya HANYA dalam format JSON persis seperti ini:
+    {
+      "amount": <angka total, tipe number, tanpa simbol mata uang atau titik/koma ribuan. Misal "50 ribu" jadi 50000>,
+      "description": "<deskripsi singkat atau nama tempat>",
+      "category_type": "<income atau expense>",
+      "category_id": "<ID kategori yang paling relevan dari daftar di bawah>"
+    }
+
+    Daftar Kategori yang Tersedia:
+    ${categoryListStr}
+
+    Aturan:
+    1. Konversikan kata seperti "ribu", "juta" menjadi angka yang tepat (misal: "tiga puluh ribu" -> 30000).
+    2. Jika perintahnya menyatakan pengeluaran (beli, bayar, jajan, dsb), set category_type="expense".
+    3. Jika perintahnya menyatakan pemasukan (gaji, dapat uang, ditransfer, dsb), set category_type="income".
+    4. Pilih SATU category_id yang paling cocok. Jika tidak ada yang cocok, biarkan kosong ("").
+    5. KEMBALIKAN HANYA TEKS JSON SAJA, tanpa markdown block, tanpa awalan apapun.
+  `;
+
+  try {
+    const response = await executeWithRetry(() => aiClient.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      config: { temperature: 0.2 }
+    }));
+    
+    let rawText = response.text.trim();
+    if (rawText.startsWith('\`\`\`')) {
+      rawText = rawText.replace(/^\`\`\`(json)?/i, '').replace(/\`\`\`$/, '').trim();
+    }
+    
+    const parsed = JSON.parse(rawText);
+    return parsed;
+  } catch (error) {
+    console.error('Gemini Voice Parse Error:', error);
+    throw new Error('Gagal menerjemahkan suara ke transaksi. Coba ulangi dengan lebih jelas.');
+  }
+};

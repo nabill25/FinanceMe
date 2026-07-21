@@ -55,9 +55,9 @@ export default function SplitBill() {
               assignees: [] // array of person IDs
             }));
             setItems(parsedItems);
-            toast.success(t('common.success') || 'Struk berhasil dipindai!');
+            toast.success(`AI berhasil mengekstrak ${result.items.length} menu dari struk!`);
           } else {
-            toast.warning('Tidak ada rincian pesanan yang terdeteksi, atau format struk tidak terbaca.');
+            toast.warning('AI tidak dapat menemukan rincian pesanan pada struk ini.');
           }
         } catch (err) {
           toast.error(err.message || 'Gagal memindai struk.');
@@ -222,8 +222,8 @@ export default function SplitBill() {
                   <div className="upload-icon">
                     <Camera size={32} />
                   </div>
-                  <h3>{t('splitBill.upload') || 'Unggah Struk (AI)'}</h3>
-                  <p className="text-sm text-muted">Ambil foto atau unggah gambar struk (jpg, png)</p>
+                  <h3>AI Scan Struk</h3>
+                  <p className="text-sm text-muted">Unggah foto struk, AI akan memecah daftar pesanan otomatis</p>
                 </div>
               ) : (
                 <div className="receipt-preview-container">

@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { Plus, Camera, Loader2, ShieldAlert, Shield, ImagePlus, ArrowLeftRight } from 'lucide-react';
+import { Plus, Camera, Loader2, ShieldAlert, Shield, ImagePlus, ArrowLeftRight, Mic } from 'lucide-react';
 import { useFinanceStore } from '../store/financeStore';
 import { useAuthStore } from '../store/authStore';
 import { toast } from 'sonner';
-import { scanReceipt, guessCategory } from '../lib/gemini';
+import { scanReceipt, guessCategory, parseVoiceCommand } from '../lib/gemini';
 import { getCurrentMonth, formatCurrency } from '../lib/utils';
 import { useLocation } from 'react-router-dom';
 import TransferModal from './TransferModal';
@@ -20,6 +20,7 @@ export default function QuickAddModal() {
   const [scanning, setScanning] = useState(false);
   const [guessingCategory, setGuessingCategory] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [isListening, setIsListening] = useState(false);
   const fileInputRef = useRef(null);
   
   const [receiptFile, setReceiptFile] = useState(null);
@@ -136,6 +137,59 @@ export default function QuickAddModal() {
     }
   };
 
+  const handleVoiceRecord = () => {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      toast.error('Browser Anda tidak mendukung fitur perekaman suara.');
+      return;
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    
+    recognition.lang = 'id-ID';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => {
+      setIsListening(true);
+      toast.info('Mendengarkan... Silakan bicara.');
+    };
+
+    recognition.onresult = async (event) => {
+      const speechResult = event.results[0][0].transcript;
+      toast.success('Suara ditangkap: "' + speechResult + '"');
+      setIsListening(false);
+      
+      try {
+        setScanning(true);
+        const parsed = await parseVoiceCommand(speechResult, categories);
+        setForm(f => ({
+          ...f,
+          type: parsed.category_type || f.type,
+          amount: parsed.amount || f.amount,
+          description: parsed.description || f.description,
+          category_id: parsed.category_id || f.category_id
+        }));
+        toast.success('Suara berhasil diterjemahkan ke transaksi!');
+      } catch (err) {
+        toast.error(err.message);
+      } finally {
+        setScanning(false);
+      }
+    };
+
+    recognition.onerror = (event) => {
+      setIsListening(false);
+      toast.error('Gagal merekam suara: ' + event.error);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognition.start();
+  };
+
   const filteredCategories = categories.filter(c => c.type === form.type);
 
   // Budget Check
@@ -212,7 +266,10 @@ export default function QuickAddModal() {
                   <input required type="number" min="1" className="form-input amount-input" 
                     value={form.amount} onChange={e => setForm({...form, amount: e.target.value})} 
                     placeholder="0" autoFocus style={{ flex: 1 }} />
-                  <button type="button" className="btn btn-outline" onClick={() => fileInputRef.current?.click()} disabled={scanning} style={{ padding: '0 12px' }} title="Pilih Bukti (Foto/Galeri)">
+                  <button type="button" className={`btn btn-outline ${isListening ? 'listening' : ''}`} onClick={handleVoiceRecord} disabled={scanning || isListening} style={{ padding: '0 12px', background: isListening ? 'rgba(239, 68, 68, 0.1)' : '', borderColor: isListening ? '#ef4444' : '', color: isListening ? '#ef4444' : '' }} title="Rekam Suara (AI)">
+                    {isListening ? <Loader2 size={20} className="spin" /> : <Mic size={20} />}
+                  </button>
+                  <button type="button" className="btn btn-outline" onClick={() => fileInputRef.current?.click()} disabled={scanning || isListening} style={{ padding: '0 12px' }} title="Pilih Bukti (Foto/Galeri)">
                     {scanning ? <Loader2 size={20} className="spin" /> : <ImagePlus size={20} />}
                   </button>
                   <input type="file" ref={fileInputRef} onChange={handleScan} accept="image/*" style={{ display: 'none' }} />
