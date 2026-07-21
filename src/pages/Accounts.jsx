@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Plus, Edit2, Trash2, Wallet, CreditCard, Smartphone, TrendingUp, RefreshCcw } from 'lucide-react';
+import { Plus, Edit2, Trash2, Wallet, CreditCard, Smartphone, TrendingUp, RefreshCcw, ArrowLeftRight } from 'lucide-react';
 import { useFinanceStore } from '../store/financeStore';
 import { useAuthStore } from '../store/authStore';
 import { formatCurrency, ACCOUNT_TYPES, ACCOUNT_PROVIDERS, CURRENCIES } from '../lib/utils';
 import ProviderLogo from '../components/ProviderLogo';
 import { toast } from 'sonner';
+import TransferModal from '../components/TransferModal';
 import './Accounts.css';
 
 const COLORS = [
@@ -217,6 +218,7 @@ export default function AccountsPage() {
   const { accounts, fetchAccounts, addAccount, updateAccount, deleteAccount, categories, fetchCategories, addTransaction } = useFinanceStore();
   const [modalOpen, setModalOpen] = useState(false);
   const [syncModalOpen, setSyncModalOpen] = useState(false);
+  const [transferModalOpen, setTransferModalOpen] = useState(false);
   const [editAccount, setEditAccount] = useState(null);
 
   useEffect(() => {
@@ -295,9 +297,16 @@ export default function AccountsPage() {
           <h1>Akun Saya</h1>
           <p className="text-secondary text-sm">Kelola semua akun keuangan Anda</p>
         </div>
-        <button className="btn btn-primary" onClick={() => { setEditAccount(null); setModalOpen(true); }}>
-          <Plus size={16} /> Tambah Akun
-        </button>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          {accounts.length >= 2 && (
+            <button className="btn btn-outline" onClick={() => setTransferModalOpen(true)}>
+              <ArrowLeftRight size={16} /> Transfer
+            </button>
+          )}
+          <button className="btn btn-primary" onClick={() => { setEditAccount(null); setModalOpen(true); }}>
+            <Plus size={16} /> Tambah Akun
+          </button>
+        </div>
       </div>
 
       {/* Total balance */}
@@ -361,6 +370,10 @@ export default function AccountsPage() {
         onClose={() => { setSyncModalOpen(false); setEditAccount(null); }}
         account={editAccount}
         onSave={handleSync}
+      />
+      <TransferModal
+        isOpen={transferModalOpen}
+        onClose={() => setTransferModalOpen(false)}
       />
     </div>
   );

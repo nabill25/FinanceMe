@@ -258,6 +258,20 @@ export const useFinanceStore = create((set, get) => ({
 
   deleteTransaction: async (id) => {
     const transaction = get().transactions.find((t) => t.id === id);
+
+    // If this is a transfer, also delete the paired transaction
+    if (transaction?.transfer_id) {
+      const paired = get().transactions.find((t) => t.id === transaction.transfer_id);
+      if (paired) {
+        await supabase.from('transactions').delete().eq('id', paired.id);
+        set((s) => ({ transactions: s.transactions.filter((t) => t.id !== paired.id) }));
+        // Reverse paired balance
+        const pairedDelta = paired.type === 'income' ? -paired.amount : paired.amount;
+        await supabase.rpc('update_account_balance', { account_id: paired.account_id, delta: pairedDelta });
+        get().updateAccountBalance(paired.account_id, pairedDelta);
+      }
+    }
+
     const { error } = await supabase.from('transactions').delete().eq('id', id);
     if (error) throw error;
 
@@ -269,6 +283,75 @@ export const useFinanceStore = create((set, get) => ({
       await supabase.rpc('update_account_balance', { account_id: transaction.account_id, delta });
       get().updateAccountBalance(transaction.account_id, delta);
     }
+  },
+
+  // ── TRANSFER ANTAR AKUN ───────────────────────────────────
+  addTransfer: async ({ fromAccountId, toAccountId, amount, note, date, userId }) => {
+    if (fromAccountId === toAccountId) throw new Error('Akun asal dan tujuan tidak boleh sama');
+    if (!amount || amount <= 0) throw new Error('Jumlah transfer harus lebih dari 0');
+
+    const fromAccount = get().accounts.find(a => a.id === fromAccountId);
+    const toAccount = get().accounts.find(a => a.id === toAccountId);
+    if (!fromAccount || !toAccount) throw new Error('Akun tidak ditemukan');
+    if (fromAccount.balance < amount) throw new Error(`Saldo ${fromAccount.name} tidak mencukupi`);
+
+    const transferDate = date || new Date().toISOString().split('T')[0];
+    const description = note || `Transfer ke ${toAccount.name}`;
+    const descriptionIn = note || `Transfer dari ${fromAccount.name}`;
+
+    // Step 1: Insert the "out" transaction (source)
+    const { data: outTx, error: outError } = await supabase
+      .from('transactions')
+      .insert({
+        user_id: userId,
+        account_id: fromAccountId,
+        type: 'expense',
+        transfer_type: 'transfer_out',
+        amount,
+        description,
+        date: transferDate,
+        category_id: null,
+      })
+      .select('*, accounts(name, color, icon, type)')
+      .single();
+    if (outError) throw outError;
+
+    // Step 2: Insert the "in" transaction (destination), linking to outTx
+    const { data: inTx, error: inError } = await supabase
+      .from('transactions')
+      .insert({
+        user_id: userId,
+        account_id: toAccountId,
+        type: 'income',
+        transfer_type: 'transfer_in',
+        transfer_id: outTx.id,
+        amount,
+        description: descriptionIn,
+        date: transferDate,
+        category_id: null,
+      })
+      .select('*, accounts(name, color, icon, type)')
+      .single();
+    if (inError) {
+      // Rollback the out transaction if in fails
+      await supabase.from('transactions').delete().eq('id', outTx.id);
+      throw inError;
+    }
+
+    // Step 3: Update outTx with transfer_id pointing to inTx
+    await supabase.from('transactions').update({ transfer_id: inTx.id }).eq('id', outTx.id);
+
+    // Update local state
+    const outTxFinal = { ...outTx, transfer_id: inTx.id };
+    set((s) => ({ transactions: [inTx, outTxFinal, ...s.transactions] }));
+
+    // Update both account balances
+    await supabase.rpc('update_account_balance', { account_id: fromAccountId, delta: -amount });
+    await supabase.rpc('update_account_balance', { account_id: toAccountId, delta: amount });
+    get().updateAccountBalance(fromAccountId, -amount);
+    get().updateAccountBalance(toAccountId, amount);
+
+    return { outTx: outTxFinal, inTx };
   },
 
   // ── BUDGETS ───────────────────────────────────────────────

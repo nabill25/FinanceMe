@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
-import { Plus, Camera, Loader2, ShieldAlert, Shield, ImagePlus } from 'lucide-react';
+import { Plus, Camera, Loader2, ShieldAlert, Shield, ImagePlus, ArrowLeftRight } from 'lucide-react';
 import { useFinanceStore } from '../store/financeStore';
 import { useAuthStore } from '../store/authStore';
 import { toast } from 'sonner';
 import { scanReceipt } from '../lib/gemini';
 import { getCurrentMonth, formatCurrency } from '../lib/utils';
 import { useLocation } from 'react-router-dom';
+import TransferModal from './TransferModal';
 import './QuickAddModal.css';
 
 export default function QuickAddModal() {
@@ -13,6 +14,7 @@ export default function QuickAddModal() {
   const { addTransaction, accounts, categories, spendingLimit, spendingGuardState, budgets, getCategorySpending, uploadReceipt } = useFinanceStore();
   const location = useLocation();
   const [open, setOpen] = useState(false);
+  const [transferOpen, setTransferOpen] = useState(false);
   const [scanning, setScanning] = useState(false);
   const [saving, setSaving] = useState(false);
   const fileInputRef = useRef(null);
@@ -132,9 +134,20 @@ export default function QuickAddModal() {
   return (
     <>
       {showFab && (
-        <button className="quick-add-fab" onClick={() => setOpen(true)}>
-          <Plus size={24} />
-        </button>
+        <div className="quick-add-fab-group">
+          {accounts.length >= 2 && (
+            <button
+              className="quick-add-fab-secondary"
+              onClick={() => setTransferOpen(true)}
+              title="Transfer Antar Akun"
+            >
+              <ArrowLeftRight size={18} />
+            </button>
+          )}
+          <button className="quick-add-fab" onClick={() => setOpen(true)}>
+            <Plus size={24} />
+          </button>
+        </div>
       )}
 
       {open && (
@@ -247,6 +260,7 @@ export default function QuickAddModal() {
           </div>
         </div>
       )}
+      <TransferModal isOpen={transferOpen} onClose={() => setTransferOpen(false)} />
     </>
   );
 }
