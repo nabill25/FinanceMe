@@ -8,6 +8,7 @@ import {
 } from '../lib/utils';
 import { scanReceipt, guessCategory } from '../lib/gemini';
 import { exportTransactionsToPDF, exportTransactionsToExcel } from '../lib/exportUtils';
+import AiTransactionInput from '../components/AiTransactionInput';
 import { toast } from 'sonner';
 import TagInput from '../components/TagInput';
 import BottomSheet from '../components/BottomSheet';
@@ -428,6 +429,8 @@ export default function TransactionsPage() {
           </button>
         </div>
       </div>
+
+      <AiTransactionInput onTransactionAdded={() => console.log('AI Tx Added')} />
 
       {/* Spending Guard Banner */}
       {spendingLimit?.is_active && spendingGuardState && (

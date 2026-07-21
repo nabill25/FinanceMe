@@ -108,10 +108,6 @@ export default function Dashboard() {
 
   const firstName = user?.user_metadata?.full_name?.split(' ')[0] || 'Anda';
 
-  // Obscure text if hidden
-  const obscure = (val) => showBalance ? val : 'Rp •••••••';
-  const obscureShort = (val) => showBalance ? val : '••••';
-
   return (
     <div className="dashboard animate-fade-in">
       {/* Header */}
@@ -129,41 +125,29 @@ export default function Dashboard() {
         <div className="balance-hero-bg" />
         <div style={{ position: 'relative', zIndex: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <p className="balance-hero-label">Total Saldo Semua Akun</p>
-          <button className="btn-icon btn-ghost" style={{ color: 'rgba(255,255,255,0.7)', margin: '-8px' }} onClick={() => setShowBalance(!showBalance)}>
-            {showBalance ? <Eye size={18} /> : <EyeOff size={18} />}
-          </button>
         </div>
-        <h2 className="balance-hero-amount" style={{ transition: 'all 0.3s ease' }}>
-          {showBalance ? (
-            <CountUp
-              start={0}
-              end={totalBalance}
-              duration={1.5}
-              formattingFn={formatCurrency}
-            />
-          ) : (
-            obscure(formatCurrency(totalBalance))
-          )}
+        <h2 className="balance-hero-amount amount-text" style={{ transition: 'all 0.3s ease' }}>
+          <CountUp
+            start={0}
+            end={totalBalance}
+            duration={1.5}
+            formattingFn={formatCurrency}
+          />
         </h2>
         <div className="balance-hero-accounts">
           {accounts.slice(0, 4).map((acc) => {
-            const provider = ACCOUNT_PROVIDERS[acc.type]?.find(p => p.id === acc.icon);
             return (
               <Link to="/accounts" state={{ openAccountId: acc.id }} key={acc.id} className="balance-hero-account" style={{ textDecoration: 'none' }}>
                 <ProviderLogo account={acc} size={28} />
                 <div>
                   <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)' }}>{acc.name}</div>
-                  <div style={{ fontSize: '14px', fontWeight: 700, color: 'white', transition: 'all 0.3s' }}>
-                    {showBalance ? (
-                      <CountUp
-                        start={0}
-                        end={acc.balance}
-                        duration={1.5}
-                        formattingFn={formatCurrencyShort}
-                      />
-                    ) : (
-                      obscureShort(formatCurrencyShort(acc.balance))
-                    )}
+                  <div className="amount-text" style={{ fontSize: '14px', fontWeight: 700, color: 'white', transition: 'all 0.3s' }}>
+                    <CountUp
+                      start={0}
+                      end={acc.balance}
+                      duration={1.5}
+                      formattingFn={formatCurrencyShort}
+                    />
                   </div>
                 </div>
               </Link>

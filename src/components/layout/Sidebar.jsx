@@ -3,7 +3,7 @@ import {
   LayoutDashboard, CreditCard, ArrowLeftRight,
   PieChart, BarChart3, HelpCircle, LogOut, Wallet,
   Menu, X, PiggyBank, Settings, Zap, Repeat, CalendarDays,
-  Sun, Moon, Bot, TrendingUp, Scissors
+  Sun, Moon, Bot, TrendingUp, Scissors, Eye, EyeOff
 } from 'lucide-react';
 import { useState } from 'react';
 import NotificationBell from './NotificationBell';
@@ -34,7 +34,7 @@ const mobileMoreItems = navItems.slice(4);
 
 export default function Sidebar() {
   const { user, signOut } = useAuthStore();
-  const { theme, toggleTheme } = useFinanceStore();
+  const { theme, toggleTheme, showBalance, setShowBalance } = useFinanceStore();
   const { t } = useLanguageStore();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -66,7 +66,13 @@ export default function Sidebar() {
             </div>
             <span className="sidebar-logo-text">FinanceMe</span>
           </div>
-          <div className="desktop-only">
+          <div className="desktop-only" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <button className="btn btn-icon btn-ghost" onClick={() => setShowBalance(!showBalance)} title="Toggle Sensor Saldo">
+              {showBalance ? <Eye size={20} /> : <EyeOff size={20} />}
+            </button>
+            <button className="btn btn-icon btn-ghost" onClick={toggleTheme}>
+              {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
             <NotificationBell />
           </div>
         </div>
@@ -127,6 +133,9 @@ export default function Sidebar() {
           <span className="sidebar-logo-text">FinanceMe</span>
         </div>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <button className="btn btn-icon btn-ghost" onClick={() => setShowBalance(!showBalance)}>
+            {showBalance ? <Eye size={20} /> : <EyeOff size={20} />}
+          </button>
           <button className="btn btn-icon btn-ghost" onClick={toggleTheme}>
             {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
           </button>

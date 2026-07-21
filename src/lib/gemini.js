@@ -247,6 +247,65 @@ ATURAN MENJAWAB:
 };
 
 /**
+ * Parse natural language text into a transaction object
+ * @param {string} text - User input text (e.g. "Beli kopi 50rb pakai gopay")
+ * @param {Array} categories - List of available categories
+ * @param {Array} accounts - List of available accounts
+ */
+export const parseTransactionText = async (text, categories = [], accounts = []) => {
+  if (!aiClient) {
+    throw new Error('API Key Gemini belum diatur.');
+  }
+
+  const categoryListStr = categories.map(c => `- ID: "${c.id}", Nama: "${c.name}", Tipe: "${c.type}"`).join('\n');
+  const accountListStr = accounts.map(a => `- ID: "${a.id}", Nama: "${a.name}"`).join('\n');
+
+  const prompt = `
+    Anda adalah asisten keuangan pintar. Ubah kalimat berikut menjadi data transaksi terstruktur.
+    Kalimat: "${text}"
+
+    Kembalikan HANYA format JSON persis seperti ini:
+    {
+      "amount": <angka, tipe number>,
+      "description": "<keterangan singkat>",
+      "category_type": "<income atau expense>",
+      "category_id": "<ID kategori yang paling cocok, atau kosong jika tidak ada>",
+      "account_id": "<ID akun yang paling cocok, atau kosong jika tidak ada>"
+    }
+    
+    Daftar Kategori:
+    ${categoryListStr || '(kosong)'}
+    
+    Daftar Akun:
+    ${accountListStr || '(kosong)'}
+    
+    Aturan Kritis:
+    1. Ekstrak angka menjadi "amount". (misal "50rb" -> 50000).
+    2. "category_type" adalah "expense" jika pengeluaran, "income" jika pemasukan.
+    3. Cocokkan "category_id" dan "account_id" berdasarkan nama dari daftar yang diberikan.
+    4. KEMBALIKAN TEKS JSON SAJA.
+  `;
+
+  try {
+    const response = await executeWithRetry(() => aiClient.models.generateContent({
+      model: 'gemini-2.0-flash',
+      contents: [{ role: 'user', parts: [{ text: prompt }] }]
+    }));
+
+    const responseText = response.text;
+    let jsonStr = responseText.trim();
+    if (jsonStr.startsWith('```json')) jsonStr = jsonStr.replace(/^```json/, '');
+    if (jsonStr.startsWith('```')) jsonStr = jsonStr.replace(/^```/, '');
+    if (jsonStr.endsWith('```')) jsonStr = jsonStr.replace(/```$/, '');
+
+    return JSON.parse(jsonStr.trim());
+  } catch (error) {
+    console.error('Gemini API Error (Parse Text):', error);
+    throw new Error('Gagal memproses teks. Silakan coba bahasa yang lebih jelas.');
+  }
+};
+
+/**
  * Generate a financial forecast based on current month's data
  * @param {Object} data - Contains burnRate, predictedExpense, income, etc.
  * @param {string} language - Target language ('id' or 'en')

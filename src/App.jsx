@@ -41,6 +41,7 @@ export default function App() {
 
   const theme = financeStore(state => state.theme);
   const accentColor = financeStore(state => state.accentColor);
+  const showBalance = financeStore(state => state.showBalance);
 
   useEffect(() => {
     const applyTheme = () => {
@@ -62,6 +63,14 @@ export default function App() {
       return () => mediaQuery.removeEventListener('change', listener);
     }
   }, [theme, accentColor]);
+
+  useEffect(() => {
+    if (!showBalance) {
+      document.body.classList.add('privacy-mode');
+    } else {
+      document.body.classList.remove('privacy-mode');
+    }
+  }, [showBalance]);
 
   useEffect(() => {
     // Get initial session

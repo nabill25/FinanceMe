@@ -8,6 +8,7 @@ import {
 } from '../lib/utils';
 import BudgetSimulatorWidget from '../components/dashboard/BudgetSimulatorWidget';
 import BottomSheet from '../components/BottomSheet';
+import VisualBudget from '../components/VisualBudget';
 import { toast } from 'sonner';
 import './Budget.css';
 
@@ -229,6 +230,7 @@ export default function BudgetPage() {
   const [currentMonth, setCurrentMonth] = useState(getCurrentMonth());
   const [modalOpen, setModalOpen] = useState(false);
   const [templateModalOpen, setTemplateModalOpen] = useState(false);
+  const [isVisualMode, setIsVisualMode] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -268,6 +270,15 @@ export default function BudgetPage() {
     }
   };
 
+  const { updateBudget } = useFinanceStore();
+  const handleAllocate = async (budgetId, newAmount) => {
+    await updateBudget(budgetId, { amount: newAmount });
+  };
+  
+  const currentMonthIncome = transactions
+    .filter(t => t.type === 'income' && t.date.startsWith(currentMonth))
+    .reduce((s, t) => s + t.amount, 0);
+
   return (
     <div className="budget-page animate-fade-in">
       <div className="page-header">
@@ -285,19 +296,41 @@ export default function BudgetPage() {
         </div>
       </div>
 
-      {/* Month navigator */}
-      <div className="month-nav card">
-        <button className="btn btn-ghost btn-sm btn-icon" onClick={() => navigateMonth(-1)}>
-          <ChevronLeft size={18} />
-        </button>
-        <span className="month-nav-label">{getMonthLabel(currentMonth)}</span>
-        <button className="btn btn-ghost btn-sm btn-icon" onClick={() => navigateMonth(1)}>
-          <ChevronRight size={18} />
+      {/* Month navigator & Toggle */}
+      <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
+        <div className="month-nav card" style={{ flex: 1, margin: 0 }}>
+          <button className="btn btn-ghost btn-sm btn-icon" onClick={() => navigateMonth(-1)}>
+            <ChevronLeft size={18} />
+          </button>
+          <span className="month-nav-label">{getMonthLabel(currentMonth)}</span>
+          <button className="btn btn-ghost btn-sm btn-icon" onClick={() => navigateMonth(1)}>
+            <ChevronRight size={18} />
+          </button>
+        </div>
+        <button 
+          className="btn card hover-lift-slight" 
+          style={{ 
+            background: isVisualMode ? 'var(--accent-primary)' : 'var(--bg-elevated)', 
+            color: isVisualMode ? 'white' : 'var(--text-primary)',
+            padding: '0 16px'
+          }}
+          onClick={() => setIsVisualMode(!isVisualMode)}
+        >
+          {isVisualMode ? 'Kembali' : 'Amplop Visual ✨'}
         </button>
       </div>
 
-      {/* Summary */}
-      {budgets.length > 0 && (
+      {isVisualMode ? (
+        <VisualBudget 
+          budgets={budgetsWithSpending} 
+          categories={categories} 
+          totalIncome={currentMonthIncome} 
+          onAllocate={handleAllocate} 
+        />
+      ) : (
+        <>
+          {/* Summary */}
+          {budgets.length > 0 && (
         <div className="budget-summary card">
           <div className="budget-summary-hero">
             <div>
@@ -362,6 +395,8 @@ export default function BudgetPage() {
             />
           ))}
         </div>
+      )}
+        </>
       )}
 
       <BudgetModal

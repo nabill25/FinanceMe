@@ -55,12 +55,35 @@
   --transition-fast: 0.15s ease;
   --transition-base: 0.25s ease;
   --transition-bounce: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  --transition-spring: 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-  
   --sidebar-width: 260px;
   --bottom-nav-height: calc(64px + env(safe-area-inset-bottom, 20px));
   --safe-area-top: env(safe-area-inset-top, 0px);
   --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Privacy Mode */
+.privacy-mode .amount-text,
+.privacy-mode .accounts-total-amount,
+.privacy-mode .account-card-balance,
+.privacy-mode .transaction-amount,
+.privacy-mode .budget-summary-val,
+.privacy-mode .chart-tooltip-value,
+.privacy-mode .goal-progress-text {
+  filter: blur(5px);
+  opacity: 0.85;
+  user-select: none;
+  transition: filter 0.3s ease, opacity 0.3s ease;
+}
+
+.privacy-mode .amount-text:hover,
+.privacy-mode .accounts-total-amount:hover,
+.privacy-mode .account-card-balance:hover,
+.privacy-mode .transaction-amount:hover,
+.privacy-mode .budget-summary-val:hover,
+.privacy-mode .chart-tooltip-value:hover,
+.privacy-mode .goal-progress-text:hover {
+  filter: blur(0px);
+  opacity: 1;
 }
 
 [data-theme="dark"] {
