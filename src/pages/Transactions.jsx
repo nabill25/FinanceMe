@@ -608,14 +608,8 @@ export default function TransactionsPage() {
       />
 
       {/* Advanced Filter Modal */}
-      {filterModalOpen && (
-        <div className="modal-overlay" onClick={() => setFilterModalOpen(false)}>
-          <div className="modal-content animate-slide-up" style={{ maxWidth: '400px' }} onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>Filter Lanjutan</h2>
-              <button className="modal-close" onClick={() => setFilterModalOpen(false)}><X size={20} /></button>
-            </div>
-            <div className="modal-body">
+      <BottomSheet isOpen={filterModalOpen} onClose={() => setFilterModalOpen(false)} title="Filter Lanjutan">
+        <div className="modal-body">
               <div className="form-group">
                 <label className="form-label">Kategori</label>
                 <select 
@@ -692,9 +686,7 @@ export default function TransactionsPage() {
                 Terapkan
               </button>
             </div>
-          </div>
-        </div>
-      )}
+      </BottomSheet>
     </div>
   );
 }

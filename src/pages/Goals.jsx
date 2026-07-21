@@ -3,6 +3,7 @@ import { Target, Plus, Edit2, Trash2, CheckCircle, TrendingUp } from 'lucide-rea
 import { useFinanceStore } from '../store/financeStore';
 import { useAuthStore } from '../store/authStore';
 import { formatCurrency } from '../lib/utils';
+import BottomSheet from '../components/BottomSheet';
 import './Goals.css';
 
 const PRESET_ICONS = ['target', 'home', 'car', 'plane', 'graduation-cap', 'heart'];
@@ -142,14 +143,8 @@ export default function GoalsPage() {
         )}
       </div>
 
-      {showForm && (
-        <div className="modal-overlay" onClick={() => setShowForm(false)}>
-          <div className="modal-content animate-slide-up" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>{editingId ? 'Edit Target' : 'Buat Target Baru'}</h3>
-              <button className="btn-icon btn-ghost" onClick={() => setShowForm(false)}>✕</button>
-            </div>
-            <form onSubmit={saveGoal} className="modal-body">
+      <BottomSheet isOpen={showForm} onClose={() => setShowForm(false)} title={editingId ? 'Edit Target' : 'Buat Target Baru'}>
+        <form onSubmit={saveGoal} className="modal-body" style={{ padding: 0 }}>
               <div className="form-group">
                 <label className="form-label">Nama Target (Impian)</label>
                 <input required className="form-input" value={form.name} onChange={e => setForm({...form, name: e.target.value})} placeholder="Contoh: Beli Laptop Baru" />
@@ -190,9 +185,7 @@ export default function GoalsPage() {
                 <button type="submit" className="btn btn-primary">Simpan Target</button>
               </div>
             </form>
-          </div>
-        </div>
-      )}
+      </BottomSheet>
     </div>
   );
 }

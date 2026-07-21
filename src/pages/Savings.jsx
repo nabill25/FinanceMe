@@ -4,6 +4,7 @@ import { useFinanceStore } from '../store/financeStore';
 import { useAuthStore } from '../store/authStore';
 import { formatCurrency, clamp } from '../lib/utils';
 import { toast } from 'sonner';
+import BottomSheet from '../components/BottomSheet';
 import './Savings.css';
 
 const POT_ICONS = ['🐷', '🏖️', '🚗', '🏠', '✈️', '🎓', '💊', '💍', '📱', '🎮', '🌍', '🎁'];
@@ -40,12 +41,7 @@ function PotModal({ open, onClose, pot, onSave }) {
   };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal animate-slide-up">
-        <div className="modal-header">
-          <span className="modal-title">{pot ? 'Edit Celengan' : 'Celengan Baru'}</span>
-          <button className="btn btn-icon btn-ghost" onClick={onClose}>✕</button>
-        </div>
+    <BottomSheet isOpen={open} onClose={onClose} title={pot ? 'Edit Celengan' : 'Celengan Baru'}>
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div className="form-group">
             <label className="form-label">Nama Celengan</label>
@@ -92,8 +88,7 @@ function PotModal({ open, onClose, pot, onSave }) {
             </button>
           </div>
         </form>
-      </div>
-    </div>
+    </BottomSheet>
   );
 }
 
@@ -133,12 +128,7 @@ function TransferModal({ open, onClose, pot, type }) {
   };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal animate-slide-up">
-        <div className="modal-header">
-          <span className="modal-title">{type === 'topup' ? `💰 Setor ke ${pot.name}` : `📤 Tarik dari ${pot.name}`}</span>
-          <button className="btn btn-icon btn-ghost" onClick={onClose}>✕</button>
-        </div>
+    <BottomSheet isOpen={open} onClose={onClose} title={type === 'topup' ? `💰 Setor ke ${pot.name}` : `📤 Tarik dari ${pot.name}`}>
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div className="form-group">
             <label className="form-label">Akun {type === 'topup' ? 'Sumber' : 'Tujuan'}</label>
@@ -158,8 +148,7 @@ function TransferModal({ open, onClose, pot, type }) {
             </button>
           </div>
         </form>
-      </div>
-    </div>
+    </BottomSheet>
   );
 }
 

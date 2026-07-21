@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, X } from 'lucide-react';
 import { useFinanceStore } from '../store/financeStore';
 import { formatCurrencyShort, formatDate, CATEGORY_ICONS, EXCHANGE_RATES } from '../lib/utils';
+import BottomSheet from '../components/BottomSheet';
 import './CalendarView.css';
 
 export default function CalendarView() {
@@ -120,21 +121,19 @@ export default function CalendarView() {
       </div>
 
       {/* Daily Transactions Modal */}
-      {selectedDate && (
-        <div className="modal-overlay" onClick={() => setSelectedDate(null)}>
-          <div className="modal animate-slide-up" style={{ maxWidth: '450px' }} onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-              <div>
-                <span className="modal-title">Transaksi Harian</span>
-                <p className="text-secondary" style={{ fontSize: '13px', margin: '4px 0 0 0' }}>
-                  {formatDate(selectedDate)}
-                </p>
-              </div>
-              <button className="btn btn-icon btn-ghost" onClick={() => setSelectedDate(null)}>
-                <X size={20} />
-              </button>
-            </div>
-            <div className="modal-body">
+      <BottomSheet 
+        isOpen={!!selectedDate} 
+        onClose={() => setSelectedDate(null)} 
+        title={
+          <div>
+            <span>Transaksi Harian</span>
+            <p className="text-secondary" style={{ fontSize: '13px', margin: '4px 0 0 0', fontWeight: 'normal' }}>
+              {selectedDate && formatDate(selectedDate)}
+            </p>
+          </div>
+        }
+      >
+        <div className="modal-body" style={{ padding: 0 }}>
               <div className="daily-summary-row" style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
                 <div style={{ flex: 1, padding: '12px', background: 'rgba(16,185,129,0.1)', borderRadius: '8px', color: 'var(--accent-success)' }}>
                   <div style={{ fontSize: '12px' }}>Pemasukan</div>
@@ -170,9 +169,7 @@ export default function CalendarView() {
                 </div>
               )}
             </div>
-          </div>
-        </div>
-      )}
+      </BottomSheet>
     </div>
   );
 }

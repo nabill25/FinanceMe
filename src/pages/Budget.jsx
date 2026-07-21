@@ -6,6 +6,8 @@ import {
   formatCurrency, getCurrentMonth, getMonthLabel,
   CATEGORY_ICONS, clamp
 } from '../lib/utils';
+import BudgetSimulatorWidget from '../components/dashboard/BudgetSimulatorWidget';
+import BottomSheet from '../components/BottomSheet';
 import { toast } from 'sonner';
 import './Budget.css';
 
@@ -36,12 +38,7 @@ function BudgetModal({ open, onClose, categories, usedCategoryIds, userId, month
   };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal animate-slide-up">
-        <div className="modal-header">
-          <span className="modal-title">Buat Anggaran</span>
-          <button className="btn btn-icon btn-ghost" onClick={onClose}>✕</button>
-        </div>
+    <BottomSheet isOpen={open} onClose={onClose} title="Buat Anggaran">
         {available.length === 0 ? (
           <p className="text-secondary text-sm" style={{ padding: '16px 0' }}>
             Semua kategori sudah memiliki anggaran bulan ini.
@@ -71,8 +68,7 @@ function BudgetModal({ open, onClose, categories, usedCategoryIds, userId, month
             </div>
           </form>
         )}
-      </div>
-    </div>
+    </BottomSheet>
   );
 }
 
@@ -129,12 +125,7 @@ function BudgetTemplateModal({ open, onClose, categories, usedCategoryIds, userI
   };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal animate-slide-up">
-        <div className="modal-header">
-          <span className="modal-title">✨ Template Anggaran 50/30/20</span>
-          <button className="btn btn-icon btn-ghost" onClick={onClose}>✕</button>
-        </div>
+    <BottomSheet isOpen={open} onClose={onClose} title="✨ Template Anggaran 50/30/20">
         
         <div style={{ padding: '16px 0', fontSize: '13px', color: 'var(--text-secondary)' }}>
           Aturan 50/30/20 membagi pendapatan Anda menjadi:
@@ -158,8 +149,7 @@ function BudgetTemplateModal({ open, onClose, categories, usedCategoryIds, userI
             </button>
           </div>
         </form>
-      </div>
-    </div>
+    </BottomSheet>
   );
 }
 

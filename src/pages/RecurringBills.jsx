@@ -3,6 +3,7 @@ import { Plus, Repeat, CalendarClock, CreditCard, ChevronRight, CheckCircle2, Pl
 import { useFinanceStore } from '../store/financeStore';
 import { useAuthStore } from '../store/authStore';
 import { formatCurrency, formatCurrencyShort } from '../lib/utils';
+import BottomSheet from '../components/BottomSheet';
 import { toast } from 'sonner';
 import './RecurringBills.css';
 
@@ -273,15 +274,8 @@ export default function RecurringBills() {
       </div>
 
       {/* Form Modal */}
-      {isModalOpen && (
-        <div className="modal-overlay" onClick={handleCloseModal}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>{editingId ? 'Edit Tagihan Berulang' : 'Tambah Tagihan Berulang'}</h2>
-              <button className="modal-close" onClick={handleCloseModal}>&times;</button>
-            </div>
-            
-            <form onSubmit={handleSubmit} className="modal-body">
+      <BottomSheet isOpen={isModalOpen} onClose={handleCloseModal} title={editingId ? 'Edit Tagihan Berulang' : 'Tambah Tagihan Berulang'}>
+        <form onSubmit={handleSubmit} className="modal-body" style={{ padding: 0 }}>
               <div className="form-group">
                 <label>Nama Tagihan</label>
                 <input 
@@ -394,10 +388,8 @@ export default function RecurringBills() {
                 <button type="button" className="btn btn-outline" onClick={handleCloseModal}>Batal</button>
                 <button type="submit" className="btn btn-primary">Simpan Tagihan</button>
               </div>
-            </form>
-          </div>
-        </div>
-      )}
+        </form>
+      </BottomSheet>
     </div>
   );
 }

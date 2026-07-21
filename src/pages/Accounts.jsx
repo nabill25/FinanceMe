@@ -7,6 +7,7 @@ import { formatCurrency, ACCOUNT_TYPES, ACCOUNT_PROVIDERS, CURRENCIES } from '..
 import ProviderLogo from '../components/ProviderLogo';
 import { toast } from 'sonner';
 import TransferModal from '../components/TransferModal';
+import BottomSheet from '../components/BottomSheet';
 import './Accounts.css';
 
 const COLORS = [
@@ -54,13 +55,8 @@ function AccountModal({ open, onClose, account, onSave }) {
   };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal animate-slide-up">
-        <div className="modal-header">
-          <span className="modal-title">{account ? 'Edit Akun' : 'Tambah Akun'}</span>
-          <button className="btn btn-icon btn-ghost" onClick={onClose}>✕</button>
-        </div>
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+    <BottomSheet isOpen={open} onClose={onClose} title={account ? 'Edit Akun' : 'Tambah Akun'}>
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div className="form-group">
             <label className="form-label">Nama Akun</label>
             <input className="form-input" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="BCA, GoPay, Dompet, dll." required />
@@ -130,8 +126,7 @@ function AccountModal({ open, onClose, account, onSave }) {
             </button>
           </div>
         </form>
-      </div>
-    </div>
+    </BottomSheet>
   );
 }
 
@@ -171,12 +166,7 @@ function SyncModal({ open, onClose, account, onSave }) {
   const diff = Number(actualBalance) - account.balance;
 
   return (
-    <div className="modal-overlay">
-      <div className="modal animate-slide-up">
-        <div className="modal-header">
-          <span className="modal-title">🔄 Sinkronisasi Saldo</span>
-          <button className="btn btn-icon btn-ghost" onClick={onClose}>✕</button>
-        </div>
+    <BottomSheet isOpen={open} onClose={onClose} title="🔄 Sinkronisasi Saldo">
         
         <div style={{ padding: '12px', background: 'rgba(99,102,241,0.08)', borderRadius: '8px', marginBottom: '16px', fontSize: '13px' }}>
           Masukkan saldo riil yang ada di aplikasi m-banking atau e-wallet Anda. Sistem akan otomatis membuat transaksi penyesuaian agar saldo cocok.
@@ -206,8 +196,7 @@ function SyncModal({ open, onClose, account, onSave }) {
             </button>
           </div>
         </form>
-      </div>
-    </div>
+    </BottomSheet>
   );
 }
 
