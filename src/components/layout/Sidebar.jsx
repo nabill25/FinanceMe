@@ -61,8 +61,8 @@ export default function Sidebar() {
         {/* Logo */}
         <div className="sidebar-logo" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div className="sidebar-logo-icon">
-              <Wallet size={20} strokeWidth={2.5} />
+            <div className="sidebar-logo-icon" style={{ padding: 0, background: 'transparent' }}>
+              <img src="/logo.png" alt="FinanceMe Logo" style={{ width: '32px', height: '32px', borderRadius: '8px', objectFit: 'cover' }} />
             </div>
             <span className="sidebar-logo-text">FinanceMe</span>
           </div>
