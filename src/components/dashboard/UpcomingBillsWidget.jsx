@@ -49,7 +49,7 @@ export default function UpcomingBillsWidget() {
         </div>
         <div className="upcoming-empty">
           <CheckCircle2 size={28} style={{ color: 'var(--accent-success)' }} />
-          <p>Tidak ada tagihan dalam 7 hari ke depan 🎉</p>
+          <p>Tidak ada tagihan dalam 7 hari ke depan</p>
         </div>
       </div>
     );

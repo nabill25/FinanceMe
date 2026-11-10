@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Shield, ShieldAlert, ShieldCheck, Clock, Info, Palette } from 'lucide-react';
+import { Shield, ShieldAlert, ShieldCheck, Clock, Info, Palette, Monitor, Sun, Moon, MoonStar, Bot, Languages, CreditCard } from 'lucide-react';
 import { useFinanceStore } from '../store/financeStore';
 import { useAuthStore } from '../store/authStore';
 import { useLanguageStore } from '../store/languageStore';
@@ -104,7 +104,7 @@ export default function SettingsPage() {
     <div className="settings-page animate-fade-in">
       <div className="page-header">
         <div>
-          <h1>⚙️ Pengaturan</h1>
+          <h1>Pengaturan</h1>
           <p className="text-secondary text-sm">Kelola preferensi dan batas pengeluaran</p>
         </div>
       </div>
@@ -118,7 +118,7 @@ export default function SettingsPage() {
           <div className="guard-banner-content">
             {isBlocked ? (
               <>
-                <p className="guard-banner-title">🚫 Transaksi Diblokir Sementara</p>
+                <p className="guard-banner-title">Transaksi Diblokir Sementara</p>
                 <p className="guard-banner-sub">
                   Batas {spendingLimit.period === 'daily' ? 'harian' : 'mingguan'} terlampaui.
                   Coba lagi dalam: <Countdown targetDate={spendingGuardState.unblock_at} />
@@ -126,7 +126,7 @@ export default function SettingsPage() {
               </>
             ) : pct >= 80 ? (
               <>
-                <p className="guard-banner-title">⚠️ Mendekati Batas Pengeluaran!</p>
+                <p className="guard-banner-title">Mendekati Batas Pengeluaran</p>
                 <p className="guard-banner-sub">
                   Sudah dipakai {Math.round(pct)}% dari limit {formatCurrency(spendingLimit.limit_amount)}.
                   Sisa: {formatCurrency(spendingLimit.limit_amount - totalSpent)}
@@ -134,7 +134,7 @@ export default function SettingsPage() {
               </>
             ) : (
               <>
-                <p className="guard-banner-title">✅ Pengeluaran Terkontrol</p>
+                <p className="guard-banner-title">Pengeluaran Terkontrol</p>
                 <p className="guard-banner-sub">
                   Terpakai {formatCurrency(totalSpent)} dari {formatCurrency(spendingLimit.limit_amount)} ({Math.round(pct)}%)
                 </p>
@@ -147,7 +147,7 @@ export default function SettingsPage() {
       {/* Spending Guard Settings */}
       <div className="card settings-section">
         <div className="settings-section-header">
-          <Shield size={20} style={{ color: '#6366f1' }} />
+          <Shield size={20} style={{ color: 'var(--accent-primary)' }} />
           <h2>Spending Guard — Batas Pengeluaran</h2>
         </div>
         <p className="text-sm text-muted" style={{ marginBottom: '20px' }}>
@@ -214,7 +214,7 @@ export default function SettingsPage() {
 
       {/* Info Card */}
       <div className="card settings-info">
-        <Info size={16} style={{ color: '#6366f1', flexShrink: 0, marginTop: '2px' }} />
+        <Info size={16} style={{ color: 'var(--accent-primary)', flexShrink: 0, marginTop: '2px' }} />
         <div>
           <p style={{ fontWeight: 600, marginBottom: '4px' }}>Cara Kerja Spending Guard</p>
           <ol className="text-sm text-muted" style={{ paddingLeft: '16px', lineHeight: '1.8' }}>
@@ -237,17 +237,18 @@ export default function SettingsPage() {
             <label className="form-label">Mode Tema</label>
             <div className="theme-options">
               {[
-                { id: 'system', label: '📱 Sistem' },
-                { id: 'light', label: '☀️ Terang' },
-                { id: 'dark', label: '🌙 Gelap' },
-                { id: 'dark-amoled', label: '🌌 AMOLED (Hitam Pekat)' }
-              ].map(t => (
+                { id: 'system', label: 'Sistem', icon: Monitor },
+                { id: 'light', label: 'Terang', icon: Sun },
+                { id: 'dark', label: 'Gelap', icon: Moon },
+                { id: 'dark-amoled', label: 'AMOLED (Hitam Pekat)', icon: MoonStar }
+              ].map(({ id, label, icon: Icon }) => (
                 <button
-                  key={t.id}
-                  className={`theme-btn ${theme === t.id ? 'active' : ''}`}
-                  onClick={() => setTheme(t.id)}
+                  key={id}
+                  className={`theme-btn ${theme === id ? 'active' : ''}`}
+                  onClick={() => setTheme(id)}
                 >
-                  {t.label}
+                  <Icon size={16} />
+                  {label}
                 </button>
               ))}
             </div>
@@ -272,7 +273,8 @@ export default function SettingsPage() {
         {/* AI Personality Selection */}
         <div className="settings-section" style={{ marginTop: '32px' }}>
           <div className="settings-section-header">
-            <h2>🧠 {t('settings.aiPersonality') || 'Kepribadian Asisten AI'}</h2>
+            <Bot size={20} style={{ color: 'var(--accent-primary)' }} />
+            <h2>{t('settings.aiPersonality') || 'Kepribadian Asisten AI'}</h2>
           </div>
           <p className="text-sm text-muted" style={{ marginBottom: '20px' }}>
             {t('settings.aiPersonalityDesc') || 'Pilih gaya bahasa yang digunakan oleh Asisten AI Gemini saat merespons pertanyaan Anda.'}
@@ -284,9 +286,9 @@ export default function SettingsPage() {
               value={aiPersonality} 
               onChange={e => setAiPersonality(e.target.value)}
             >
-              <option value="professional">👔 {t('settings.aiPro') || 'Profesional & Ramah (Default)'}</option>
-              <option value="roast">🔥 {t('settings.aiRoast') || 'Roast Mode (Galak & Sarkas)'}</option>
-              <option value="zen">🧘 {t('settings.aiZen') || 'Zen Mode (Suportif & Sabar)'}</option>
+              <option value="professional">{t('settings.aiPro') || 'Profesional & Ramah (Default)'}</option>
+              <option value="roast">{t('settings.aiRoast') || 'Roast Mode (Galak & Sarkas)'}</option>
+              <option value="zen">{t('settings.aiZen') || 'Zen Mode (Suportif & Sabar)'}</option>
             </select>
           </div>
         </div>
@@ -294,7 +296,8 @@ export default function SettingsPage() {
         {/* Language Selection */}
         <div className="settings-section" style={{ marginTop: '32px' }}>
           <div className="settings-section-header">
-            <h2>🌍 {t('settings.language') || 'Bahasa'}</h2>
+            <Languages size={20} style={{ color: 'var(--accent-primary)' }} />
+            <h2>{t('settings.language') || 'Bahasa'}</h2>
           </div>
           <p className="text-sm text-muted" style={{ marginBottom: '20px' }}>
             {t('settings.languageDesc') || 'Pilih bahasa antarmuka aplikasi.'}
@@ -306,8 +309,8 @@ export default function SettingsPage() {
               value={language} 
               onChange={e => setLanguage(e.target.value)}
             >
-              <option value="id">🇮🇩 {t('settings.indonesian') || 'Bahasa Indonesia'}</option>
-              <option value="en">🇺🇸 {t('settings.english') || 'English'}</option>
+              <option value="id">{t('settings.indonesian') || 'Bahasa Indonesia'}</option>
+              <option value="en">{t('settings.english') || 'English'}</option>
             </select>
           </div>
         </div>
@@ -315,7 +318,8 @@ export default function SettingsPage() {
         {/* Payment Info */}
         <div className="settings-section" style={{ marginTop: '32px' }}>
           <div className="settings-section-header">
-            <h2>💳 {t('settings.paymentInfoTitle') || 'Informasi Pembayaran'}</h2>
+            <CreditCard size={20} style={{ color: 'var(--accent-primary)' }} />
+            <h2>{t('settings.paymentInfoTitle') || 'Informasi Pembayaran'}</h2>
           </div>
           <p className="text-sm text-muted" style={{ marginBottom: '20px' }}>
             {t('settings.paymentInfoDesc') || 'Informasi rekening yang akan otomatis disisipkan saat mengirim pesan tagihan (Split Bill).'}

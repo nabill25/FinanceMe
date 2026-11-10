@@ -126,7 +126,7 @@ function BudgetTemplateModal({ open, onClose, categories, usedCategoryIds, userI
   };
 
   return (
-    <BottomSheet isOpen={open} onClose={onClose} title="✨ Template Anggaran 50/30/20">
+    <BottomSheet isOpen={open} onClose={onClose} title="Template Anggaran 50/30/20">
         
         <div style={{ padding: '16px 0', fontSize: '13px', color: 'var(--text-secondary)' }}>
           Aturan 50/30/20 membagi pendapatan Anda menjadi:
@@ -167,7 +167,7 @@ function BudgetCard({ budget, spent, onDelete, onEdit }) {
     : 'var(--gradient-success)';
 
   const statusColor = isOver ? 'var(--accent-danger)' : isWarning ? 'var(--accent-warning)' : 'var(--accent-success)';
-  const statusText = isOver ? 'Melebihi anggaran!' : isWarning ? 'Hampir habis' : 'Aman';
+  const statusText = isOver ? 'Melebihi anggaran' : isWarning ? 'Hampir habis' : 'Aman';
 
   return (
     <div className={`budget-card card ${isOver ? 'budget-over' : ''}`}>
@@ -316,7 +316,7 @@ export default function BudgetPage() {
           }}
           onClick={() => setIsVisualMode(!isVisualMode)}
         >
-          {isVisualMode ? 'Kembali' : 'Amplop Visual ✨'}
+          {isVisualMode ? 'Kembali' : 'Amplop Visual'}
         </button>
       </div>
 
@@ -352,7 +352,7 @@ export default function BudgetPage() {
               </div>
               {overBudget > 0 && (
                 <div className="badge badge-danger">
-                  ⚠️ {overBudget} kategori over budget
+                  {overBudget} kategori melebihi anggaran
                 </div>
               )}
             </div>

@@ -11,7 +11,7 @@ export default function GoalProgressCard() {
       <Link to="/goals" className="card" style={{ padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: 'var(--text-muted)', textDecoration: 'none' }}>
         <Target size={24} style={{ marginBottom: '8px' }} />
         <p style={{ fontSize: '13px', margin: 0 }}>Belum ada target tabungan.</p>
-        <span style={{ fontSize: '12px', color: 'var(--primary-main)', marginTop: '4px' }}>Buat Target Baru &rarr;</span>
+        <span style={{ fontSize: '12px', color: 'var(--accent-primary)', marginTop: '4px' }}>Buat Target Baru &rarr;</span>
       </Link>
     );
   }
@@ -32,7 +32,7 @@ export default function GoalProgressCard() {
             <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: 0 }}>{topGoal.name}</p>
           </div>
         </div>
-        <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--primary-main)' }}>
+        <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--accent-primary)' }}>
           {pct.toFixed(0)}%
         </span>
       </div>
@@ -42,7 +42,7 @@ export default function GoalProgressCard() {
         <span style={{ color: 'var(--text-muted)' }}>Target: {formatCurrencyShort(topGoal.target_amount)}</span>
       </div>
 
-      <div style={{ height: '8px', background: 'var(--surface-default)', borderRadius: '4px', overflow: 'hidden' }}>
+      <div style={{ height: '8px', background: 'var(--border-subtle)', borderRadius: '4px', overflow: 'hidden' }}>
         <div style={{ height: '100%', width: `${pct}%`, background: 'var(--gradient-primary)', transition: 'width 0.5s' }} />
       </div>
     </div>

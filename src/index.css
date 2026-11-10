@@ -35,7 +35,8 @@
   --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.05), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
   --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.05), 0 4px 6px -4px rgba(15, 23, 42, 0.02);
   --shadow-xl: 0 20px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
-  --shadow-glow: 0 10px 25px -5px rgba(99, 102, 241, 0.3);
+  /* Dulu glow ungu; sekarang bayangan netral agar tidak bertabrakan dengan warna aksen lain */
+  --shadow-glow: 0 8px 20px -6px rgba(15, 23, 42, 0.18);
   
   /* Layout */
   --radius-sm: 8px;
@@ -105,7 +106,7 @@
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.2);
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
-  --shadow-glow: 0 10px 25px -5px rgba(99, 102, 241, 0.15);
+  --shadow-glow: 0 8px 20px -6px rgba(0, 0, 0, 0.45);
 }
 
 [data-theme="dark-amoled"] {
@@ -200,24 +201,18 @@ h1, h2, h3, h4, h5, h6 {
   padding: var(--space-md);
   box-shadow: var(--shadow-md);
   border: 1px solid var(--border-default);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: box-shadow 0.2s ease;
 }
 
+/* Kartu biasa tidak bisa diklik, jadi tidak "terangkat" atau mengecil saat disentuh.
+   Untuk elemen yang memang interaktif, pakai .hover-lift / .hover-lift-slight. */
 .card:hover {
-  transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
 }
 
-/* Mobile active state for cards (replaces hover on touch) */
 @media (hover: none) {
   .card:hover {
-    transform: none;
     box-shadow: var(--shadow-md);
-  }
-  .card:active {
-    transform: scale(0.985);
-    box-shadow: var(--shadow-sm);
-    transition: transform 0.1s ease;
   }
 }
 
@@ -280,7 +275,6 @@ h1, h2, h3, h4, h5, h6 {
 }
 .empty-icon {
   font-size: 2.5rem;
-  animation: float 4s ease-in-out infinite;
 }
 
 /* =====================
@@ -317,11 +311,11 @@ h1, h2, h3, h4, h5, h6 {
   background: var(--gradient-primary);
   color: white;
   padding: 12px 24px;
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+  box-shadow: var(--shadow-sm);
 }
 .btn-primary:hover:not(:disabled) {
-  box-shadow: var(--shadow-glow);
-  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
 }
 
 .btn-danger {
@@ -405,7 +399,7 @@ h1, h2, h3, h4, h5, h6 {
   outline: none;
   border-color: var(--accent-primary);
   background: var(--bg-elevated);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-primary) 18%, transparent);
 }
 .form-input::placeholder { color: var(--text-muted); }
 .form-textarea { resize: vertical; min-height: 80px; }
@@ -432,7 +426,7 @@ h1, h2, h3, h4, h5, h6 {
 .spinner {
   width: 20px;
   height: 20px;
-  border: 2.5px solid rgba(99, 102, 241, 0.2);
+  border: 2.5px solid color-mix(in srgb, var(--accent-primary) 20%, transparent);
   border-top-color: var(--accent-primary);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
@@ -728,9 +722,6 @@ h1, h2, h3, h4, h5, h6 {
 /* Sidebar nav animations */
 .sidebar-nav a {
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.sidebar-nav a:hover {
-  transform: translateX(4px);
 }
 
 /* =====================

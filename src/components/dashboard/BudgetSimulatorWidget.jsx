@@ -42,7 +42,7 @@ export default function BudgetSimulatorWidget() {
   const balancePct = totalBalance > 0 ? (numAmount / totalBalance) * 100 : 0;
 
   return (
-    <div className="card animate-fade-in" style={{ padding: '20px', background: 'var(--surface-default)' }}>
+    <div className="card animate-fade-in" style={{ padding: '20px' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
         <div style={{ padding: '8px', background: 'rgba(59,130,246,0.1)', borderRadius: '8px', color: '#3b82f6' }}>
           <HelpCircle size={18} />
@@ -76,7 +76,7 @@ export default function BudgetSimulatorWidget() {
       </div>
 
       {numAmount > 0 && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '16px', background: 'var(--bg-default)', borderRadius: '12px', border: '1px solid var(--border-default)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '16px', background: 'var(--bg-main)', borderRadius: '12px', border: '1px solid var(--border-default)' }}>
           
           {/* Dampak Saldo */}
           <div>
@@ -86,7 +86,7 @@ export default function BudgetSimulatorWidget() {
                 {balancePct.toFixed(1)}%
               </span>
             </div>
-            <div style={{ height: '6px', background: 'var(--surface-default)', borderRadius: '3px', overflow: 'hidden' }}>
+            <div style={{ height: '6px', background: 'var(--border-default)', borderRadius: '3px', overflow: 'hidden' }}>
               <div style={{ height: '100%', width: `${Math.min(balancePct, 100)}%`, background: balancePct > 50 ? '#ef4444' : '#3b82f6', transition: 'width 0.3s' }} />
             </div>
           </div>
@@ -100,7 +100,7 @@ export default function BudgetSimulatorWidget() {
                   {formatCurrencyShort(budgetImpact.remainingAfter)}
                 </span>
               </div>
-              <div style={{ height: '6px', background: 'var(--surface-default)', borderRadius: '3px', overflow: 'hidden' }}>
+              <div style={{ height: '6px', background: 'var(--border-default)', borderRadius: '3px', overflow: 'hidden' }}>
                 <div style={{ height: '100%', width: `${Math.min(budgetImpact.pctAfter, 100)}%`, background: budgetImpact.pctAfter > 100 ? '#ef4444' : budgetImpact.pctAfter > 80 ? '#f59e0b' : '#10b981', transition: 'width 0.3s' }} />
               </div>
               {budgetImpact.pctAfter > 100 && (

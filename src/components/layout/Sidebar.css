@@ -40,10 +40,7 @@
 .sidebar-logo-text {
   font-size: 1.1rem;
   font-weight: 800;
-  background: var(--gradient-primary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--text-primary);
   letter-spacing: -0.02em;
 }
 
@@ -116,7 +113,6 @@
 .sidebar-nav-item:hover {
   background: var(--border-subtle);
   color: var(--text-primary);
-  transform: translateX(3px);
 }
 
 .sidebar-nav-item:active {

@@ -249,7 +249,7 @@ export default function ReportsPage() {
       {/* Word Cloud */}
       {wordCloudData.length > 0 && (
         <div className="card word-cloud-card" style={{ marginTop: '24px' }}>
-          <h3 style={{ marginBottom: '16px', fontSize: '15px' }}>☁️ Jejak Kata Pengeluaran</h3>
+          <h3 style={{ marginBottom: '16px', fontSize: '15px' }}>Jejak Kata Pengeluaran</h3>
           <div className="word-cloud-container">
             {wordCloudData.map((word, i) => {
               // Calculate font size (min 14px, max 48px)
@@ -283,9 +283,8 @@ export default function ReportsPage() {
       )}
 
       {/* AI Habit Analysis */}
-      <div className="card" style={{ marginTop: '24px', background: 'var(--bg-elevated)', border: '1px solid var(--accent-primary)', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '4px', background: 'linear-gradient(90deg, #6366f1, #8b5cf6, #d946ef)' }} />
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', paddingTop: '8px' }}>
+      <div className="card" style={{ marginTop: '24px', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
           <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '16px', margin: 0 }}>
             <Sparkles size={20} className="text-primary" />
             Analisis Kebiasaan Belanja AI

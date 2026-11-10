@@ -3,12 +3,13 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
+// Sebelumnya URL project asli dibandingkan dengan dirinya sendiri, sehingga hasilnya selalu false
+// dan banner "Perlu konfigurasi Supabase!" selalu muncul. Yang perlu ditolak hanyalah nilai placeholder.
 export const isSupabaseConfigured =
   !!supabaseUrl &&
-  supabaseUrl !== 'https://tdszqodqspwddcnywesl.supabase.co' &&
-  supabaseUrl.startsWith('https://');
-
-console.log('Supabase URL Configured:', isSupabaseConfigured, supabaseUrl);
+  !!supabaseAnonKey &&
+  supabaseUrl.startsWith('https://') &&
+  !supabaseUrl.includes('your-project');
 
 // Use placeholder values to avoid crash — real calls will still fail gracefully
 export const supabase = createClient(

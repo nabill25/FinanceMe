@@ -16,7 +16,7 @@
   background: var(--gradient-primary);
   color: white;
   border: none;
-  box-shadow: var(--shadow-glow), 0 6px 20px rgba(99, 102, 241, 0.45);
+  box-shadow: var(--shadow-lg);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -54,8 +54,8 @@
 }
 
 .quick-add-fab:hover {
-  transform: scale(1.08) translateY(-4px);
-  box-shadow: 0 0 0 8px rgba(99, 102, 241, 0.12), var(--shadow-glow), 0 8px 24px rgba(99, 102, 241, 0.45);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-xl);
 }
 
 .quick-add-fab:active {

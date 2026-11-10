@@ -226,7 +226,7 @@ export default function SplitBill() {
           >
             <ArrowLeft size={20} />
           </button>
-          <div className="page-icon-box" style={{ background: 'var(--accent-color)' }}>
+          <div className="page-icon-box" style={{ background: 'var(--accent-primary)' }}>
             <Scissors size={24} color="white" />
           </div>
           <div>
@@ -481,7 +481,7 @@ export default function SplitBill() {
                                 : [...selectedItem.assignees, person.id]
                             });
                           }}
-                          style={{ width: '20px', height: '20px', accentColor: 'var(--accent-color)' }}
+                          style={{ width: '20px', height: '20px', accentColor: 'var(--accent-primary)' }}
                         />
                         <div style={{ flex: 1, fontWeight: '500' }}>{person.name}</div>
                       </label>

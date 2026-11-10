@@ -3,31 +3,31 @@ import { isSameDay, subDays } from 'date-fns';
 export const MEDALS = [
   {
     id: 'first_transaction',
-    title: 'Langkah Pertama 👶',
+    title: 'Langkah Pertama',
     desc: 'Mencatat transaksi pertama Anda di FinanceMe.',
     color: '#3b82f6'
   },
   {
     id: 'zero_spend',
-    title: 'Zero Spend Day 🛡️',
+    title: 'Zero Spend Day',
     desc: 'Tidak ada pengeluaran sama sekali hari ini.',
     color: '#10b981'
   },
   {
     id: 'budget_master',
-    title: 'Budget Master 🎯',
+    title: 'Budget Master',
     desc: 'Pengeluaran masih aman di bawah batas budget.',
     color: '#8b5cf6'
   },
   {
     id: 'wealth_builder',
-    title: 'Wealth Builder 💰',
+    title: 'Wealth Builder',
     desc: 'Total saldo menyentuh lebih dari Rp 10 Juta.',
     color: '#f59e0b'
   },
   {
     id: 'streak_3',
-    title: 'Konsisten 3 Hari 🔥',
+    title: 'Konsisten 3 Hari',
     desc: 'Mencatat transaksi 3 hari berturut-turut.',
     color: '#ef4444'
   }

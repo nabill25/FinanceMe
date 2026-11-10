@@ -9,7 +9,7 @@ import './DecisionHelper.css';
 const RESULT_LEVELS = {
   safe: {
     icon: CheckCircle,
-    label: 'Aman untuk dibeli! ✅',
+    label: 'Aman untuk dibeli',
     desc: 'Saldo dan anggaran mencukupi. Pembelian ini tidak akan mengganggu keuangan Anda.',
     color: 'var(--accent-success)',
     bg: 'rgba(16,185,129,0.1)',
@@ -17,7 +17,7 @@ const RESULT_LEVELS = {
   },
   warning: {
     icon: AlertTriangle,
-    label: 'Perlu dipertimbangkan ⚠️',
+    label: 'Perlu dipertimbangkan',
     desc: 'Pembelian ini akan menghabiskan sebagian besar anggaran atau saldo. Pastikan Anda punya dana darurat.',
     color: 'var(--accent-warning)',
     bg: 'rgba(245,158,11,0.1)',
@@ -25,7 +25,7 @@ const RESULT_LEVELS = {
   },
   danger: {
     icon: XCircle,
-    label: 'Sebaiknya jangan dulu ❌',
+    label: 'Sebaiknya jangan dulu',
     desc: 'Saldo tidak mencukupi atau akan melampaui anggaran secara signifikan. Pertimbangkan untuk menunda.',
     color: 'var(--accent-danger)',
     bg: 'rgba(239,68,68,0.1)',
@@ -70,7 +70,7 @@ export default function DecisionHelper() {
     // Check balance
     if (balanceAfter < 0) {
       level = 'danger';
-      issues.push(`Saldo akun tidak mencukupi (kurang Rp ${formatCurrency(Math.abs(balanceAfter))})`);
+      issues.push(`Saldo akun tidak mencukupi (kurang ${formatCurrency(Math.abs(balanceAfter))})`);
     } else if (balanceAfter < price * 0.5) {
       if (level === 'safe') level = 'warning';
       issues.push(`Saldo akan sangat berkurang (sisa ${formatCurrency(balanceAfter)})`);
@@ -224,7 +224,7 @@ export default function DecisionHelper() {
 
             {/* Item info */}
             <div className="card">
-              <h4 style={{ marginBottom: '16px' }}>📦 {result.item || 'Pembelian'}</h4>
+              <h4 style={{ marginBottom: '16px' }}>{result.item || 'Pembelian'}</h4>
               <div className="decision-details">
                 <div className="decision-detail-row">
                   <span className="text-secondary text-sm">Harga</span>
@@ -265,7 +265,7 @@ export default function DecisionHelper() {
             {/* Issues & positives */}
             {result.issues.length > 0 && (
               <div className="card decision-issues">
-                <h4 style={{ marginBottom: '12px', color: 'var(--accent-warning)' }}>⚠️ Perhatian</h4>
+                <h4 style={{ marginBottom: '12px', color: 'var(--accent-warning)' }}>Perhatian</h4>
                 {result.issues.map((issue, i) => (
                   <div key={i} className="decision-issue-item">
                     <XCircle size={14} style={{ color: 'var(--accent-danger)', flexShrink: 0 }} />
@@ -277,7 +277,7 @@ export default function DecisionHelper() {
 
             {result.positives.length > 0 && (
               <div className="card decision-positives">
-                <h4 style={{ marginBottom: '12px', color: 'var(--accent-success)' }}>✅ Yang Baik</h4>
+                <h4 style={{ marginBottom: '12px', color: 'var(--accent-success)' }}>Yang Baik</h4>
                 {result.positives.map((pos, i) => (
                   <div key={i} className="decision-issue-item">
                     <CheckCircle size={14} style={{ color: 'var(--accent-success)', flexShrink: 0 }} />
@@ -296,13 +296,15 @@ export default function DecisionHelper() {
         {!result && (
           <div className="decision-placeholder">
             <div className="decision-placeholder-inner">
-              <div className="decision-placeholder-icon">🤔</div>
+              <div className="decision-placeholder-icon">
+                <Calculator size={44} strokeWidth={1.5} />
+              </div>
               <h3>Masukkan detail pembelian</h3>
               <p className="text-secondary text-sm">Isi form di sebelah kiri untuk mendapatkan rekomendasi sebelum membeli</p>
               <ul className="decision-tips">
-                <li>💡 Pastikan Anda sudah punya saldo akun terdaftar</li>
-                <li>💡 Buat anggaran bulanan untuk analisis lebih akurat</li>
-                <li>💡 Gunakan fitur ini sebelum setiap pembelian besar</li>
+                <li>Pastikan Anda sudah punya saldo akun terdaftar</li>
+                <li>Buat anggaran bulanan untuk analisis lebih akurat</li>
+                <li>Gunakan fitur ini sebelum setiap pembelian besar</li>
               </ul>
             </div>
           </div>

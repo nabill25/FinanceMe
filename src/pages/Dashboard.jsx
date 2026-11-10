@@ -22,12 +22,12 @@ import AchievementsWidget from '../components/dashboard/AchievementsWidget';
 import ProviderLogo from '../components/ProviderLogo';
 import './Dashboard.css';
 
-const StatCard = ({ label, value, icon: Icon, color, trend, trendLabel, rawValue, showBalance, trendColor }) => (
-  <div className="stat-card card hover-lift">
+const StatCard = ({ label, icon: Icon, iconColor, iconBg, trend, trendLabel, rawValue, trendColor }) => (
+  <div className="stat-card card">
     <div className="stat-card-header">
       <span className="stat-card-label">{label}</span>
-      <div className="stat-card-icon" style={{ background: color }}>
-        <Icon size={18} color="white" />
+      <div className="stat-card-icon" style={{ background: iconBg, color: iconColor }}>
+        <Icon size={18} />
       </div>
     </div>
     <div className="stat-card-value amount-text" style={{ transition: 'all 0.3s' }}>
@@ -110,14 +110,14 @@ export default function Dashboard() {
       <div className="dashboard-header">
         <div>
           <h1 className="dashboard-greeting">
-            Halo, {firstName}! 👋
+            Halo, {firstName}
           </h1>
           <p className="text-secondary text-sm">{monthLabel} — Ringkasan keuangan Anda</p>
         </div>
       </div>
 
       {/* Total Balance Hero */}
-      <div className="balance-hero card hover-lift-slight">
+      <div className="balance-hero card">
         <div className="balance-hero-bg" />
         <div style={{ position: 'relative', zIndex: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <p className="balance-hero-label">Total Saldo Semua Akun</p>
@@ -164,7 +164,8 @@ export default function Dashboard() {
           label={`Pemasukan ${monthLabel.split(' ')[0]}`}
           rawValue={income}
           icon={TrendingUp}
-          color="linear-gradient(135deg,#10b981,#06b6d4)"
+          iconColor="#10b981"
+          iconBg="rgba(16, 185, 129, 0.12)"
           trend={incomeTrend}
           trendLabel={incomeTrendLabel}
           trendColor={incomeTrendColor}
@@ -173,7 +174,8 @@ export default function Dashboard() {
           label={`Pengeluaran ${monthLabel.split(' ')[0]}`}
           rawValue={expense}
           icon={TrendingDown}
-          color="linear-gradient(135deg,#ef4444,#f97316)"
+          iconColor="#ef4444"
+          iconBg="rgba(239, 68, 68, 0.12)"
           trend={expenseTrend}
           trendLabel={expenseTrendLabel}
           trendColor={expenseTrendColor}
@@ -182,7 +184,8 @@ export default function Dashboard() {
           label="Net Bulan Ini"
           rawValue={Math.abs(net)}
           icon={Wallet}
-          color={net >= 0 ? 'linear-gradient(135deg,#6366f1,#8b5cf6)' : 'linear-gradient(135deg,#f59e0b,#f97316)'}
+          iconColor={net >= 0 ? 'var(--accent-primary)' : '#f59e0b'}
+          iconBg={net >= 0 ? 'color-mix(in srgb, var(--accent-primary) 12%, transparent)' : 'rgba(245, 158, 11, 0.12)'}
           trendLabel={net >= 0 ? 'Surplus' : 'Defisit'}
           trend={net}
         />
@@ -194,8 +197,8 @@ export default function Dashboard() {
             <TrendingDown size={20} />
           </div>
           <div>
-            <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '14px' }}>Hebat! Pengeluaran Anda lebih hemat</div>
-            <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Anda berhasil menekan pengeluaran {Math.abs(expenseTrend).toFixed(0)}% lebih rendah dibandingkan bulan lalu.</div>
+            <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '14px' }}>Pengeluaran lebih hemat dari bulan lalu</div>
+            <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Turun {Math.abs(expenseTrend).toFixed(0)}% dibandingkan periode yang sama bulan lalu.</div>
           </div>
         </div>
       )}
@@ -274,7 +277,7 @@ export default function Dashboard() {
                   </div>
                   {b.isOver && (
                     <p style={{ margin: '4px 0 0 0', fontSize: '10px', color: 'var(--accent-danger)', fontWeight: 600 }}>
-                      ⚠️ Over Budget! ({formatCurrencyShort(b.spent - b.amount)})
+                      Melebihi anggaran {formatCurrencyShort(b.spent - b.amount)}
                     </p>
                   )}
                 </div>

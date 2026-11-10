@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Plus, Camera, Loader2, ShieldAlert, Shield, ImagePlus, ArrowLeftRight, Mic } from 'lucide-react';
+import { Plus, Camera, Loader2, ShieldAlert, Shield, ImagePlus, ArrowLeftRight, Mic, Sparkles } from 'lucide-react';
 import { useFinanceStore } from '../store/financeStore';
 import { useAuthStore } from '../store/authStore';
 import { toast } from 'sonner';
@@ -247,14 +247,14 @@ export default function QuickAddModal() {
                   <div style={{ display: 'flex', gap: '8px', alignItems: 'center', padding: '10px 12px', borderRadius: '8px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.3)', marginTop: '8px' }}>
                     <ShieldAlert size={16} style={{ color: '#ef4444', flexShrink: 0 }} />
                     <p style={{ fontSize: '11px', color: '#ef4444', margin: 0 }}>
-                      🚫 Diblokir hingga: <strong style={{ fontFamily: 'monospace' }}>{new Date(spendingGuardState.unblock_at).toLocaleString('id-ID')}</strong>
+                      Diblokir hingga: <strong style={{ fontFamily: 'monospace' }}>{new Date(spendingGuardState.unblock_at).toLocaleString('id-ID')}</strong>
                     </p>
                   </div>
                 ) : spendingGuardState.pct >= 80 ? (
                   <div style={{ display: 'flex', gap: '8px', alignItems: 'center', padding: '10px 12px', borderRadius: '8px', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.3)', marginTop: '8px' }}>
                     <Shield size={16} style={{ color: '#f59e0b', flexShrink: 0 }} />
                     <p style={{ margin: 0, fontSize: '11px', color: '#b45309' }}>
-                      ⚠️ Terpakai <strong>{Math.round(spendingGuardState.pct)}%</strong> limit
+                      Terpakai <strong>{Math.round(spendingGuardState.pct)}%</strong> dari limit
                     </p>
                   </div>
                 ) : null
@@ -307,7 +307,7 @@ export default function QuickAddModal() {
                     disabled={guessingCategory || !form.description}
                     style={{ position: 'absolute', right: 4, top: '50%', transform: 'translateY(-50%)', opacity: (!form.description || guessingCategory) ? 0.5 : 1 }}
                   >
-                    {guessingCategory ? <Loader2 size={16} className="spin" /> : '✨'}
+                    {guessingCategory ? <Loader2 size={16} className="spin" /> : <Sparkles size={16} />}
                   </button>
                 </div>
               </div>
@@ -323,7 +323,7 @@ export default function QuickAddModal() {
               <div className="form-group">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                   <label className="form-label" style={{ margin: 0 }}>Kategori</label>
-                  {guessingCategory && <span style={{ fontSize: '11px', color: 'var(--accent-primary)' }} className="animate-pulse">✨ AI berpikir...</span>}
+                  {guessingCategory && <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Menebak kategori…</span>}
                 </div>
                 <div className="category-chips">
                   {filteredCategories.map(c => (
@@ -347,7 +347,7 @@ export default function QuickAddModal() {
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center', padding: '10px 12px', borderRadius: '8px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.3)' }}>
                   <ShieldAlert size={16} style={{ color: '#ef4444', flexShrink: 0 }} />
                   <p style={{ margin: 0, fontSize: '11px', color: '#b91c1c' }}>
-                    ⚠️ <strong>Over Budget!</strong> Transaksi ini akan membuat kategori melebihi batas {formatCurrency(budgetWarning.limit)}.
+                    <strong>Melebihi anggaran.</strong> Transaksi ini membuat kategori melewati batas {formatCurrency(budgetWarning.limit)}.
                   </p>
                 </div>
               )}

@@ -10,7 +10,7 @@
   box-shadow: var(--shadow-glow);
   text-align: center;
   padding: var(--space-xl);
-  animation: scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .accounts-total-amount {
@@ -25,185 +25,303 @@
 .accounts-total .text-muted { color: rgba(255,255,255,0.6) !important; }
 .accounts-total .text-secondary { color: rgba(255,255,255,0.7) !important; }
 
-.accounts-grid {
+/* =====================
+   WALLET — kartu bertumpuk
+   ===================== */
+.wallet {
+  --wallet-peek: 58px;        /* bagian kartu yang terlihat saat ditumpuk */
+  --wallet-deck-peek: 10px;   /* tebal "dek" kartu lain saat satu kartu dibuka */
+  /* Tinggi kartu = lebar / 1.586 (rasio kartu ATM). Margin vertikal dalam %
+     dihitung dari LEBAR kontainer, jadi 63.05% = tinggi satu kartu. */
+  --wallet-card-h: 63.05%;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: var(--space-md);
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-lg);
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto;
+  scroll-margin-top: 80px;
 }
 
-.account-card {
-  position: relative;
+.wallet-cards {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+}
+
+.wallet-card {
+  position: relative;
+  flex-shrink: 0;
+  width: 100%;
+  aspect-ratio: 1.586;
+  min-height: 0;
+  border-radius: 16px;
+  padding: 14px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   overflow: hidden;
-  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
-  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
-  
-  /* Apple Card / Premium Physical Card Look */
-  border-radius: 20px;
-  background: linear-gradient(135deg, var(--acc-color), color-mix(in srgb, var(--acc-color) 70%, black));
-  color: white;
-  padding: 24px;
-  min-height: 160px;
-  border: 1px solid rgba(255,255,255,0.15);
-  box-shadow: 0 12px 24px -10px color-mix(in srgb, var(--acc-color) 60%, transparent);
+  color: #fff;
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.18);
+  background:
+    radial-gradient(120% 140% at 0% 0%, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0) 55%),
+    linear-gradient(135deg, var(--acc-color), color-mix(in srgb, var(--acc-color) 70%, #000));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 -1px 6px rgba(15, 23, 42, 0.10),
+    0 10px 24px -14px rgba(15, 23, 42, 0.55);
+  transition: translate 0.2s ease, filter 0.2s ease;
 }
 
-.account-card::before {
-  /* Inner glassmorphism reflection overlay */
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: linear-gradient(120deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.02) 40%, rgba(0,0,0,0.1) 100%);
-  pointer-events: none;
+/* Tumpukan: tiap kartu berikutnya menutupi kartu sebelumnya, menyisakan stripnya */
+.wallet-card + .wallet-card {
+  margin-top: calc(var(--wallet-peek) - var(--wallet-card-h));
 }
 
-.account-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 20px 32px -12px color-mix(in srgb, var(--acc-color) 80%, transparent);
+/* Kartu lain saat satu kartu dibuka: hanya tepi bawahnya yang mengintip */
+.wallet-card.is-deck {
+  margin-top: calc(var(--wallet-deck-peek) - var(--wallet-card-h));
+  filter: brightness(0.94);
 }
 
-.tiltable-card {
-  transform-style: preserve-3d;
-  will-change: transform;
-}
-
-.tiltable-card::after {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle at center, rgba(255,255,255,0.8) 0%, transparent 50%);
+.wallet-card.is-deck-hidden {
+  margin-top: calc(-1 * var(--wallet-card-h));
   opacity: 0;
   pointer-events: none;
-  mix-blend-mode: overlay;
-  transition: opacity 0.3s;
-  transform: translateZ(1px); /* Elevate highlight slightly */
 }
 
-.tiltable-card:hover::after {
-  opacity: 0.15;
+.wallet-card:focus-visible {
+  box-shadow:
+    0 0 0 3px var(--bg-main),
+    0 0 0 5px var(--accent-primary);
 }
 
-@media (hover: none) {
-  .account-card:hover {
-    transform: none;
-    box-shadow: var(--shadow-md);
-  }
-  .account-card:active {
-    transform: scale(0.97);
-    transition: transform 0.1s ease;
+@media (hover: hover) {
+  .wallet-card.is-stack:hover {
+    translate: 0 -6px;
   }
 }
 
-.account-card-top {
+.wallet-card-strip {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: auto; /* Push content to bottom */
-  position: relative;
-  z-index: 2;
+  gap: 10px;
+  min-height: 30px;
 }
 
-.account-card-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: var(--radius-md);
-  display: flex;
+.wallet-card-mark {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255,255,255,0.2); /* Frosted icon bg */
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  text-shadow: none;
 }
 
-.account-card-actions {
-  display: flex;
-  gap: 4px;
-}
-.dropdown-menu {
-  position: absolute;
-  top: 32px;
-  right: 0;
-  background: var(--bg-elevated);
-  border-radius: var(--radius-lg);
-  padding: 8px;
-  box-shadow: var(--shadow-xl);
-  border: 1px solid var(--border-default);
-  display: flex;
-  flex-direction: column;
-  min-width: 180px;
-  z-index: 100;
-  animation: scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+.wallet-card-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.dropdown-item {
+.wallet-card-balance {
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.wallet-card-body {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 12px;
-  border: none;
-  background: transparent;
-  width: 100%;
-  text-align: left;
+}
+
+.wallet-card-chip {
+  position: relative;
+  width: 42px;
+  height: 32px;
+  border-radius: 7px;
+  background: linear-gradient(135deg, #f6e3a6 0%, #d4b06a 45%, #b8913f 100%);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+}
+
+.wallet-card-chip::before,
+.wallet-card-chip::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.18);
+}
+.wallet-card-chip::before { top: 33%; }
+.wallet-card-chip::after { top: 66%; }
+
+.wallet-card-glyph {
+  opacity: 0.75;
+}
+
+.wallet-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+/* Panel detail kartu yang dibuka */
+.wallet-detail {
+  padding: var(--space-lg);
+}
+
+.wallet-detail-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.wallet-detail-label {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.wallet-detail-balance {
+  font-size: clamp(1.5rem, 5vw, 1.9rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  word-break: break-all;
+}
+
+.wallet-detail-meta {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.wallet-detail-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: var(--space-lg);
+}
+
+.wallet-detail-actions .btn {
+  justify-content: center;
+  padding: 10px 8px;
+  font-size: 13px;
+}
+
+.wallet-tx-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.wallet-tx-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent-primary);
+  text-decoration: none;
+}
+
+.wallet-tx-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-md);
+  padding: 10px 0;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.wallet-tx-desc {
   font-size: 14px;
   font-weight: 500;
-  color: var(--text-primary);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: all 0.2s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.dropdown-item:hover {
-  background: var(--bg-main);
+.wallet-tx-date {
+  font-size: 12px;
+  color: var(--text-muted);
 }
 
-.dropdown-divider {
-  height: 1px;
-  background: var(--border-default);
-  margin: 4px 0;
-}
-
-.account-card-name {
-  font-size: 18px;
+.wallet-tx-amount {
+  font-size: 14px;
   font-weight: 700;
-  color: white;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
-  position: relative;
-  z-index: 2;
-  margin-top: 24px;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
-.account-card-type {
+.wallet-tx-empty {
   font-size: 13px;
-  color: rgba(255,255,255,0.8);
-  margin-bottom: 8px;
-  position: relative;
-  z-index: 2;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  color: var(--text-muted);
+  padding: 10px 0;
 }
 
-.account-card-balance {
-  font-size: clamp(1.4rem, 4vw, 1.8rem);
-  font-weight: 800;
-  color: white;
-  letter-spacing: -0.02em;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-  position: relative;
-  z-index: 2;
+.wallet-hint {
+  margin: 0;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-muted);
 }
 
-/* Remove original bar */
-.account-card-bar {
-  display: none;
+/* Desktop: tumpukan kartu di kiri, detail di kanan */
+@media (min-width: 1024px) {
+  .wallet {
+    max-width: none;
+    grid-template-columns: minmax(300px, 400px) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .wallet-side {
+    position: sticky;
+    top: var(--space-xl);
+  }
+
+  .wallet-hint {
+    text-align: left;
+    padding: var(--space-xl);
+    border: 1px dashed var(--border-default);
+    border-radius: var(--radius-xl);
+  }
 }
 
-.account-card-bar-fill {
-  height: 100%;
-  width: 100%;
-  border-radius: var(--radius-full);
+@media (max-width: 380px) {
+  .wallet {
+    --wallet-peek: 54px;
+  }
+
+  .wallet-card-name,
+  .wallet-card-balance {
+    font-size: 14px;
+  }
 }
 
 /* Color picker */
@@ -226,32 +344,5 @@
 .color-option.selected {
   border-color: white;
   transform: scale(1.25);
-  box-shadow: 0 0 0 2.5px rgba(99,102,241,0.6);
-}
-
-/* =====================
-   RESPONSIVE
-   ===================== */
-@media (max-width: 768px) {
-  .accounts-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-sm);
-  }
-
-  .account-card {
-    min-width: 0;
-  }
-
-  .account-card-actions {
-    opacity: 1; /* Always visible on mobile */
-  }
-
-  .account-card-name { font-size: 13px; }
-  .account-card-type { font-size: 11px; }
-}
-
-@media (max-width: 400px) {
-  .accounts-grid {
-    grid-template-columns: 1fr;
-  }
+  box-shadow: 0 0 0 2.5px color-mix(in srgb, var(--accent-primary) 60%, transparent);
 }

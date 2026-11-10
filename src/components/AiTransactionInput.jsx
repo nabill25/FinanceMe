@@ -3,6 +3,7 @@ import { Send, Sparkles, Loader2 } from 'lucide-react';
 import { parseTransactionText } from '../lib/gemini';
 import { useFinanceStore } from '../store/financeStore';
 import { useAuthStore } from '../store/authStore';
+import { formatCurrency } from '../lib/utils';
 import { toast } from 'sonner';
 
 export default function AiTransactionInput({ onTransactionAdded }) {
@@ -58,7 +59,8 @@ export default function AiTransactionInput({ onTransactionAdded }) {
       };
 
       await addTransaction(newTx);
-      toast.success('Transaksi ajaib berhasil ditambahkan! ✨');
+      // Tampilkan apa yang dipahami AI, supaya pengguna bisa langsung mengecek hasilnya
+      toast.success(`${type === 'income' ? 'Pemasukan' : 'Pengeluaran'} dicatat: ${newTx.description} · ${formatCurrency(finalAmount)}`);
       setText('');
       if (onTransactionAdded) onTransactionAdded();
     } catch (err) {

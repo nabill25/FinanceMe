@@ -25,7 +25,7 @@ export default function AchievementsWidget() {
           <div>
             <h3 className="card-title" style={{ margin: 0, fontSize: '15px' }}>Pencapaian Anda</h3>
             <p style={{ margin: 0, fontSize: '12px', color: 'var(--text-muted)' }}>
-              {unlockedCount} dari {totalMedals} Medali Terkumpul
+              {unlockedCount} dari {totalMedals} medali terkumpul
             </p>
           </div>
         </div>

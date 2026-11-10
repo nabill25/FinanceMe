@@ -48,11 +48,6 @@ export default function AuthPage() {
 
   return (
     <div className="auth-page">
-      {/* Background blobs */}
-      <div className="auth-blob auth-blob-1" />
-      <div className="auth-blob auth-blob-2" />
-      <div className="auth-blob auth-blob-3" />
-
       <div className="auth-card card animate-slide-up">
         {/* Logo */}
         <div className="auth-logo">
@@ -60,7 +55,7 @@ export default function AuthPage() {
             <Wallet size={28} strokeWidth={2.5} />
           </div>
           <h1 className="auth-logo-text">FinanceMe</h1>
-          <p className="auth-tagline">Kendalikan keuangan Anda, kendalikan hidup Anda</p>
+          <p className="auth-tagline">Catat pemasukan, pengeluaran, dan anggaran di satu tempat.</p>
         </div>
 
         {/* Setup warning */}

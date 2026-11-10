@@ -1,9 +1,10 @@
 import { useEffect, useState, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { Plus, Edit2, Trash2, Wallet, CreditCard, Smartphone, TrendingUp, RefreshCcw, ArrowLeftRight, MoreVertical } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence, MotionConfig } from 'framer-motion';
+import { Plus, Edit2, Trash2, Wallet, CreditCard, Smartphone, TrendingUp, RefreshCcw, ArrowLeftRight, X, ChevronRight } from 'lucide-react';
 import { useFinanceStore } from '../store/financeStore';
 import { useAuthStore } from '../store/authStore';
-import { formatCurrency, ACCOUNT_TYPES, ACCOUNT_PROVIDERS, CURRENCIES } from '../lib/utils';
+import { formatCurrency, formatDateShort, getCurrentMonth, ACCOUNT_TYPES, ACCOUNT_PROVIDERS, CURRENCIES } from '../lib/utils';
 import ProviderLogo from '../components/ProviderLogo';
 import { toast } from 'sonner';
 import TransferModal from '../components/TransferModal';
@@ -66,9 +67,9 @@ function AccountModal({ open, onClose, account, onSave }) {
             <select className="form-select" value={form.type} onChange={e => {
               const type = e.target.value;
               const provider = ACCOUNT_PROVIDERS[type]?.[0];
-              setForm(f => ({ 
-                ...f, 
-                type, 
+              setForm(f => ({
+                ...f,
+                type,
                 icon: provider ? provider.id : type,
                 name: provider ? provider.name : '',
                 color: provider ? provider.color : f.color
@@ -146,7 +147,7 @@ function SyncModal({ open, onClose, account, onSave }) {
     e.preventDefault();
     const actual = Number(actualBalance);
     if (isNaN(actual)) return;
-    
+
     setSaving(true);
     try {
       const diff = actual - account.balance;
@@ -166,8 +167,8 @@ function SyncModal({ open, onClose, account, onSave }) {
   const diff = Number(actualBalance) - account.balance;
 
   return (
-    <BottomSheet isOpen={open} onClose={onClose} title="🔄 Sinkronisasi Saldo">
-        
+    <BottomSheet isOpen={open} onClose={onClose} title="Sinkronisasi Saldo">
+
         <div style={{ padding: '12px', background: 'rgba(99,102,241,0.08)', borderRadius: '8px', marginBottom: '16px', fontSize: '13px' }}>
           Masukkan saldo riil yang ada di aplikasi m-banking atau e-wallet Anda. Sistem akan otomatis membuat transaksi penyesuaian agar saldo cocok.
         </div>
@@ -177,7 +178,7 @@ function SyncModal({ open, onClose, account, onSave }) {
             <label className="form-label">Saldo Saat Ini (di sistem)</label>
             <input className="form-input" type="text" value={formatCurrency(account.balance)} disabled />
           </div>
-          
+
           <div className="form-group">
             <label className="form-label">Saldo Sebenarnya (di {account.name})</label>
             <input className="form-input" type="number" value={actualBalance} onChange={e => setActualBalance(e.target.value)} required min="0" autoFocus />
@@ -200,41 +201,123 @@ function SyncModal({ open, onClose, account, onSave }) {
   );
 }
 
-function TiltCard({ children, accColor }) {
-  const cardRef = useRef(null);
+// ── WALLET ──────────────────────────────────────────────────
+// Kartu ditumpuk seperti aplikasi dompet digital: tiap kartu memperlihatkan stripnya,
+// kartu yang diketuk naik ke atas dan kartu lain menjadi "dek" tipis di belakangnya.
 
-  const handleMouseMove = (e) => {
-    if (!cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-    
-    // Calculate rotation (-10deg to +10deg max)
-    const rotateX = ((y - centerY) / centerY) * -15;
-    const rotateY = ((x - centerX) / centerX) * 15;
-    
-    cardRef.current.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
-    cardRef.current.style.transition = 'none';
-  };
+const CARD_SPRING = { type: 'spring', stiffness: 420, damping: 38, mass: 0.9 };
+const MAX_DECK_DEPTH = 3; // jumlah kartu yang masih terlihat di dek
 
-  const handleMouseLeave = () => {
-    if (!cardRef.current) return;
-    cardRef.current.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
-    cardRef.current.style.transition = 'transform 0.5s ease-out';
+/** Tanda penerbit di pojok kartu: logo asli bila tersedia, selain itu inisial/ikon. */
+function CardMark({ account }) {
+  const provider = ACCOUNT_PROVIDERS[account.type]?.find(p => p.id === account.icon);
+  if (provider?.slug) return <ProviderLogo account={account} size={22} />;
+  const Icon = ACCOUNT_ICONS[account.type] || Wallet;
+  return (
+    <span className="wallet-card-mark" aria-hidden="true">
+      {provider ? provider.name.substring(0, 3).toUpperCase() : <Icon size={16} />}
+    </span>
+  );
+}
+
+function WalletCard({ account, mode, zIndex, onActivate }) {
+  const Icon = ACCOUNT_ICONS[account.type] || Wallet;
+  const isDeck = mode === 'deck' || mode === 'deck-hidden';
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onActivate();
+    }
   };
 
   return (
-    <div 
-      className="account-card card tiltable-card" 
-      ref={cardRef}
-      style={{ '--acc-color': accColor }}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
+    <motion.div
+      layout="position"
+      transition={CARD_SPRING}
+      role="button"
+      tabIndex={isDeck ? -1 : 0}
+      aria-expanded={mode === 'selected'}
+      aria-label={mode === 'selected'
+        ? `Tutup kartu ${account.name}`
+        : `${account.name}, saldo ${formatCurrency(account.balance, account.currency || 'IDR')}`}
+      className={`wallet-card is-${mode}`}
+      style={{ '--acc-color': account.color || '#6366f1', zIndex }}
+      onClick={onActivate}
+      onKeyDown={handleKeyDown}
     >
-      {children}
+      <div className="wallet-card-strip">
+        <CardMark account={account} />
+        <span className="wallet-card-name">{account.name}</span>
+        <span className="wallet-card-balance account-card-balance">
+          {formatCurrency(account.balance, account.currency || 'IDR')}
+        </span>
+      </div>
+      <div className="wallet-card-body" aria-hidden="true">
+        {account.type === 'bank'
+          ? <span className="wallet-card-chip" />
+          : <Icon size={22} className="wallet-card-glyph" />}
+      </div>
+      <div className="wallet-card-footer" aria-hidden="true">
+        <span>{ACCOUNT_TYPES[account.type]?.label}</span>
+        <span>{account.currency || 'IDR'}</span>
+      </div>
+    </motion.div>
+  );
+}
+
+function WalletDetail({ account, transactions, onClose, onSync, onEdit, onDelete }) {
+  const currency = account.currency || 'IDR';
+  const recentTx = transactions.filter(tx => tx.account_id === account.id).slice(0, 5);
+
+  return (
+    <div className="wallet-detail card">
+      <div className="wallet-detail-head">
+        <div style={{ minWidth: 0 }}>
+          <p className="wallet-detail-label">Saldo {account.name}</p>
+          <p className="wallet-detail-balance amount-text">{formatCurrency(account.balance, currency)}</p>
+          <p className="wallet-detail-meta">{ACCOUNT_TYPES[account.type]?.label} · {currency}</p>
+        </div>
+        <button className="btn btn-icon btn-ghost" onClick={onClose} title="Tutup kartu" aria-label="Tutup kartu">
+          <X size={18} />
+        </button>
+      </div>
+
+      <div className="wallet-detail-actions">
+        <button className="btn btn-outline btn-sm" onClick={onSync}>
+          <RefreshCcw size={14} /> Sesuaikan
+        </button>
+        <button className="btn btn-outline btn-sm" onClick={onEdit}>
+          <Edit2 size={14} /> Edit
+        </button>
+        <button className="btn btn-danger btn-sm" onClick={onDelete}>
+          <Trash2 size={14} /> Hapus
+        </button>
+      </div>
+
+      <div className="wallet-tx">
+        <div className="wallet-tx-title">
+          <span>Transaksi bulan ini</span>
+          <Link to="/transactions" className="wallet-tx-link">
+            Semua <ChevronRight size={14} />
+          </Link>
+        </div>
+        {recentTx.length === 0 ? (
+          <p className="wallet-tx-empty">Belum ada transaksi bulan ini di akun ini.</p>
+        ) : (
+          recentTx.map(tx => (
+            <div key={tx.id} className="wallet-tx-row">
+              <div style={{ minWidth: 0 }}>
+                <div className="wallet-tx-desc">{tx.description || tx.categories?.name || 'Transaksi'}</div>
+                <div className="wallet-tx-date">{formatDateShort(tx.date)}</div>
+              </div>
+              <span className={`wallet-tx-amount amount-text ${tx.type === 'income' ? 'amount-income' : 'amount-expense'}`}>
+                {tx.type === 'income' ? '+' : '-'}{formatCurrency(tx.amount, currency)}
+              </span>
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 }
@@ -243,43 +326,59 @@ export default function AccountsPage() {
   const { user } = useAuthStore();
   const location = useLocation();
   const navigate = useNavigate();
-  const { accounts, fetchAccounts, addAccount, updateAccount, deleteAccount, categories, fetchCategories, addTransaction } = useFinanceStore();
+  const {
+    accounts, fetchAccounts, addAccount, updateAccount, deleteAccount,
+    categories, fetchCategories, addTransaction, transactions, fetchTransactions
+  } = useFinanceStore();
   const [modalOpen, setModalOpen] = useState(false);
   const [syncModalOpen, setSyncModalOpen] = useState(false);
   const [transferModalOpen, setTransferModalOpen] = useState(false);
   const [editAccount, setEditAccount] = useState(null);
-  const [activeDropdown, setActiveDropdown] = useState(null);
+  const [selectedId, setSelectedId] = useState(null);
+  const walletRef = useRef(null);
 
-  // Close dropdown when clicking anywhere
-  useEffect(() => {
-    const handleClickOutside = () => setActiveDropdown(null);
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
-  }, []);
+  // Kalau akun yang dipilih dihapus, otomatis kembali ke tampilan tumpukan
+  const selectedAccount = accounts.find(a => a.id === selectedId) || null;
 
   useEffect(() => {
     if (user) {
       fetchAccounts(user.id);
       fetchCategories(user.id);
+      fetchTransactions(user.id, { month: getCurrentMonth() });
     }
   }, [user]);
 
   useEffect(() => {
-    // Auto-open modal if navigating from Dashboard
+    // Dari Dashboard: langsung buka kartu akun yang diketuk
     if (location.state?.openAccountId && accounts.length > 0) {
-      const acc = accounts.find(a => a.id === location.state.openAccountId);
-      if (acc) {
-        setEditAccount(acc);
-        setModalOpen(true);
+      if (accounts.some(a => a.id === location.state.openAccountId)) {
+        setSelectedId(location.state.openAccountId);
         // Clear state so it doesn't reopen on refresh
         navigate('/accounts', { replace: true, state: {} });
       }
     }
   }, [location.state, accounts, navigate]);
 
+  // Esc menutup kartu yang sedang dibuka
+  useEffect(() => {
+    if (!selectedId) return;
+    const onKeyDown = (e) => { if (e.key === 'Escape') setSelectedId(null); };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [selectedId]);
+
+  const toggleCard = (id) => {
+    setSelectedId(current => (current === id ? null : id));
+    // Pastikan kartu yang dibuka terlihat bila tumpukannya panjang
+    const top = walletRef.current?.getBoundingClientRect().top;
+    if (top !== undefined && top < 0) {
+      walletRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   const handleSync = async (accountId, diffAmount) => {
     const type = diffAmount > 0 ? 'income' : 'expense';
-    
+
     // Cari kategori "Lainnya" sesuai tipe, jika tidak ada pakai kategori pertama yang cocok
     let category = categories.find(c => c.type === type && c.name.toLowerCase().includes('lainnya'));
     if (!category) {
@@ -301,7 +400,7 @@ export default function AccountsPage() {
     };
 
     await addTransaction(tx);
-    toast.success('Saldo berhasil disesuaikan!');
+    toast.success('Saldo berhasil disesuaikan');
   };
 
   const totalBalance = accounts.reduce((s, a) => s + a.balance, 0);
@@ -325,6 +424,11 @@ export default function AccountsPage() {
       toast.error(err.message);
     }
   };
+
+  // Saat satu kartu dibuka, kartu itu tampil paling depan dan sisanya menjadi dek di belakangnya
+  const orderedAccounts = selectedAccount
+    ? [selectedAccount, ...accounts.filter(a => a.id !== selectedAccount.id)]
+    : accounts;
 
   return (
     <div className="accounts-page animate-fade-in">
@@ -362,51 +466,64 @@ export default function AccountsPage() {
           </button>
         </div>
       ) : (
-        <div className="accounts-grid">
-          {accounts.map((acc) => {
-            const provider = ACCOUNT_PROVIDERS[acc.type]?.find(p => p.id === acc.icon);
-            const Icon = ACCOUNT_ICONS[acc.type] || Wallet;
-            return (
-              <TiltCard key={acc.id} accColor={acc.color}>
-                <div className="account-card-top">
-                  <ProviderLogo account={acc} size={36} />
-                  <div className="account-card-actions" style={{ gap: '8px', position: 'relative' }}>
-                    <button 
-                      className="btn btn-icon btn-ghost" 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setActiveDropdown(activeDropdown === acc.id ? null : acc.id);
-                      }} 
-                      style={{ color: 'white' }}
-                    >
-                      <MoreVertical size={20} />
-                    </button>
-                    {activeDropdown === acc.id && (
-                      <div className="dropdown-menu" onClick={(e) => e.stopPropagation()}>
-                        <button className="dropdown-item" onClick={() => { setEditAccount(acc); setSyncModalOpen(true); setActiveDropdown(null); }}>
-                          <RefreshCcw size={16} /> Sesuaikan Saldo
-                        </button>
-                        <button className="dropdown-item" onClick={() => { setEditAccount(acc); setModalOpen(true); setActiveDropdown(null); }}>
-                          <Edit2 size={16} /> Edit Akun
-                        </button>
-                        <div className="dropdown-divider"></div>
-                        <button className="dropdown-item text-danger" onClick={() => { handleDelete(acc.id); setActiveDropdown(null); }}>
-                          <Trash2 size={16} /> Hapus Akun
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div className="account-card-name">{acc.name}</div>
-                <div className="account-card-type">{ACCOUNT_TYPES[acc.type]?.label}</div>
-                <div className="account-card-balance">{formatCurrency(acc.balance)}</div>
-                <div className="account-card-bar" style={{ background: acc.color + '33' }}>
-                  <div className="account-card-bar-fill" style={{ background: acc.color }} />
-                </div>
-              </TiltCard>
-            );
-          })}
-        </div>
+        <MotionConfig reducedMotion="user">
+          <div className={`wallet ${selectedAccount ? 'has-selection' : ''}`} ref={walletRef}>
+            <div className="wallet-cards">
+              {orderedAccounts.map((acc, index) => {
+                let mode = 'stack';
+                let zIndex = index + 1; // di tumpukan, kartu berikutnya berada di depan
+                if (selectedAccount) {
+                  const depth = index; // 0 = kartu yang dibuka
+                  mode = depth === 0 ? 'selected' : depth <= MAX_DECK_DEPTH ? 'deck' : 'deck-hidden';
+                  zIndex = depth === 0 ? accounts.length + 1 : accounts.length - depth;
+                }
+                return (
+                  <WalletCard
+                    key={acc.id}
+                    account={acc}
+                    mode={mode}
+                    zIndex={zIndex}
+                    onActivate={() => (mode === 'stack' ? toggleCard(acc.id) : setSelectedId(null))}
+                  />
+                );
+              })}
+            </div>
+
+            <motion.div layout="position" transition={CARD_SPRING} className="wallet-side">
+              <AnimatePresence mode="wait" initial={false}>
+                {selectedAccount ? (
+                  <motion.div
+                    key={selectedAccount.id}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 8 }}
+                    transition={{ duration: 0.18 }}
+                  >
+                    <WalletDetail
+                      account={selectedAccount}
+                      transactions={transactions}
+                      onClose={() => setSelectedId(null)}
+                      onSync={() => { setEditAccount(selectedAccount); setSyncModalOpen(true); }}
+                      onEdit={() => { setEditAccount(selectedAccount); setModalOpen(true); }}
+                      onDelete={() => handleDelete(selectedAccount.id)}
+                    />
+                  </motion.div>
+                ) : (
+                  <motion.p
+                    key="hint"
+                    className="wallet-hint"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.15 }}
+                  >
+                    Ketuk kartu untuk melihat saldo, aksi, dan transaksi bulan ini.
+                  </motion.p>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          </div>
+        </MotionConfig>
       )}
 
       <AccountModal

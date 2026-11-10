@@ -53,7 +53,6 @@
 
 .medal-item:hover {
   border-color: var(--border-default);
-  transform: translateX(4px);
 }
 
 .medal-item.locked {

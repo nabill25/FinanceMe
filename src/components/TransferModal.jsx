@@ -50,7 +50,7 @@ export default function TransferModal({ isOpen, onClose }) {
         date: form.date,
         userId: user.id,
       });
-      toast.success(`Transfer ${formatCurrency(Number(form.amount))} berhasil! ↔️`);
+      toast.success(`Transfer ${formatCurrency(Number(form.amount))} berhasil dicatat`);
       onClose();
       setForm({
         fromAccountId: '',
@@ -98,8 +98,8 @@ export default function TransferModal({ isOpen, onClose }) {
               {fromAccount && (
                 <div className={`transfer-account-balance ${insufficient ? 'insufficient' : ''}`}>
                   {insufficient
-                    ? `❌ Saldo tidak cukup (${formatCurrency(fromAccount.balance)})`
-                    : `💰 Saldo: ${formatCurrency(fromAccount.balance)}`
+                    ? `Saldo tidak cukup (${formatCurrency(fromAccount.balance)})`
+                    : `Saldo: ${formatCurrency(fromAccount.balance)}`
                   }
                 </div>
               )}
@@ -133,7 +133,7 @@ export default function TransferModal({ isOpen, onClose }) {
               </select>
               {toAccount && (
                 <div className="transfer-account-balance">
-                  💰 Saldo: {formatCurrency(toAccount.balance)}
+                  Saldo: {formatCurrency(toAccount.balance)}
                 </div>
               )}
             </div>

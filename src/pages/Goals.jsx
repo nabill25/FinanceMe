@@ -89,7 +89,7 @@ export default function GoalsPage() {
       <div className="page-header">
         <div>
           <h1>Target Tabungan</h1>
-          <p className="text-secondary text-sm">Wujudkan impian finansial Anda satu per satu</p>
+          <p className="text-secondary text-sm">Pantau progres setiap target tabungan</p>
         </div>
         <button className="btn btn-primary" onClick={openAdd}>
           <Plus size={18} /> Tambah Target
@@ -135,13 +135,13 @@ export default function GoalsPage() {
 
               {isCompleted ? (
                 <div className="goal-completed-badge">
-                  <CheckCircle size={16} /> Target Tercapai!
+                  <CheckCircle size={16} /> Target tercapai
                 </div>
               ) : (
                 <div className="goal-add-fund-wrap">
                   {/* Future enhancement: add fund button */}
                   <div className="text-xs text-muted" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <TrendingUp size={12} /> Terus menabung! Kurang {formatCurrency(g.target_amount - g.current_amount)} lagi.
+                    <TrendingUp size={12} /> Kurang {formatCurrency(g.target_amount - g.current_amount)} lagi
                   </div>
                 </div>
               )}
@@ -153,7 +153,7 @@ export default function GoalsPage() {
           <div className="empty-state">
             <Target size={48} className="text-muted" />
             <h3>Belum ada target</h3>
-            <p className="text-secondary text-sm">Buat target impian Anda sekarang</p>
+            <p className="text-secondary text-sm">Mulai dari satu target, misalnya dana darurat.</p>
           </div>
         )}
       </div>

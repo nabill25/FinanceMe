@@ -109,13 +109,6 @@ export default function Sidebar() {
           </div>
           <button
             className="sidebar-signout btn btn-icon btn-ghost"
-            onClick={toggleTheme}
-            title={theme === 'dark' ? "Mode Terang" : "Mode Gelap"}
-          >
-            {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
-          </button>
-          <button
-            className="sidebar-signout btn btn-icon btn-ghost"
             onClick={handleSignOut}
             title="Keluar"
           >

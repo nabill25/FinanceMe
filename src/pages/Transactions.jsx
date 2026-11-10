@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo, useRef } from 'react';
-import { Plus, Trash2, Edit2, Search, ArrowUpCircle, ArrowDownCircle, Loader2, ShieldAlert, Shield, ImagePlus, SlidersHorizontal, X } from 'lucide-react';
+import { Plus, Trash2, Edit2, Search, ArrowUpCircle, ArrowDownCircle, Loader2, ShieldAlert, Shield, ImagePlus, SlidersHorizontal, X, Sparkles, Scale, Paperclip, Users } from 'lucide-react';
 import { useFinanceStore } from '../store/financeStore';
 import { useAuthStore } from '../store/authStore';
 import {
@@ -229,7 +229,7 @@ function TransactionModal({ open, onClose, transaction, accounts, categories, on
             <div className="form-group">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                 <label className="form-label" style={{ margin: 0 }}>Kategori</label>
-                {guessingCategory && <span style={{ fontSize: '11px', color: 'var(--accent-primary)' }} className="animate-pulse">✨ AI berpikir...</span>}
+                {guessingCategory && <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Menebak kategori…</span>}
               </div>
               <div className="category-grid">
                 {filteredCategories.map(cat => (
@@ -248,7 +248,7 @@ function TransactionModal({ open, onClose, transaction, accounts, categories, on
               <div className="form-group split-bill-section" style={{ padding: '16px', background: 'var(--bg-main)', borderRadius: '12px', border: '1px solid var(--border-default)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isSplit ? '16px' : '0' }}>
                   <div>
-                    <div style={{ fontWeight: 600, fontSize: '14px' }}>🍕 Split Bill (Patungan)</div>
+                    <div style={{ fontWeight: 600, fontSize: '14px' }}>Split Bill (Patungan)</div>
                     <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Bagikan tagihan ini dengan teman</div>
                   </div>
                   <label className="switch">
@@ -306,7 +306,7 @@ function TransactionModal({ open, onClose, transaction, accounts, categories, on
                   disabled={guessingCategory || !form.description}
                   style={{ position: 'absolute', right: 4, top: '50%', transform: 'translateY(-50%)', opacity: (!form.description || guessingCategory) ? 0.5 : 1 }}
                 >
-                  {guessingCategory ? <Loader2 size={16} className="spin" /> : '✨'}
+                  {guessingCategory ? <Loader2 size={16} className="spin" /> : <Sparkles size={16} />}
                 </button>
               </div>
             </div>
@@ -438,7 +438,7 @@ export default function TransactionsPage() {
           <div style={{ display: 'flex', gap: '12px', alignItems: 'center', padding: '14px 18px', borderRadius: '12px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.3)', marginBottom: '0' }}>
             <ShieldAlert size={20} style={{ color: '#ef4444', flexShrink: 0 }} />
             <div>
-              <p style={{ fontWeight: 700, color: '#ef4444', margin: 0 }}>🚫 Transaksi Diblokir</p>
+              <p style={{ fontWeight: 700, color: '#ef4444', margin: 0 }}>Transaksi diblokir</p>
               <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: 0 }}>
                 Batas pengeluaran terlampaui. Coba lagi setelah: <strong style={{ color: '#ef4444', fontFamily: 'monospace' }}>{new Date(spendingGuardState.unblock_at).toLocaleString('id-ID')}</strong>
               </p>
@@ -448,7 +448,7 @@ export default function TransactionsPage() {
           <div style={{ display: 'flex', gap: '12px', alignItems: 'center', padding: '14px 18px', borderRadius: '12px', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.3)', marginBottom: '0' }}>
             <Shield size={20} style={{ color: '#f59e0b', flexShrink: 0 }} />
             <p style={{ margin: 0, fontSize: '13px' }}>
-              ⚠️ <strong>Mendekati batas!</strong> Sudah terpakai <strong>{Math.round(spendingGuardState.pct)}%</strong> dari limit {formatCurrency(spendingLimit.limit_amount)}.
+              <strong>Mendekati batas.</strong> Sudah terpakai <strong>{Math.round(spendingGuardState.pct)}%</strong> dari limit {formatCurrency(spendingLimit.limit_amount)}.
             </p>
           </div>
         ) : null
@@ -472,7 +472,7 @@ export default function TransactionsPage() {
         </div>
         <div className="tx-summary-item card">
           <div className="tx-summary-icon" style={{ background: 'rgba(99,102,241,0.15)', color: 'var(--accent-primary)' }}>
-            <span style={{ fontSize: '20px' }}>💰</span>
+            <Scale size={20} />
           </div>
           <div>
             <p className="text-xs text-muted">Selisih</p>
@@ -545,8 +545,8 @@ export default function TransactionsPage() {
                 <div className="tx-item-info">
                   <span className="tx-item-desc">
                     {tx.description || tx.categories?.name || 'Transaksi'}
-                    {tx.receipt_url && <span title="Ada Lampiran Bukti" style={{ marginLeft: 6, color: 'var(--text-muted)' }}>📎</span>}
-                    {tx.is_split && <span title="Patungan (Split Bill)" style={{ marginLeft: 6, fontSize: '12px' }}>🍕</span>}
+                    {tx.receipt_url && <span title="Ada Lampiran Bukti" style={{ marginLeft: 6, color: 'var(--text-muted)', display: 'inline-flex', verticalAlign: 'middle' }}><Paperclip size={12} /></span>}
+                    {tx.is_split && <span title="Patungan (Split Bill)" style={{ marginLeft: 6, color: 'var(--text-muted)', display: 'inline-flex', verticalAlign: 'middle' }}><Users size={12} /></span>}
                   </span>
                   {tx.tags && tx.tags.length > 0 && (
                     <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginTop: '4px', marginBottom: '2px' }}>

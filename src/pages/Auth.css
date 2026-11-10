@@ -6,44 +6,7 @@
   padding: var(--space-xl);
   position: relative;
   overflow: hidden;
-  background: var(--gradient-hero);
-}
-
-/* Background blobs */
-.auth-blob {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.15;
-  animation: float 8s ease-in-out infinite;
-  pointer-events: none;
-}
-
-.auth-blob-1 {
-  width: 400px;
-  height: 400px;
-  background: var(--accent-primary);
-  top: -10%;
-  right: -10%;
-  animation-delay: 0s;
-}
-
-.auth-blob-2 {
-  width: 300px;
-  height: 300px;
-  background: var(--accent-secondary);
-  bottom: -5%;
-  left: -5%;
-  animation-delay: 2s;
-}
-
-.auth-blob-3 {
-  width: 200px;
-  height: 200px;
-  background: var(--accent-info);
-  top: 50%;
-  left: 30%;
-  animation-delay: 4s;
+  background: var(--bg-main);
 }
 
 .auth-card {
@@ -51,7 +14,7 @@
   max-width: 420px;
   position: relative;
   z-index: 10;
-  box-shadow: var(--shadow-lg), 0 0 60px rgba(99, 102, 241, 0.1);
+  box-shadow: var(--shadow-lg);
   animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
@@ -75,16 +38,12 @@
   color: white;
   box-shadow: var(--shadow-glow);
   margin-bottom: var(--space-xs);
-  animation: float 6s ease-in-out infinite;
 }
 
 .auth-logo-text {
   font-size: 1.8rem;
-  font-weight: 900;
-  background: var(--gradient-primary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-weight: 800;
+  color: var(--text-primary);
   letter-spacing: -0.03em;
 }
 

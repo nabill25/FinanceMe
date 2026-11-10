@@ -10,6 +10,17 @@ export default function FinancialHealthWidget() {
   const { income, expense } = getMonthSummary(currentMonth);
 
   const healthData = useMemo(() => {
+    // Tanpa data, jangan beri skor 100 "Sangat Sehat": belum ada yang bisa dinilai
+    if (income === 0 && expense === 0) {
+      return {
+        score: null,
+        color: 'var(--text-muted)',
+        status: 'Belum ada data',
+        message: 'Catat pemasukan dan pengeluaran bulan ini untuk melihat skor.',
+        icon: <Activity size={24} color="var(--text-muted)" />,
+      };
+    }
+
     let cashflowScore = 0;
     let savingsScore = 0;
     let limitScore = 0;
@@ -59,20 +70,27 @@ export default function FinancialHealthWidget() {
 
     const totalScore = cashflowScore + savingsScore + limitScore;
 
+    // Pesan berdasarkan angka sebenarnya, bukan pujian/peringatan generik
+    let message;
+    if (income === 0) {
+      message = 'Ada pengeluaran, tetapi belum ada pemasukan bulan ini.';
+    } else if (expense > income) {
+      message = `Pengeluaran ${Math.round(((expense - income) / income) * 100)}% di atas pemasukan bulan ini.`;
+    } else {
+      message = `Sisa ${Math.round(((income - expense) / income) * 100)}% dari pemasukan bulan ini (target 20%).`;
+    }
+
     let color = 'var(--accent-success)';
     let status = 'Sangat Sehat';
-    let message = 'Luar biasa! Pertahankan kebiasaan baik ini.';
     let icon = <HeartPulse size={24} color="var(--accent-success)" />;
 
     if (totalScore < 50) {
       color = 'var(--accent-danger)';
       status = 'Kritis';
-      message = 'Awas! Pengeluaranmu jauh melebihi pendapatan.';
       icon = <AlertTriangle size={24} color="var(--accent-danger)" />;
     } else if (totalScore < 80) {
       color = 'var(--accent-warning)';
       status = 'Perlu Perhatian';
-      message = 'Arus kas mulai seret. Kurangi pengeluaran yang tidak perlu.';
       icon = <Activity size={24} color="var(--accent-warning)" />;
     }
 
@@ -81,7 +99,7 @@ export default function FinancialHealthWidget() {
 
   const radius = 36;
   const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (healthData.score / 100) * circumference;
+  const strokeDashoffset = circumference - ((healthData.score ?? 0) / 100) * circumference;
 
   return (
     <div className="card health-widget">
@@ -119,7 +137,7 @@ export default function FinancialHealthWidget() {
             />
           </svg>
           <div className="health-score-text">
-            <span style={{ color: healthData.color }}>{healthData.score}</span>
+            <span style={{ color: healthData.color }}>{healthData.score ?? '–'}</span>
           </div>
         </div>
 

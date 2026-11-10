@@ -137,7 +137,7 @@ function TransferModal({ open, onClose, pot, type }) {
   };
 
   return (
-    <BottomSheet isOpen={open} onClose={onClose} title={type === 'topup' ? `💰 Setor ke ${pot.name}` : `📤 Tarik dari ${pot.name}`}>
+    <BottomSheet isOpen={open} onClose={onClose} title={type === 'topup' ? `Setor ke ${pot.name}` : `Tarik dari ${pot.name}`}>
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div className="form-group">
             <label className="form-label">Akun {type === 'topup' ? 'Sumber' : 'Tujuan'}</label>
@@ -199,7 +199,7 @@ export default function SavingsPage() {
     <div className="savings-page animate-fade-in">
       <div className="page-header">
         <div>
-          <h1>💰 Tabungan</h1>
+          <h1>Tabungan</h1>
           <p className="text-secondary text-sm">Celengan virtual untuk setiap tujuan</p>
         </div>
         <button className="btn btn-primary" onClick={() => setPotModal({ open: true, pot: null })}>
@@ -238,7 +238,7 @@ export default function SavingsPage() {
         <div className="empty-state card">
           <span className="empty-icon">🐷</span>
           <h3>Belum ada celengan</h3>
-          <p>Buat celengan untuk Dana Darurat, Liburan, atau tujuan lainnya!</p>
+          <p>Buat celengan untuk dana darurat, liburan, atau tujuan lainnya.</p>
           <button className="btn btn-primary" onClick={() => setPotModal({ open: true, pot: null })}>
             <Plus size={16} /> Buat Celengan Pertama
           </button>

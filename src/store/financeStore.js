@@ -108,8 +108,10 @@ export const useFinanceStore = create((set, get) => ({
 
     if (filters.month) {
       const [year, month] = filters.month.split('-');
+      const lastDay = new Date(Number(year), Number(month), 0).getDate();
       const start = `${year}-${month}-01`;
-      const end = new Date(year, month, 0).toISOString().split('T')[0];
+      // Disusun manual: toISOString() menggeser tanggal di zona WIB sehingga tanggal terakhir bulan terlewat
+      const end = `${year}-${month}-${String(lastDay).padStart(2, '0')}`;
       query = query.gte('date', start).lte('date', end);
     }
     if (filters.account_id) query = query.eq('account_id', filters.account_id);
@@ -123,10 +125,16 @@ export const useFinanceStore = create((set, get) => ({
   },
 
   fetchMoMStats: async (userId, lastMonth) => {
-    const [year, month] = lastMonth.split('-');
-    const start = `${year}-${month}-01`;
-    const end = new Date(year, month, 0).toISOString().split('T')[0];
-    
+    // Bandingkan periode yang sama (tgl 1 s/d tanggal hari ini di bulan lalu), bukan sebulan penuh.
+    // Kalau tidak, di awal bulan pengeluaran selalu terlihat "jauh lebih hemat" dari bulan lalu.
+    // Tanggal disusun manual karena toISOString() menggeser tanggal di zona waktu WIB.
+    const [year, month] = lastMonth.split('-').map(Number);
+    const lastDayOfMonth = new Date(year, month, 0).getDate();
+    const day = Math.min(new Date().getDate(), lastDayOfMonth);
+    const mm = String(month).padStart(2, '0');
+    const start = `${year}-${mm}-01`;
+    const end = `${year}-${mm}-${String(day).padStart(2, '0')}`;
+
     const { data, error } = await supabase
       .from('transactions')
       .select('amount, type, accounts(currency)')
@@ -221,15 +229,18 @@ export const useFinanceStore = create((set, get) => ({
       }
     }
 
-    // Trigger confetti 🎉
-    import('canvas-confetti').then((confetti) => {
-      confetti.default({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.8 },
-        colors: transaction.type === 'income' ? ['#10b981', '#34d399', '#ffffff'] : ['#6366f1', '#a855f7', '#ffffff']
+    // Confetti hanya untuk pemasukan; aplikasi anggaran tidak seharusnya merayakan pengeluaran.
+    if (transaction.type === 'income') {
+      import('canvas-confetti').then((confetti) => {
+        confetti.default({
+          particleCount: 80,
+          spread: 70,
+          origin: { y: 0.8 },
+          colors: ['#10b981', '#34d399', '#ffffff'],
+          disableForReducedMotion: true
+        });
       });
-    });
+    }
 
     return data;
   },
