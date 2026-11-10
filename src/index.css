@@ -56,6 +56,9 @@
   --transition-fast: 0.15s ease;
   --transition-base: 0.25s ease;
   --transition-bounce: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* Gerak animasi: cukup lambat agar terlihat, tetap halus */
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --dur-page: 0.5s;
   --sidebar-width: 260px;
   --bottom-nav-height: calc(64px + env(safe-area-inset-bottom, 20px));
   --safe-area-top: env(safe-area-inset-top, 0px);
@@ -313,19 +316,10 @@ h1, h2, h3, h4, h5, h6 {
   padding: 12px 24px;
   box-shadow: var(--shadow-sm);
 }
-.btn-primary:hover:not(:disabled) {
-  box-shadow: var(--shadow-md);
-  transform: translateY(-1px);
-}
-
 .btn-danger {
   background: rgba(239, 68, 68, 0.1);
   color: var(--accent-danger);
   padding: 10px 20px;
-}
-.btn-danger:hover:not(:disabled) {
-  background: var(--accent-danger);
-  color: white;
 }
 
 .btn-outline {
@@ -334,20 +328,41 @@ h1, h2, h3, h4, h5, h6 {
   border: 1px solid var(--border-default);
   padding: 10px 20px;
 }
-.btn-outline:hover:not(:disabled) {
-  background: var(--bg-main);
-  border-color: var(--accent-primary);
-  color: var(--accent-primary);
-}
 
 .btn-ghost {
   background: transparent;
   color: var(--text-secondary);
   padding: 8px 16px;
 }
-.btn-ghost:hover:not(:disabled) {
-  background: var(--bg-main);
+
+.btn-secondary {
+  background: var(--bg-elevated);
   color: var(--text-primary);
+  border: 1px solid var(--border-default);
+  padding: 10px 18px;
+}
+
+/* Efek hover hanya untuk perangkat ber-mouse. Di layar sentuh, efek hover
+   "nyangkut" setelah tombol diketuk. */
+@media (hover: hover) {
+  .btn-primary:hover:not(:disabled) {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+  }
+  .btn-danger:hover:not(:disabled) {
+    background: var(--accent-danger);
+    color: white;
+  }
+  .btn-outline:hover:not(:disabled) {
+    background: var(--bg-main);
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+  }
+  .btn-ghost:hover:not(:disabled),
+  .btn-secondary:hover:not(:disabled) {
+    background: var(--bg-main);
+    color: var(--text-primary);
+  }
 }
 
 .btn-icon {
@@ -419,6 +434,120 @@ h1, h2, h3, h4, h5, h6 {
 .badge-success { background: rgba(16, 185, 129, 0.15); color: #059669; }
 .badge-danger { background: rgba(239, 68, 68, 0.15); color: #dc2626; }
 .badge-warning { background: rgba(245, 158, 11, 0.15); color: #d97706; }
+.badge-primary { background: color-mix(in srgb, var(--accent-primary) 14%, transparent); color: var(--accent-primary); }
+.badge-default { background: var(--bg-main); color: var(--text-secondary); border: 1px solid var(--border-default); }
+
+/* =====================
+   SHARED COMPONENTS & UTILITIES
+   (beberapa kelas ini sudah dipakai di halaman tetapi sebelumnya tidak pernah didefinisikan)
+   ===================== */
+.page-title { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; }
+.page-subtitle { font-size: 0.875rem; color: var(--text-secondary); margin-top: 2px; }
+.page-title-group { display: flex; align-items: center; gap: 12px; }
+.page-icon-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: var(--shadow-sm);
+}
+.section-title { font-size: 1.05rem; font-weight: 700; margin-bottom: var(--space-md); }
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+
+/* Toggle switch (dipakai di Pengaturan & form transaksi) */
+.toggle-switch { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; cursor: pointer; }
+.toggle-switch input { position: absolute; opacity: 0; width: 0; height: 0; }
+.toggle-track {
+  position: absolute;
+  inset: 0;
+  border-radius: 24px;
+  background: var(--border-default);
+  transition: background 0.25s ease;
+}
+.toggle-track::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.toggle-switch input:checked + .toggle-track { background: var(--accent-primary); }
+.toggle-switch input:checked + .toggle-track::after { transform: translateX(20px); }
+.toggle-switch input:focus-visible + .toggle-track {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-primary) 30%, transparent);
+}
+
+/* Form */
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--space-md);
+}
+.form-group > label:not(.form-label) {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.input-with-icon { position: relative; }
+.input-with-icon .input-icon {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 600;
+  pointer-events: none;
+}
+.modal-actions { display: flex; justify-content: flex-end; gap: var(--space-sm); }
+
+/* Tombol ikon kecil dengan area sentuh yang cukup (36px) */
+.icon-btn {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-default);
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.icon-btn.danger { color: var(--accent-danger); }
+@media (hover: hover) {
+  .icon-btn:hover { background: var(--bg-main); color: var(--text-primary); }
+  .icon-btn.danger:hover { background: rgba(239, 68, 68, 0.1); color: var(--accent-danger); }
+}
+
+.spin { animation: spin 1s linear infinite; }
+.clickable { cursor: pointer; }
+.text-center { text-align: center; }
+.fw-bold { font-weight: 700; }
+.w-100 { width: 100%; }
+.p-0 { padding: 0 !important; }
+.p-3 { padding: 12px; }
+.p-4 { padding: 16px; }
+.mt-2 { margin-top: 8px; }
+.mt-4 { margin-top: 16px; }
+.ml-2 { margin-left: 8px; }
+@media (min-width: 769px) {
+  .d-md-none { display: none !important; }
+}
 
 /* =====================
    SPINNER
@@ -582,31 +711,34 @@ h1, h2, h3, h4, h5, h6 {
 
 /* =====================
    ANIMATIONS — KEYFRAMES
+   Animasi masuk selalu berakhir di `transform: none` dan dipakai dengan fill-mode
+   `backwards`. Transform yang tertinggal setelah animasi membuat elemen
+   `position: fixed` di dalamnya (form, sheet) salah posisi.
    ===================== */
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: none; }
 }
 @keyframes fadeInFast {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(100%); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: none; }
 }
 @keyframes modalSlideUp {
   from { opacity: 0; transform: translateY(40px); }
-  to { opacity: 1; transform: translateY(0); }
+  to { opacity: 1; transform: none; }
 }
 @keyframes overlayIn {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 @keyframes modalIn {
-  from { opacity: 0; transform: scale(0.92) translateY(20px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
+  from { opacity: 0; transform: scale(0.94) translateY(16px); }
+  to { opacity: 1; transform: none; }
 }
 @keyframes spin {
   to { transform: rotate(360deg); }
@@ -624,26 +756,33 @@ h1, h2, h3, h4, h5, h6 {
   100% { background-position: 200% center; }
 }
 @keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.88); }
-  to { opacity: 1; transform: scale(1); }
+  from { opacity: 0; transform: scale(0.94); }
+  to { opacity: 1; transform: none; }
 }
 @keyframes bounceIn {
-  0% { opacity: 0; transform: scale(0.7); }
-  60% { opacity: 1; transform: scale(1.05); }
-  80% { transform: scale(0.97); }
-  100% { transform: scale(1); }
+  0% { opacity: 0; transform: scale(0.85); }
+  60% { opacity: 1; transform: scale(1.03); }
+  100% { opacity: 1; transform: none; }
 }
 @keyframes slideInLeft {
   from { opacity: 0; transform: translateX(-24px); }
-  to { opacity: 1; transform: translateX(0); }
+  to { opacity: 1; transform: none; }
 }
 @keyframes slideInRight {
   from { opacity: 0; transform: translateX(24px); }
-  to { opacity: 1; transform: translateX(0); }
+  to { opacity: 1; transform: none; }
 }
 @keyframes countUp {
   from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes pageFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes itemIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
 }
 @keyframes live-pulse {
   0%, 100% { opacity: 1; }
@@ -657,28 +796,76 @@ h1, h2, h3, h4, h5, h6 {
    ANIMATION CLASSES
    ===================== */
 .animate-fade-in {
-  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: fadeIn var(--dur-page) var(--ease-out) backwards;
 }
 .animate-slide-up {
-  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: slideUp var(--dur-page) var(--ease-out) backwards;
 }
 .animate-scale-in {
-  animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation: scaleIn 0.4s var(--ease-out) backwards;
 }
 .animate-bounce-in {
-  animation: bounceIn 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  animation: bounceIn 0.55s var(--ease-out) backwards;
 }
 
 /* Stagger children */
 .stagger-children > * {
-  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: fadeIn 0.45s var(--ease-out) backwards;
 }
 .stagger-children > *:nth-child(1) { animation-delay: 0.05s; }
-.stagger-children > *:nth-child(2) { animation-delay: 0.10s; }
-.stagger-children > *:nth-child(3) { animation-delay: 0.15s; }
-.stagger-children > *:nth-child(4) { animation-delay: 0.20s; }
-.stagger-children > *:nth-child(5) { animation-delay: 0.25s; }
-.stagger-children > *:nth-child(6) { animation-delay: 0.30s; }
+.stagger-children > *:nth-child(2) { animation-delay: 0.12s; }
+.stagger-children > *:nth-child(3) { animation-delay: 0.19s; }
+.stagger-children > *:nth-child(4) { animation-delay: 0.26s; }
+.stagger-children > *:nth-child(5) { animation-delay: 0.33s; }
+.stagger-children > *:nth-child(6) { animation-delay: 0.40s; }
+
+/* =====================
+   PAGE TRANSITION
+   Setiap pindah halaman: halaman memudar masuk, lalu tiap bagiannya
+   naik bergiliran (jeda 70ms) supaya transisinya terlihat jelas.
+   ===================== */
+.page-transition {
+  animation: pageFade 0.35s var(--ease-out) backwards;
+}
+/* Akar halaman tidak ikut bergeser agar geraknya tidak dobel */
+.page-transition > .animate-fade-in {
+  animation: none;
+}
+.page-transition > * > :not(.modal-overlay) {
+  animation: fadeIn var(--dur-page) var(--ease-out) backwards;
+}
+.page-transition > * > :nth-child(2) { animation-delay: 70ms; }
+.page-transition > * > :nth-child(3) { animation-delay: 140ms; }
+.page-transition > * > :nth-child(4) { animation-delay: 210ms; }
+.page-transition > * > :nth-child(5) { animation-delay: 280ms; }
+.page-transition > * > :nth-child(6) { animation-delay: 350ms; }
+.page-transition > * > :nth-child(7) { animation-delay: 420ms; }
+.page-transition > * > :nth-child(n+8) { animation-delay: 490ms; }
+
+/* Isi daftar (transaksi, tagihan, target, celengan) muncul satu per satu */
+.page-transition :is(.tx-list, .recent-tx-list, .recurring-grid, .goals-grid, .savings-grid) > * {
+  animation: itemIn 0.45s var(--ease-out) backwards;
+  animation-delay: 200ms;
+}
+.page-transition :is(.tx-list, .recent-tx-list, .recurring-grid, .goals-grid, .savings-grid) > :nth-child(2) { animation-delay: 250ms; }
+.page-transition :is(.tx-list, .recent-tx-list, .recurring-grid, .goals-grid, .savings-grid) > :nth-child(3) { animation-delay: 300ms; }
+.page-transition :is(.tx-list, .recent-tx-list, .recurring-grid, .goals-grid, .savings-grid) > :nth-child(4) { animation-delay: 350ms; }
+.page-transition :is(.tx-list, .recent-tx-list, .recurring-grid, .goals-grid, .savings-grid) > :nth-child(5) { animation-delay: 400ms; }
+.page-transition :is(.tx-list, .recent-tx-list, .recurring-grid, .goals-grid, .savings-grid) > :nth-child(6) { animation-delay: 450ms; }
+.page-transition :is(.tx-list, .recent-tx-list, .recurring-grid, .goals-grid, .savings-grid) > :nth-child(7) { animation-delay: 500ms; }
+.page-transition :is(.tx-list, .recent-tx-list, .recurring-grid, .goals-grid, .savings-grid) > :nth-child(8) { animation-delay: 550ms; }
+.page-transition :is(.tx-list, .recent-tx-list, .recurring-grid, .goals-grid, .savings-grid) > :nth-child(n+9) { animation-delay: 600ms; }
+
+/* Hormati pengaturan "kurangi gerakan" di perangkat */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
 
 /* =====================
    HOVER LIFT EFFECTS
@@ -783,4 +970,16 @@ h1, h2, h3, h4, h5, h6 {
     width: 44px;
     height: 44px;
   }
+
+  .page-title { font-size: 1.3rem; }
+
+  .modal-actions .btn {
+    flex: 1;
+    justify-content: center;
+  }
+}
+
+/* Layar sentuh: tombol kecil tetap punya tinggi minimal yang nyaman diketuk */
+@media (pointer: coarse) {
+  .btn-sm { min-height: 36px; }
 }

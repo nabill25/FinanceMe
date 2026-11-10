@@ -63,6 +63,13 @@
   transition: transform 0.08s ease !important;
 }
 
+/* Di HP, tombol tambah pindah ke navigasi bawah */
+@media (max-width: 768px) {
+  .quick-add-fab-group {
+    display: none;
+  }
+}
+
 
 .type-toggle {
   display: flex;

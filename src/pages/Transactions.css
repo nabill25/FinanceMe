@@ -109,6 +109,23 @@
   white-space: nowrap;
 }
 
+.tx-item-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.tx-item-title .tx-item-desc {
+  min-width: 0;
+}
+
+.tx-item-flag {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+
 .tx-item-meta {
   font-size: 12px;
   color: var(--text-muted);

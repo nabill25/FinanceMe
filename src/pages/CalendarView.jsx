@@ -5,6 +5,16 @@ import { formatCurrencyShort, formatDate, CATEGORY_ICONS, EXCHANGE_RATES } from 
 import BottomSheet from '../components/BottomSheet';
 import './CalendarView.css';
 
+// Nominal ringkas untuk sel kalender yang sempit di HP: 1,2jt · 350rb
+const formatCompact = (n) => {
+  const abs = Math.abs(n);
+  const fmt = (v) => new Intl.NumberFormat('id-ID', { maximumFractionDigits: 1 }).format(v);
+  if (abs >= 1e9) return `${fmt(n / 1e9)}M`;
+  if (abs >= 1e6) return `${fmt(n / 1e6)}jt`;
+  if (abs >= 1e3) return `${fmt(n / 1e3)}rb`;
+  return fmt(n);
+};
+
 export default function CalendarView() {
   const { transactions } = useFinanceStore();
   
@@ -63,7 +73,9 @@ export default function CalendarView() {
   const selectedDayExpense = selectedDate ? txByDate[selectedDate]?.expense || 0 : 0;
 
   const weekDays = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
-  const todayStr = new Date().toISOString().split('T')[0];
+  // Tanggal lokal (WIB); toISOString() memakai UTC sehingga sebelum jam 07.00 menandai hari kemarin
+  const now = new Date();
+  const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
   return (
     <div className="calendar-view animate-fade-in">
@@ -73,12 +85,12 @@ export default function CalendarView() {
           <p className="text-secondary text-sm">Lihat aktivitas harian Anda</p>
         </div>
         <div className="calendar-nav">
-          <button className="btn btn-outline btn-sm" onClick={prevMonth}>
-            <ChevronLeft size={16} />
+          <button className="btn btn-outline btn-icon" onClick={prevMonth} aria-label="Bulan sebelumnya">
+            <ChevronLeft size={18} />
           </button>
           <span className="calendar-month-title">{monthName}</span>
-          <button className="btn btn-outline btn-sm" onClick={nextMonth}>
-            <ChevronRight size={16} />
+          <button className="btn btn-outline btn-icon" onClick={nextMonth} aria-label="Bulan berikutnya">
+            <ChevronRight size={18} />
           </button>
           <button className="btn btn-primary btn-sm ml-2" onClick={goToToday}>Hari Ini</button>
         </div>
@@ -98,23 +110,26 @@ export default function CalendarView() {
             const isToday = dateStr === todayStr;
 
             return (
-              <div 
-                key={dateStr} 
+              <button
+                type="button"
+                key={dateStr}
                 className={`calendar-day ${isToday ? 'is-today' : ''} ${data ? 'has-tx' : ''}`}
                 onClick={() => setSelectedDate(dateStr)}
+                aria-label={`${day} ${monthName}${data ? ', ada transaksi' : ''}`}
               >
-                <div className="day-number">{day}</div>
+                <span className="day-number">{day}</span>
                 {data && (
-                  <div className="day-summary">
+                  <span className="day-summary">
+                    {/* Tanpa tanda +/- agar muat di sel sempit; warna hijau/merah sudah membedakannya */}
                     {data.income > 0 && (
-                      <div className="day-income">+{formatCurrencyShort(data.income)}</div>
+                      <span className="day-income">{formatCompact(data.income)}</span>
                     )}
                     {data.expense > 0 && (
-                      <div className="day-expense">-{formatCurrencyShort(data.expense)}</div>
+                      <span className="day-expense">{formatCompact(data.expense)}</span>
                     )}
-                  </div>
+                  </span>
                 )}
-              </div>
+              </button>
             );
           })}
         </div>

@@ -251,9 +251,9 @@ function TransactionModal({ open, onClose, transaction, accounts, categories, on
                     <div style={{ fontWeight: 600, fontSize: '14px' }}>Split Bill (Patungan)</div>
                     <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Bagikan tagihan ini dengan teman</div>
                   </div>
-                  <label className="switch">
+                  <label className="toggle-switch" aria-label="Aktifkan split bill">
                     <input type="checkbox" checked={isSplit} onChange={(e) => setIsSplit(e.target.checked)} />
-                    <span className="slider round"></span>
+                    <span className="toggle-track"></span>
                   </label>
                 </div>
 
@@ -543,10 +543,11 @@ export default function TransactionsPage() {
                   {CATEGORY_ICONS[tx.categories?.icon] || (tx.type === 'income' ? '💰' : '💸')}
                 </div>
                 <div className="tx-item-info">
-                  <span className="tx-item-desc">
-                    {tx.description || tx.categories?.name || 'Transaksi'}
-                    {tx.receipt_url && <span title="Ada Lampiran Bukti" style={{ marginLeft: 6, color: 'var(--text-muted)', display: 'inline-flex', verticalAlign: 'middle' }}><Paperclip size={12} /></span>}
-                    {tx.is_split && <span title="Patungan (Split Bill)" style={{ marginLeft: 6, color: 'var(--text-muted)', display: 'inline-flex', verticalAlign: 'middle' }}><Users size={12} /></span>}
+                  {/* Ikon lampiran/patungan di luar teks yang dipotong, supaya tetap terlihat */}
+                  <span className="tx-item-title">
+                    <span className="tx-item-desc">{tx.description || tx.categories?.name || 'Transaksi'}</span>
+                    {tx.receipt_url && <span className="tx-item-flag" title="Ada Lampiran Bukti"><Paperclip size={12} /></span>}
+                    {tx.is_split && <span className="tx-item-flag" title="Patungan (Split Bill)"><Users size={12} /></span>}
                   </span>
                   {tx.tags && tx.tags.length > 0 && (
                     <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginTop: '4px', marginBottom: '2px' }}>

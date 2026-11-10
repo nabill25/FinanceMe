@@ -22,7 +22,7 @@
     padding: var(--space-md) !important;
     /* Top: height of mobile app bar + small gap */
     padding-top: calc(68px + env(safe-area-inset-top, 0px)) !important;
-    /* Bottom: extra space so FAB doesn't cover content */
-    padding-bottom: calc(100px + env(safe-area-inset-bottom, 16px)) !important;
+    /* Bottom: ruang untuk navigasi bawah agar konten terakhir tidak tertutup */
+    padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)) !important;
   }
 }

@@ -129,7 +129,7 @@ export default function AiTransactionInput({ onTransactionAdded }) {
           transition: 'all 0.2s ease'
         }}
       >
-        {loading ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+        {loading ? <Loader2 size={18} className="spin" /> : <Send size={18} />}
       </button>
     </form>
   );

@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { formatCurrencyShort } from '../../lib/utils';
+import { formatCurrencyShort, getCurrentMonth } from '../../lib/utils';
 import { useFinanceStore } from '../../store/financeStore';
 
 export default function MonthlySpendingDonut() {
   const { categories, getCategorySpending } = useFinanceStore();
-  const currentMonth = new Date().toISOString().slice(0, 7);
+  const currentMonth = getCurrentMonth();
   
   const data = useMemo(() => {
     const spending = getCategorySpending(currentMonth);
@@ -35,7 +35,9 @@ export default function MonthlySpendingDonut() {
   return (
     <div className="card animate-fade-in" style={{ padding: '20px', height: '100%', display: 'flex', flexDirection: 'column' }}>
       <h3 style={{ fontSize: '15px', fontWeight: 600, marginBottom: '16px' }}>Peta Pengeluaran</h3>
-      <div style={{ flex: 1, position: 'relative', minHeight: '180px' }}>
+      {/* Tinggi eksplisit: dengan flex:1 tingginya bernilai 0 di layout satu kolom (HP)
+          sehingga grafik donat tidak tergambar */}
+      <div style={{ position: 'relative', height: '180px' }}>
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie

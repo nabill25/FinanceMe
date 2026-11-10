@@ -7,7 +7,8 @@
   right: 0;
   height: 100dvh;
   background: var(--bg-main);
-  z-index: 99; /* Pastikan di atas App Bar mobile */
+  /* Layar penuh di HP: harus di atas app bar (900) agar header chat tidak tertutup */
+  z-index: 960;
   overflow: hidden;
 }
 

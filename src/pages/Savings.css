@@ -52,9 +52,10 @@
   box-shadow: var(--shadow-lg);
 }
 
+/* Kartu celengan tidak bisa diketuk: tanpa efek mengecil; tombol aksinya selalu terlihat di layar sentuh */
 @media (hover: none) {
   .pot-card:hover { transform: none; box-shadow: var(--shadow-md); }
-  .pot-card:active { transform: scale(0.97); transition: transform 0.1s; }
+  .pot-actions { opacity: 1; }
 }
 
 .pot-card-top {
@@ -119,5 +120,6 @@
   .pot-card-actions .btn {
     width: 100%;
     justify-content: center;
+    min-height: 40px;
   }
 }

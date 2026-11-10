@@ -115,16 +115,10 @@ export default function AiAdvisor() {
     }
   };
 
-  const personalityIcons = {
-    professional: '👔',
-    roast: '🔥',
-    zen: '🧘'
-  };
-
   const personalityLabels = {
-    professional: t('settings.aiPro') || 'Profesional',
-    roast: 'Roast Mode',
-    zen: 'Zen Mode'
+    professional: 'Profesional',
+    roast: 'Roast',
+    zen: 'Zen'
   };
 
   return (
@@ -132,7 +126,7 @@ export default function AiAdvisor() {
       <div className="advisor-header">
         <button 
           className="btn btn-icon btn-ghost" 
-          onClick={() => navigate(-1)} 
+          onClick={() => (window.history.length > 1 ? navigate(-1) : navigate('/'))}
           style={{ marginRight: '8px' }}
           title={t('common.back')}
         >
@@ -142,13 +136,8 @@ export default function AiAdvisor() {
           <Bot size={24} color="white" />
         </div>
         <div className="advisor-title-area">
-          <h1 className="advisor-title">
-            {t('advisor.title')}
-            <span style={{ fontSize: '14px', marginLeft: '8px' }} title={`Mode: ${personalityLabels[aiPersonality]}`}>
-              {personalityIcons[aiPersonality]}
-            </span>
-          </h1>
-          <p className="advisor-subtitle">{t('advisor.subtitle')}</p>
+          <h1 className="advisor-title">{t('advisor.title')}</h1>
+          <p className="advisor-subtitle">Mode {personalityLabels[aiPersonality] || personalityLabels.professional} · Gemini</p>
         </div>
         <div style={{ marginLeft: 'auto' }}>
           <button className="btn btn-icon btn-ghost" onClick={handleClear} title={t('advisor.clearChat')} disabled={messages.length <= 1}>

@@ -12,20 +12,7 @@
   padding: 12px 0; border-bottom: 1px solid var(--border-subtle);
 }
 
-/* Toggle switch */
-.toggle-switch { position: relative; display: inline-block; width: 44px; height: 24px; cursor: pointer; }
-.toggle-switch input { opacity: 0; width: 0; height: 0; }
-.toggle-track {
-  position: absolute; inset: 0; border-radius: 24px;
-  background: var(--border-subtle); transition: background 0.25s;
-}
-.toggle-switch input:checked + .toggle-track { background: #6366f1; }
-.toggle-track::after {
-  content: ''; position: absolute; top: 3px; left: 3px;
-  width: 18px; height: 18px; border-radius: 50%; background: white;
-  transition: transform 0.25s; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-}
-.toggle-switch input:checked + .toggle-track::after { transform: translateX(20px); }
+/* Toggle switch: lihat index.css (dipakai juga di form transaksi) */
 
 /* Spending Guard Banner */
 .guard-banner {

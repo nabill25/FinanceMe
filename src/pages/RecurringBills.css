@@ -32,10 +32,12 @@
   animation: scaleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-.bill-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
-  border-color: var(--border-default);
+@media (hover: hover) {
+  .bill-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--border-default);
+  }
 }
 
 .bill-card.overdue {
@@ -149,8 +151,20 @@
   transition: opacity 0.2s ease;
 }
 
-.bill-card:hover .bill-actions {
+.bill-card:hover .bill-actions,
+.bill-card:focus-within .bill-actions {
   opacity: 1;
+}
+
+/* Layar sentuh tidak punya hover: tombol aksi harus selalu terlihat (termasuk tablet) */
+@media (hover: none) {
+  .bill-actions {
+    opacity: 1;
+  }
+}
+
+.recurring-header h1 {
+  font-size: 1.75rem;
 }
 
 .empty-state {
@@ -188,6 +202,10 @@
   .recurring-header .btn {
     flex: 1;
     justify-content: center;
+  }
+
+  .recurring-header h1 {
+    font-size: 1.3rem;
   }
 
   .recurring-grid {

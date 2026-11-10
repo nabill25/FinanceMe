@@ -243,12 +243,38 @@
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   z-index: 950;
-  animation: overlayFadeIn 0.2s ease forwards;
+  animation: overlayFadeIn 0.3s ease forwards;
 }
 
 @keyframes overlayFadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+.mobile-app-bar-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-left: 8px;
+}
+
+/* logo.png berisi ikon + tulisan dengan banyak ruang kosong; yang ditampilkan
+   hanya bagian ikonnya (jendela 305px berpusat di titik 257,512 pada kanvas 1024px,
+   cukup sempit agar huruf "F" dari tulisan tidak ikut terpotong masuk) */
+.brand-mark {
+  --size: 28px;
+  display: inline-block;
+  width: var(--size);
+  height: var(--size);
+  flex-shrink: 0;
+  background: url('/logo.png') no-repeat;
+  background-size: calc(var(--size) * 3.357) calc(var(--size) * 3.357);
+  background-position: calc(var(--size) * -0.3426) calc(var(--size) * -1.1787);
+}
+
+@keyframes drawerItemIn {
+  from { opacity: 0; transform: translateX(-14px); }
+  to { opacity: 1; transform: none; }
 }
 
 /* RESPONSIVE: Mobile */
@@ -261,21 +287,41 @@
     display: flex !important;
   }
 
+  /* Drawer selalu ada di DOM agar bisa dianimasikan saat dibuka maupun ditutup */
   .sidebar {
     position: fixed;
     top: 0;
     left: 0;
     bottom: 0;
-    width: 80%;
+    width: 82%;
     max-width: 300px;
     z-index: 1000;
     transform: translateX(-100%);
+    visibility: hidden;
     background: var(--bg-elevated);
     box-shadow: 4px 0 40px rgba(0, 0, 0, 0.12);
+    touch-action: pan-y;
+    transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1), visibility 0s linear 0.4s;
   }
 
   .sidebar.mobile-open {
-    transform: translateX(0);
-    display: flex !important;
+    transform: none;
+    visibility: visible;
+    transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1), visibility 0s;
   }
+
+  /* Menu di dalam drawer muncul berurutan */
+  .sidebar.mobile-open .sidebar-nav-item {
+    animation: drawerItemIn 0.4s var(--ease-out) backwards;
+  }
+  .sidebar.mobile-open .sidebar-nav-item:nth-child(2) { animation-delay: 80ms; }
+  .sidebar.mobile-open .sidebar-nav-item:nth-child(3) { animation-delay: 105ms; }
+  .sidebar.mobile-open .sidebar-nav-item:nth-child(4) { animation-delay: 130ms; }
+  .sidebar.mobile-open .sidebar-nav-item:nth-child(5) { animation-delay: 155ms; }
+  .sidebar.mobile-open .sidebar-nav-item:nth-child(6) { animation-delay: 180ms; }
+  .sidebar.mobile-open .sidebar-nav-item:nth-child(7) { animation-delay: 205ms; }
+  .sidebar.mobile-open .sidebar-nav-item:nth-child(8) { animation-delay: 230ms; }
+  .sidebar.mobile-open .sidebar-nav-item:nth-child(9) { animation-delay: 255ms; }
+  .sidebar.mobile-open .sidebar-nav-item:nth-child(10) { animation-delay: 280ms; }
+  .sidebar.mobile-open .sidebar-nav-item:nth-child(n+11) { animation-delay: 305ms; }
 }

@@ -2,14 +2,16 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, CreditCard, ArrowLeftRight,
   PieChart, BarChart3, HelpCircle, LogOut, Wallet,
-  Menu, X, PiggyBank, Settings, Zap, Repeat, CalendarDays,
+  X, PiggyBank, Settings, Repeat, CalendarDays,
   Sun, Moon, Bot, TrendingUp, Scissors, Eye, EyeOff
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useRef } from 'react';
 import NotificationBell from './NotificationBell';
 import { useAuthStore } from '../../store/authStore';
 import { useFinanceStore } from '../../store/financeStore';
 import { useLanguageStore } from '../../store/languageStore';
+import { useUiStore } from '../../store/uiStore';
+import { lockBodyScroll, unlockBodyScroll } from '../../lib/scrollLock';
 import './Sidebar.css';
 
 const navItems = [
@@ -29,15 +31,62 @@ const navItems = [
   { to: '/settings', icon: Settings, labelKey: 'nav.settings' },
 ];
 
-const mobileMainItems = navItems.slice(0, 4);
-const mobileMoreItems = navItems.slice(4);
-
 export default function Sidebar() {
   const { user, signOut } = useAuthStore();
-  const { theme, toggleTheme, showBalance, setShowBalance } = useFinanceStore();
+  const { theme, setTheme, showBalance, setShowBalance } = useFinanceStore();
   const { t } = useLanguageStore();
   const navigate = useNavigate();
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const { drawerOpen: mobileOpen, setDrawerOpen: setMobileOpen } = useUiStore();
+  const asideRef = useRef(null);
+  const swipe = useRef(null);
+
+  // Tema yang benar-benar tampil (pilihan "Sistem" mengikuti pengaturan perangkat)
+  const isDark = theme === 'dark' || theme === 'dark-amoled'
+    || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  const toggleTheme = () => setTheme(isDark ? 'light' : 'dark');
+  const ThemeIcon = isDark ? Sun : Moon;
+
+  // Drawer terbuka: kunci scroll halaman di belakangnya, Esc untuk menutup
+  useEffect(() => {
+    if (!mobileOpen) return;
+    lockBodyScroll();
+    const onKeyDown = (e) => { if (e.key === 'Escape') setMobileOpen(false); };
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      unlockBodyScroll();
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [mobileOpen, setMobileOpen]);
+
+  // Geser drawer ke kiri untuk menutup (drawer mengikuti jari)
+  const onTouchStart = (e) => {
+    if (!mobileOpen) return;
+    const p = e.touches[0];
+    swipe.current = { x: p.clientX, y: p.clientY, dx: 0, horizontal: null };
+  };
+  const onTouchMove = (e) => {
+    const s = swipe.current;
+    if (!s) return;
+    const p = e.touches[0];
+    const dx = p.clientX - s.x;
+    const dy = p.clientY - s.y;
+    if (s.horizontal === null) {
+      if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+      s.horizontal = Math.abs(dx) > Math.abs(dy);
+    }
+    if (!s.horizontal) return;
+    s.dx = Math.min(0, dx);
+    asideRef.current.style.transition = 'none';
+    asideRef.current.style.transform = `translateX(${s.dx}px)`;
+  };
+  const onTouchEnd = () => {
+    const s = swipe.current;
+    swipe.current = null;
+    if (!s?.horizontal) return;
+    asideRef.current.style.transition = '';
+    asideRef.current.style.transform = '';
+    if (s.dx < -70) setMobileOpen(false);
+  };
 
   const handleSignOut = async () => {
     await signOut();
@@ -50,28 +99,35 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* --- SIDEBAR --- */}
-      <aside className={`sidebar ${mobileOpen ? 'mobile-open' : 'desktop-only'}`}>
+      {/* --- SIDEBAR (desktop) / DRAWER (HP) --- */}
+      <aside
+        ref={asideRef}
+        className={`sidebar ${mobileOpen ? 'mobile-open' : ''}`}
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+        onTouchCancel={onTouchEnd}
+      >
         <div className="sidebar-header mobile-only" style={{ display: 'flex', justifyContent: 'flex-end', paddingBottom: '0' }}>
-          <button className="btn btn-icon btn-ghost" onClick={() => setMobileOpen(false)}>
+          <button className="btn btn-icon btn-ghost" onClick={() => setMobileOpen(false)} aria-label="Tutup menu">
             <X size={24} />
           </button>
         </div>
-        
+
         {/* Logo */}
         <div className="sidebar-logo" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div className="sidebar-logo-icon" style={{ padding: 0, background: 'transparent' }}>
-              <img src="/logo.png" alt="FinanceMe Logo" style={{ width: '32px', height: '32px', borderRadius: '8px', objectFit: 'cover' }} />
+            <div className="sidebar-logo-icon" style={{ padding: 0, background: 'transparent', boxShadow: 'none' }}>
+              <span className="brand-mark" style={{ '--size': '34px' }} role="img" aria-label="FinanceMe" />
             </div>
             <span className="sidebar-logo-text">FinanceMe</span>
           </div>
           <div className="desktop-only" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-            <button className="btn btn-icon btn-ghost" onClick={() => setShowBalance(!showBalance)} title="Toggle Sensor Saldo">
+            <button className="btn btn-icon btn-ghost" onClick={() => setShowBalance(!showBalance)} title="Sembunyikan/tampilkan saldo">
               {showBalance ? <Eye size={20} /> : <EyeOff size={20} />}
             </button>
-            <button className="btn btn-icon btn-ghost" onClick={toggleTheme}>
-              {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+            <button className="btn btn-icon btn-ghost" onClick={toggleTheme} title={isDark ? 'Mode terang' : 'Mode gelap'}>
+              <ThemeIcon size={20} />
             </button>
             <NotificationBell />
           </div>
@@ -119,18 +175,16 @@ export default function Sidebar() {
 
       {/* --- MOBILE TOP APP BAR --- */}
       <div className="mobile-app-bar mobile-only">
-        <button className="hamburger-btn" onClick={() => setMobileOpen(true)}>
-          <Menu size={24} />
-        </button>
-        <div className="sidebar-logo" style={{ padding: 0 }}>
+        <div className="mobile-app-bar-brand">
+          <span className="brand-mark" aria-hidden="true" />
           <span className="sidebar-logo-text">FinanceMe</span>
         </div>
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <button className="btn btn-icon btn-ghost" onClick={() => setShowBalance(!showBalance)}>
+        <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+          <button className="btn btn-icon btn-ghost" onClick={() => setShowBalance(!showBalance)} aria-label="Sembunyikan/tampilkan saldo">
             {showBalance ? <Eye size={20} /> : <EyeOff size={20} />}
           </button>
-          <button className="btn btn-icon btn-ghost" onClick={toggleTheme}>
-            {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+          <button className="btn btn-icon btn-ghost" onClick={toggleTheme} aria-label={isDark ? 'Mode terang' : 'Mode gelap'}>
+            <ThemeIcon size={20} />
           </button>
           <NotificationBell />
         </div>

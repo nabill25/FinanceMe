@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Plus, Camera, Loader2, ShieldAlert, Shield, ImagePlus, ArrowLeftRight, Mic, Sparkles } from 'lucide-react';
 import { useFinanceStore } from '../store/financeStore';
 import { useAuthStore } from '../store/authStore';
+import { useUiStore } from '../store/uiStore';
 import { toast } from 'sonner';
 import { scanReceipt, guessCategory, parseVoiceCommand } from '../lib/gemini';
 import { getCurrentMonth, formatCurrency } from '../lib/utils';
@@ -15,8 +16,8 @@ export default function QuickAddModal() {
   const { user } = useAuthStore();
   const { addTransaction, accounts, categories, spendingLimit, spendingGuardState, budgets, getCategorySpending, uploadReceipt } = useFinanceStore();
   const location = useLocation();
-  const [open, setOpen] = useState(false);
-  const [transferOpen, setTransferOpen] = useState(false);
+  // Dibuka dari tombol + (desktop) atau tombol + di navigasi bawah (HP)
+  const { quickAddOpen: open, setQuickAddOpen: setOpen, transferOpen, setTransferOpen } = useUiStore();
   const [scanning, setScanning] = useState(false);
   const [guessingCategory, setGuessingCategory] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -239,6 +240,10 @@ export default function QuickAddModal() {
                 <button type="button" 
                   className={`type-btn ${form.type === 'income' ? 'active income' : ''}`}
                   onClick={() => setForm({...form, type: 'income', category_id: ''})}>Pemasukan</button>
+                {accounts.length >= 2 && (
+                  <button type="button" className="type-btn"
+                    onClick={() => { setOpen(false); setTransferOpen(true); }}>Transfer</button>
+                )}
               </div>
 
               {/* Spending Guard Banner */}
@@ -354,7 +359,10 @@ export default function QuickAddModal() {
 
               <div className="modal-footer" style={{ marginTop: '12px' }}>
                 <button type="button" className="btn btn-ghost" onClick={() => setOpen(false)}>Batal</button>
-                <button type="submit" className="btn btn-primary">Simpan</button>
+                {/* Nonaktif selama menyimpan supaya ketukan ganda tidak mencatat transaksi dua kali */}
+                <button type="submit" className="btn btn-primary" disabled={saving}>
+                  {saving ? <span className="spinner spinner-sm" /> : 'Simpan'}
+                </button>
               </div>
             </form>
       </BottomSheet>

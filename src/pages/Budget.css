@@ -65,12 +65,9 @@
   box-shadow: var(--shadow-lg);
 }
 
+/* Kartu anggaran tidak bisa diketuk, jadi tidak ada efek mengecil saat disentuh/scroll */
 @media (hover: none) {
   .budget-card:hover { transform: none; box-shadow: var(--shadow-md); }
-  .budget-card:active {
-    transform: scale(0.97);
-    transition: transform 0.1s ease;
-  }
 }
 
 .budget-over {

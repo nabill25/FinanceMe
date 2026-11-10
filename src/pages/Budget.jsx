@@ -297,8 +297,9 @@ export default function BudgetPage() {
       </div>
 
       {/* Month navigator & Toggle */}
-      <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
-        <div className="month-nav card" style={{ flex: 1, margin: 0 }}>
+      {/* flexWrap: di layar sempit tombol Amplop Visual turun ke baris berikutnya, tidak terpotong */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '16px' }}>
+        <div className="month-nav card" style={{ flex: '1 1 240px', margin: 0 }}>
           <button className="btn btn-ghost btn-sm btn-icon" onClick={() => navigateMonth(-1)}>
             <ChevronLeft size={18} />
           </button>
@@ -312,7 +313,9 @@ export default function BudgetPage() {
           style={{ 
             background: isVisualMode ? 'var(--accent-primary)' : 'var(--bg-elevated)', 
             color: isVisualMode ? 'white' : 'var(--text-primary)',
-            padding: '0 16px'
+            padding: '0 16px',
+            flex: '1 1 auto',
+            minHeight: '48px'
           }}
           onClick={() => setIsVisualMode(!isVisualMode)}
         >
