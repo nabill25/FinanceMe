@@ -210,10 +210,10 @@ export default function SavingsPage() {
       {/* Summary */}
       <div className="savings-summary card">
         <div className="savings-summary-item">
-          <PiggyBank size={28} style={{ color: '#6366f1' }} />
+          <PiggyBank size={28} style={{ color: 'var(--accent-primary)' }} />
           <div>
             <p className="text-xs text-muted">Total Terkumpul</p>
-            <p className="savings-summary-amount" style={{ color: '#6366f1' }}>{formatCurrency(totalSaved)}</p>
+            <p className="savings-summary-amount" style={{ color: 'var(--accent-primary)' }}>{formatCurrency(totalSaved)}</p>
           </div>
         </div>
         <div className="savings-summary-divider" />

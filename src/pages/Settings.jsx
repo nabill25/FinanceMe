@@ -89,11 +89,11 @@ export default function SettingsPage() {
   const setAccentColor = useFinanceStore(state => state.setAccentColor);
 
   const ACCENT_COLORS = [
-    { value: 'default', color: '#6366f1' }, // Indigo
-    { value: 'blue', color: '#3b82f6' },
-    { value: 'emerald', color: '#10b981' },
-    { value: 'rose', color: '#f43f5e' },
-    { value: 'amber', color: '#f59e0b' },
+    { value: 'default', color: '#5fd896' }, // Hijau mint (bawaan)
+    { value: 'blue', color: '#4c8df6' },
+    { value: 'emerald', color: '#2dc79a' },
+    { value: 'rose', color: '#f2557a' },
+    { value: 'amber', color: '#f2a93b' },
   ];
 
   const isBlocked = spendingGuardState?.blocked;

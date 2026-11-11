@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Plus, Trash2, Edit2, Search, ArrowUpCircle, ArrowDownCircle, Loader2, ShieldAlert, Shield, ImagePlus, SlidersHorizontal, X, Sparkles, Scale, Paperclip, Users } from 'lucide-react';
 import { useFinanceStore } from '../store/financeStore';
 import { useAuthStore } from '../store/authStore';
@@ -330,6 +331,7 @@ function TransactionModal({ open, onClose, transaction, accounts, categories, on
 
 export default function TransactionsPage() {
   const { user } = useAuthStore();
+  const location = useLocation();
   const {
     transactions, accounts, categories,
     fetchTransactions, fetchAccounts, fetchCategories,
@@ -342,8 +344,9 @@ export default function TransactionsPage() {
   const [editTx, setEditTx] = useState(null);
   const [filters, setFilters] = useState({ 
     month: getCurrentMonth(), 
-    type: '', 
-    search: '',
+    type: '',
+    // Kata kunci dari kolom pencarian di top bar (jika datang dari sana)
+    search: location.state?.search || '',
     categoryId: '',
     accountId: '',
     minAmount: '',
@@ -471,7 +474,7 @@ export default function TransactionsPage() {
           </div>
         </div>
         <div className="tx-summary-item card">
-          <div className="tx-summary-icon" style={{ background: 'rgba(99,102,241,0.15)', color: 'var(--accent-primary)' }}>
+          <div className="tx-summary-icon" style={{ background: 'var(--accent-soft)', color: 'var(--accent-primary)' }}>
             <Scale size={20} />
           </div>
           <div>

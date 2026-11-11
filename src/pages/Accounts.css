@@ -4,26 +4,22 @@
   gap: var(--space-lg);
 }
 
+/* Ringkasan total saldo: panel kaca dengan angka besar */
 .accounts-total {
-  background: var(--gradient-primary);
-  border: none;
-  box-shadow: var(--shadow-glow);
-  text-align: center;
-  padding: var(--space-xl);
-  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  padding: 22px 24px;
+  background:
+    radial-gradient(70% 120% at 100% 0%, color-mix(in srgb, var(--accent-primary) 13%, transparent), transparent 70%),
+    var(--surface);
 }
 
 .accounts-total-amount {
-  font-size: clamp(1.6rem, 6vw, 2.2rem);
-  font-weight: 900;
-  color: white;
-  letter-spacing: -0.03em;
-  margin: 8px 0;
+  font-size: clamp(1.9rem, 6vw, 2.6rem);
+  font-weight: 400;
+  letter-spacing: -0.035em;
+  margin: 6px 0 4px;
+  font-variant-numeric: tabular-nums;
   word-break: break-all;
 }
-
-.accounts-total .text-muted { color: rgba(255,255,255,0.6) !important; }
-.accounts-total .text-secondary { color: rgba(255,255,255,0.7) !important; }
 
 /* =====================
    WALLET — kartu bertumpuk

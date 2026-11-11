@@ -6,7 +6,8 @@
   padding: var(--space-xl);
   position: relative;
   overflow: hidden;
-  background: var(--bg-main);
+  /* transparan: cahaya latar (body::before) ikut terlihat */
+  background: transparent;
 }
 
 .auth-card {
@@ -28,15 +29,14 @@
 }
 
 .auth-logo-icon {
-  width: 60px;
-  height: 60px;
-  background: var(--gradient-primary);
-  border-radius: var(--radius-xl);
+  width: 56px;
+  height: 56px;
+  background: var(--accent-primary);
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
-  box-shadow: var(--shadow-glow);
+  color: var(--accent-contrast);
   margin-bottom: var(--space-xs);
 }
 

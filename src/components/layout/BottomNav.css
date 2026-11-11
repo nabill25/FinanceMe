@@ -93,8 +93,8 @@
   margin-top: -20px;
   border: 4px solid var(--bg-main);
   border-radius: 20px;
-  background: var(--gradient-primary);
-  color: #fff;
+  background: var(--accent-primary);
+  color: var(--accent-contrast);
   display: flex;
   align-items: center;
   justify-content: center;

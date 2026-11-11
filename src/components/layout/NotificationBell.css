@@ -36,7 +36,9 @@
   top: calc(100% + 8px);
   right: 0;
   width: 320px;
-  background: var(--bg-elevated);
+  background: var(--surface-strong);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-xl);
@@ -52,7 +54,7 @@
   justify-content: space-between;
   padding: 12px 16px;
   border-bottom: 1px solid var(--border-subtle);
-  background: var(--bg-main);
+  background: transparent;
 }
 
 .notification-header h4 {
@@ -95,11 +97,11 @@
 }
 
 .notification-item.unread {
-  background: rgba(99, 102, 241, 0.03);
+  background: color-mix(in srgb, var(--accent-primary) 6%, transparent);
 }
 
 .notification-item.unread:hover {
-  background: rgba(99, 102, 241, 0.06);
+  background: var(--accent-soft);
 }
 
 .notification-icon {

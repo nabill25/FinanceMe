@@ -379,7 +379,7 @@ export default function RecurringBills() {
                 />
               </div>
               
-              <div style={{ background: 'rgba(99,102,241,0.05)', padding: '12px', borderRadius: '8px', fontSize: '13px', color: 'var(--text-secondary)' }}>
+              <div style={{ background: 'var(--accent-soft)', padding: '12px', borderRadius: '8px', fontSize: '13px', color: 'var(--text-secondary)' }}>
                 <CheckCircle2 size={14} style={{ display: 'inline', color: 'var(--accent-primary)', marginRight: '6px', verticalAlign: 'middle' }} />
                 Sistem akan otomatis mencatat pengeluaran ini dan memotong saldo akun pada tanggal jatuh tempo.
               </div>

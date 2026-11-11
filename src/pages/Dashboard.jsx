@@ -2,14 +2,14 @@ import { useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import CountUp from 'react-countup';
 import {
-  TrendingUp, TrendingDown, Wallet, ArrowRight,
-  Plus, Target, Eye, EyeOff
+  TrendingUp, TrendingDown, Wallet, ArrowRight, Plus, BarChart3
 } from 'lucide-react';
 import { useFinanceStore } from '../store/financeStore';
 import { useAuthStore } from '../store/authStore';
+import { useUiStore } from '../store/uiStore';
 import {
   formatCurrency, formatCurrencyShort, formatDate,
-  getCurrentMonth, getLastMonth, getMonthLabel, CATEGORY_ICONS, ACCOUNT_TYPES, ACCOUNT_PROVIDERS
+  getCurrentMonth, getLastMonth, getMonthLabel, CATEGORY_ICONS
 } from '../lib/utils';
 import CashflowChart from '../components/dashboard/CashflowChart';
 import MonthlySpendingDonut from '../components/dashboard/MonthlySpendingDonut';
@@ -49,10 +49,21 @@ const StatCard = ({ label, icon: Icon, iconColor, iconBg, trend, trendLabel, raw
   </div>
 );
 
+const pad = (n) => String(n).padStart(2, '0');
+const ymd = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+
+const greetingFor = (hour) => {
+  if (hour >= 4 && hour < 11) return 'Selamat pagi';
+  if (hour >= 11 && hour < 15) return 'Selamat siang';
+  if (hour >= 15 && hour < 18) return 'Selamat sore';
+  return 'Selamat malam';
+};
+
 export default function Dashboard() {
   const { user } = useAuthStore();
+  const { setQuickAddOpen } = useUiStore();
   const {
-    accounts, transactions, budgets, categories, goals, showBalance, setShowBalance,
+    accounts, transactions, budgets, recurringBills,
     fetchAccounts, fetchTransactions, fetchBudgets, fetchCategories, fetchGoals,
     getTotalBalance, getMonthSummary, getCategorySpending,
     momStats, fetchMoMStats
@@ -104,51 +115,89 @@ export default function Dashboard() {
 
   const firstName = user?.user_metadata?.full_name?.split(' ')[0] || 'Anda';
 
+  // Ringkasan untuk header & kartu saldo
+  const today = new Date();
+  const todayStr = ymd(today);
+  const weekStartStr = ymd(new Date(today.getFullYear(), today.getMonth(), today.getDate() - ((today.getDay() + 6) % 7)));
+  const in7Str = ymd(new Date(today.getFullYear(), today.getMonth(), today.getDate() + 7));
+  const realExpenses = transactions.filter((t) => t.type === 'expense' && !t.transfer_type);
+  const spentToday = realExpenses.filter((t) => t.date === todayStr).reduce((s, t) => s + t.amount, 0);
+  const spentWeek = realExpenses.filter((t) => t.date >= weekStartStr && t.date <= todayStr).reduce((s, t) => s + t.amount, 0);
+  const upcomingBills = recurringBills.filter((b) => b.is_active && b.next_due && b.next_due <= in7Str);
+  const upcomingTotal = upcomingBills.reduce((s, b) => s + Number(b.amount || 0), 0);
+  const dateLabel = new Intl.DateTimeFormat('id-ID', { weekday: 'long', day: 'numeric', month: 'long' }).format(today);
+
   return (
     <div className="dashboard animate-fade-in">
       {/* Header */}
       <div className="dashboard-header">
         <div>
+          <p className="page-eyebrow">{dateLabel}</p>
           <h1 className="dashboard-greeting">
-            Halo, {firstName}
+            {greetingFor(today.getHours())}, {firstName}
           </h1>
-          <p className="text-secondary text-sm">{monthLabel} — Ringkasan keuangan Anda</p>
+          <p className="text-secondary text-sm">
+            {upcomingBills.length > 0
+              ? `${upcomingBills.length} tagihan jatuh tempo dalam 7 hari ke depan, total ${formatCurrency(upcomingTotal)}.`
+              : 'Tidak ada tagihan yang jatuh tempo dalam 7 hari ke depan.'}
+          </p>
+        </div>
+        <div className="dashboard-actions">
+          <Link to="/reports" className="btn btn-outline">
+            <BarChart3 size={16} /> Laporan
+          </Link>
+          <button className="btn btn-primary" onClick={() => setQuickAddOpen(true)}>
+            <Plus size={16} /> Catat transaksi
+          </button>
         </div>
       </div>
 
-      {/* Total Balance Hero */}
-      <div className="balance-hero card">
-        <div className="balance-hero-bg" />
-        <div style={{ position: 'relative', zIndex: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <p className="balance-hero-label">Total Saldo Semua Akun</p>
+      {/* Total saldo */}
+      <section className="balance-hero card">
+        <div className="balance-hero-head">
+          <div>
+            <p className="card-heading">Total saldo</p>
+            <p className="card-sub">{accounts.length} akun · {monthLabel}</p>
+          </div>
+          <Link to="/accounts" className="btn btn-ghost btn-sm">
+            Kelola akun <ArrowRight size={14} />
+          </Link>
         </div>
-        <h2 className="balance-hero-amount amount-text" style={{ transition: 'all 0.3s ease' }}>
-          <CountUp
-            start={0}
-            end={totalBalance}
-            duration={1.5}
-            formattingFn={formatCurrency}
-          />
-        </h2>
+
+        <div className="balance-hero-main">
+          <h2 className="balance-hero-amount amount-text">
+            <CountUp start={0} end={totalBalance} duration={1.5} formattingFn={formatCurrency} />
+          </h2>
+          <span className={`balance-delta ${net >= 0 ? 'up' : 'down'}`}>
+            {net >= 0 ? <TrendingUp size={13} /> : <TrendingDown size={13} />}
+            Net bulan ini {net >= 0 ? '+' : '−'}{formatCurrencyShort(Math.abs(net))}
+          </span>
+        </div>
+
+        <div className="balance-pills">
+          {[
+            ['Keluar hari ini', spentToday],
+            ['Minggu ini', spentWeek],
+            ['Bulan ini', expense],
+            ['Masuk bulan ini', income],
+          ].map(([label, value]) => (
+            <div className="balance-pill" key={label}>
+              <span>{label}</span>
+              <strong className="amount-text">{formatCurrencyShort(value)}</strong>
+            </div>
+          ))}
+        </div>
+
         <div className="balance-hero-accounts">
-          {accounts.slice(0, 4).map((acc) => {
-            return (
-              <Link to="/accounts" state={{ openAccountId: acc.id }} key={acc.id} className="balance-hero-account" style={{ textDecoration: 'none' }}>
-                <ProviderLogo account={acc} size={28} />
-                <div>
-                  <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)' }}>{acc.name}</div>
-                  <div className="amount-text" style={{ fontSize: '14px', fontWeight: 700, color: 'white', transition: 'all 0.3s' }}>
-                    <CountUp
-                      start={0}
-                      end={acc.balance}
-                      duration={1.5}
-                      formattingFn={formatCurrencyShort}
-                    />
-                  </div>
-                </div>
-              </Link>
-            );
-          })}
+          {accounts.slice(0, 4).map((acc) => (
+            <Link to="/accounts" state={{ openAccountId: acc.id }} key={acc.id} className="balance-hero-account">
+              <ProviderLogo account={acc} size={24} />
+              <span className="balance-account-text">
+                <span className="balance-account-name">{acc.name}</span>
+                <span className="balance-account-amount amount-text">{formatCurrencyShort(acc.balance, acc.currency)}</span>
+              </span>
+            </Link>
+          ))}
           {accounts.length === 0 && (
             <Link to="/accounts" className="balance-hero-add-account">
               <Plus size={14} />
@@ -156,7 +205,7 @@ export default function Dashboard() {
             </Link>
           )}
         </div>
-      </div>
+      </section>
 
       {/* Stat cards */}
       <div className="grid-3 stagger-children" style={{ marginBottom: 'var(--space-lg)' }}>
@@ -164,8 +213,8 @@ export default function Dashboard() {
           label={`Pemasukan ${monthLabel.split(' ')[0]}`}
           rawValue={income}
           icon={TrendingUp}
-          iconColor="#10b981"
-          iconBg="rgba(16, 185, 129, 0.12)"
+          iconColor="var(--accent-success)"
+          iconBg="color-mix(in srgb, var(--accent-success) 14%, transparent)"
           trend={incomeTrend}
           trendLabel={incomeTrendLabel}
           trendColor={incomeTrendColor}
@@ -174,8 +223,8 @@ export default function Dashboard() {
           label={`Pengeluaran ${monthLabel.split(' ')[0]}`}
           rawValue={expense}
           icon={TrendingDown}
-          iconColor="#ef4444"
-          iconBg="rgba(239, 68, 68, 0.12)"
+          iconColor="var(--accent-danger)"
+          iconBg="color-mix(in srgb, var(--accent-danger) 14%, transparent)"
           trend={expenseTrend}
           trendLabel={expenseTrendLabel}
           trendColor={expenseTrendColor}
@@ -184,16 +233,16 @@ export default function Dashboard() {
           label="Net Bulan Ini"
           rawValue={Math.abs(net)}
           icon={Wallet}
-          iconColor={net >= 0 ? 'var(--accent-primary)' : '#f59e0b'}
-          iconBg={net >= 0 ? 'color-mix(in srgb, var(--accent-primary) 12%, transparent)' : 'rgba(245, 158, 11, 0.12)'}
+          iconColor={net >= 0 ? 'var(--accent-primary)' : 'var(--accent-warning)'}
+          iconBg={net >= 0 ? 'var(--accent-soft)' : 'color-mix(in srgb, var(--accent-warning) 16%, transparent)'}
           trendLabel={net >= 0 ? 'Surplus' : 'Defisit'}
           trend={net}
         />
       </div>
 
       {expenseTrend < 0 && (
-        <div style={{ marginBottom: 'var(--space-lg)', padding: '12px 16px', background: 'var(--bg-elevated)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-default)', display: 'flex', alignItems: 'center', gap: '12px', animation: 'scaleIn 0.3s ease-out' }}>
-          <div style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--accent-success)', padding: '8px', borderRadius: '50%' }}>
+        <div style={{ marginBottom: 'var(--space-lg)', padding: '12px 16px', background: 'var(--surface)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-default)', display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ background: 'color-mix(in srgb, var(--accent-success) 14%, transparent)', color: 'var(--accent-success)', padding: '8px', borderRadius: '50%' }}>
             <TrendingDown size={20} />
           </div>
           <div>

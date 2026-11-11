@@ -1,50 +1,46 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import {
-  LayoutDashboard, CreditCard, ArrowLeftRight,
-  PieChart, BarChart3, HelpCircle, LogOut, Wallet,
-  X, PiggyBank, Settings, Repeat, CalendarDays,
-  Sun, Moon, Bot, TrendingUp, Scissors, Eye, EyeOff
-} from 'lucide-react';
+import { LogOut, Wallet, X, Sun, Moon, Eye, EyeOff } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import NotificationBell from './NotificationBell';
+import { NAV_GROUPS } from './navItems';
 import { useAuthStore } from '../../store/authStore';
 import { useFinanceStore } from '../../store/financeStore';
 import { useLanguageStore } from '../../store/languageStore';
 import { useUiStore } from '../../store/uiStore';
 import { lockBodyScroll, unlockBodyScroll } from '../../lib/scrollLock';
+import { useShellData, useThemeToggle, useUserIdentity } from '../../lib/useShellData';
+import { formatCurrency } from '../../lib/utils';
 import './Sidebar.css';
 
-const navItems = [
-  { to: '/', icon: LayoutDashboard, labelKey: 'nav.dashboard' },
-  { to: '/accounts', icon: Wallet, labelKey: 'common.account' },
-  { to: '/transactions', icon: ArrowLeftRight, labelKey: 'nav.transactions' },
-  { to: '/calendar', icon: CalendarDays, labelKey: 'nav.calendar' },
-  { to: '/recurring-bills', icon: Repeat, labelKey: 'nav.recurring' },
-  { to: '/budget', icon: PieChart, labelKey: 'nav.budget' },
-  { to: '/savings', icon: PiggyBank, labelKey: 'nav.savings' },
-  { to: '/goals', icon: CreditCard, labelKey: 'nav.goals' },
-  { to: '/reports', icon: BarChart3, labelKey: 'nav.reports' },
-  { to: '/forecast', icon: TrendingUp, labelKey: 'nav.forecast' },
-  { to: '/advisor', icon: Bot, labelKey: 'nav.advisor' },
-  { to: '/decision', icon: HelpCircle, labelKey: 'nav.decision' },
-  { to: '/split-bill', icon: Scissors, labelKey: 'nav.splitBill' },
-  { to: '/settings', icon: Settings, labelKey: 'nav.settings' },
-];
+/** Kartu ringkas di bawah sidebar: berapa yang aman dibelanjakan hari ini. */
+function SafeToSpend({ data }) {
+  if (!data.hasAccounts) return null;
+  return (
+    <div className="safe-card">
+      <p className="safe-card-label">Aman dibelanjakan hari ini</p>
+      <p className={`safe-card-amount amount-text ${data.isShort ? 'is-short' : ''}`}>
+        {formatCurrency(Math.round(data.safeToday))}
+      </p>
+      <p className="safe-card-note">
+        {data.billsDue > 0
+          ? `${formatCurrency(data.billsDue)} tagihan belum dibayar · sisa ${data.daysLeft} hari`
+          : `Tidak ada tagihan tersisa · sisa ${data.daysLeft} hari`}
+      </p>
+    </div>
+  );
+}
 
 export default function Sidebar() {
-  const { user, signOut } = useAuthStore();
-  const { theme, setTheme, showBalance, setShowBalance } = useFinanceStore();
+  const { signOut } = useAuthStore();
+  const { showBalance, setShowBalance } = useFinanceStore();
   const { t } = useLanguageStore();
   const navigate = useNavigate();
   const { drawerOpen: mobileOpen, setDrawerOpen: setMobileOpen } = useUiStore();
+  const { isDark, toggleTheme } = useThemeToggle();
+  const { user, fullName, firstName, initials } = useUserIdentity();
+  const shell = useShellData();
   const asideRef = useRef(null);
   const swipe = useRef(null);
-
-  // Tema yang benar-benar tampil (pilihan "Sistem" mengikuti pengaturan perangkat)
-  const isDark = theme === 'dark' || theme === 'dark-amoled'
-    || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-  const toggleTheme = () => setTheme(isDark ? 'light' : 'dark');
-  const ThemeIcon = isDark ? Sun : Moon;
 
   // Drawer terbuka: kunci scroll halaman di belakangnya, Esc untuk menutup
   useEffect(() => {
@@ -93,9 +89,7 @@ export default function Sidebar() {
     navigate('/auth');
   };
 
-  const initials = user?.user_metadata?.full_name
-    ? user.user_metadata.full_name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
-    : user?.email?.[0]?.toUpperCase() ?? 'U';
+  let itemIndex = 0; // urutan global untuk animasi menu di drawer
 
   return (
     <>
@@ -108,66 +102,53 @@ export default function Sidebar() {
         onTouchEnd={onTouchEnd}
         onTouchCancel={onTouchEnd}
       >
-        <div className="sidebar-header mobile-only" style={{ display: 'flex', justifyContent: 'flex-end', paddingBottom: '0' }}>
-          <button className="btn btn-icon btn-ghost" onClick={() => setMobileOpen(false)} aria-label="Tutup menu">
-            <X size={24} />
+        <div className="sidebar-brand">
+          <span className="brand-tile" aria-hidden="true">
+            <Wallet size={20} strokeWidth={2.3} />
+          </span>
+          <div className="sidebar-brand-text">
+            <span className="sidebar-brand-name">FinanceMe</span>
+            <span className="sidebar-brand-sub">{firstName ? `Keuangan ${firstName}` : 'Keuangan pribadi'}</span>
+          </div>
+          <button className="btn btn-icon btn-ghost sidebar-close mobile-only" onClick={() => setMobileOpen(false)} aria-label="Tutup menu">
+            <X size={20} />
           </button>
         </div>
 
-        {/* Logo */}
-        <div className="sidebar-logo" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div className="sidebar-logo-icon" style={{ padding: 0, background: 'transparent', boxShadow: 'none' }}>
-              <span className="brand-mark" style={{ '--size': '34px' }} role="img" aria-label="FinanceMe" />
+        <nav className="sidebar-nav" aria-label="Menu">
+          {NAV_GROUPS.map((group, gi) => (
+            <div className="sidebar-nav-section" key={gi}>
+              {group.map(({ to, icon: Icon, labelKey, badge }) => {
+                const count = badge ? shell.badges[badge] : 0;
+                const i = itemIndex++;
+                return (
+                  <NavLink
+                    key={to}
+                    to={to}
+                    end={to === '/'}
+                    onClick={() => setMobileOpen(false)}
+                    style={{ '--i': i }}
+                    className={({ isActive }) => `sidebar-nav-item ${isActive ? 'active' : ''}`}
+                  >
+                    <Icon size={18} />
+                    <span>{t(labelKey)}</span>
+                    {count > 0 && <span className="sidebar-badge" aria-label={`${count} perlu perhatian`}>{count}</span>}
+                  </NavLink>
+                );
+              })}
             </div>
-            <span className="sidebar-logo-text">FinanceMe</span>
-          </div>
-          <div className="desktop-only" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-            <button className="btn btn-icon btn-ghost" onClick={() => setShowBalance(!showBalance)} title="Sembunyikan/tampilkan saldo">
-              {showBalance ? <Eye size={20} /> : <EyeOff size={20} />}
-            </button>
-            <button className="btn btn-icon btn-ghost" onClick={toggleTheme} title={isDark ? 'Mode terang' : 'Mode gelap'}>
-              <ThemeIcon size={20} />
-            </button>
-            <NotificationBell />
-          </div>
-        </div>
-
-        {/* Navigation */}
-        <nav className="sidebar-nav">
-          <div className="sidebar-nav-section">
-            <span className="sidebar-nav-label">Menu</span>
-            {navItems.map(({ to, icon: Icon, labelKey }) => (
-              <NavLink
-                key={to}
-                to={to}
-                end={to === '/'}
-                onClick={() => setMobileOpen(false)}
-                className={({ isActive }) =>
-                  `sidebar-nav-item ${isActive ? 'active' : ''}`
-                }
-              >
-                <Icon size={18} />
-                <span>{t(labelKey)}</span>
-              </NavLink>
-            ))}
-          </div>
+          ))}
         </nav>
 
-        {/* User section */}
+        <SafeToSpend data={shell} />
+
         <div className="sidebar-user">
           <div className="sidebar-user-avatar">{initials}</div>
           <div className="sidebar-user-info">
-            <span className="sidebar-user-name">
-              {user?.user_metadata?.full_name || 'Pengguna'}
-            </span>
+            <span className="sidebar-user-name">{fullName || 'Pengguna'}</span>
             <span className="sidebar-user-email">{user?.email}</span>
           </div>
-          <button
-            className="sidebar-signout btn btn-icon btn-ghost"
-            onClick={handleSignOut}
-            title="Keluar"
-          >
+          <button className="sidebar-signout btn btn-icon btn-ghost" onClick={handleSignOut} title="Keluar" aria-label="Keluar">
             <LogOut size={16} />
           </button>
         </div>
@@ -176,15 +157,17 @@ export default function Sidebar() {
       {/* --- MOBILE TOP APP BAR --- */}
       <div className="mobile-app-bar mobile-only">
         <div className="mobile-app-bar-brand">
-          <span className="brand-mark" aria-hidden="true" />
-          <span className="sidebar-logo-text">FinanceMe</span>
+          <span className="brand-tile brand-tile-sm" aria-hidden="true">
+            <Wallet size={16} strokeWidth={2.4} />
+          </span>
+          <span className="sidebar-brand-name">FinanceMe</span>
         </div>
         <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
           <button className="btn btn-icon btn-ghost" onClick={() => setShowBalance(!showBalance)} aria-label="Sembunyikan/tampilkan saldo">
             {showBalance ? <Eye size={20} /> : <EyeOff size={20} />}
           </button>
           <button className="btn btn-icon btn-ghost" onClick={toggleTheme} aria-label={isDark ? 'Mode terang' : 'Mode gelap'}>
-            <ThemeIcon size={20} />
+            {isDark ? <Sun size={20} /> : <Moon size={20} />}
           </button>
           <NotificationBell />
         </div>

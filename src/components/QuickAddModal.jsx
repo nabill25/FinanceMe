@@ -1,12 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
-import { Plus, Camera, Loader2, ShieldAlert, Shield, ImagePlus, ArrowLeftRight, Mic, Sparkles } from 'lucide-react';
+import { Loader2, ShieldAlert, Shield, ImagePlus, Mic, Sparkles } from 'lucide-react';
 import { useFinanceStore } from '../store/financeStore';
 import { useAuthStore } from '../store/authStore';
 import { useUiStore } from '../store/uiStore';
 import { toast } from 'sonner';
 import { scanReceipt, guessCategory, parseVoiceCommand } from '../lib/gemini';
 import { getCurrentMonth, formatCurrency } from '../lib/utils';
-import { useLocation } from 'react-router-dom';
 import TransferModal from './TransferModal';
 import TagInput from './TagInput';
 import BottomSheet from './BottomSheet';
@@ -15,8 +14,6 @@ import './QuickAddModal.css';
 export default function QuickAddModal() {
   const { user } = useAuthStore();
   const { addTransaction, accounts, categories, spendingLimit, spendingGuardState, budgets, getCategorySpending, uploadReceipt } = useFinanceStore();
-  const location = useLocation();
-  // Dibuka dari tombol + (desktop) atau tombol + di navigasi bawah (HP)
   const { quickAddOpen: open, setQuickAddOpen: setOpen, transferOpen, setTransferOpen } = useUiStore();
   const [scanning, setScanning] = useState(false);
   const [guessingCategory, setGuessingCategory] = useState(false);
@@ -207,29 +204,9 @@ export default function QuickAddModal() {
     }
   }
 
-  // Sembunyikan FAB di rute tertentu yang tidak membutuhkan tambah transaksi cepat
-  const hiddenRoutes = ['/advisor', '/decision', '/settings', '/reports', '/forecast'];
-  const showFab = !hiddenRoutes.includes(location.pathname);
-
+  // Form dibuka dari tombol + di top bar (desktop) atau di navigasi bawah (HP)
   return (
     <>
-      {showFab && (
-        <div className="quick-add-fab-group">
-          {accounts.length >= 2 && (
-            <button
-              className="quick-add-fab-secondary"
-              onClick={() => setTransferOpen(true)}
-              title="Transfer Antar Akun"
-            >
-              <ArrowLeftRight size={18} />
-            </button>
-          )}
-          <button className="quick-add-fab" onClick={() => setOpen(true)}>
-            <Plus size={24} />
-          </button>
-        </div>
-      )}
-
       <BottomSheet isOpen={open} onClose={() => setOpen(false)} title="Tambah Transaksi Cepat">
             
             <form onSubmit={handleSubmit} className="modal-body quick-add-form">

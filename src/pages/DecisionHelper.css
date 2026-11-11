@@ -21,14 +21,13 @@
 .decision-form-icon {
   width: 56px;
   height: 56px;
-  background: var(--gradient-primary);
-  border-radius: var(--radius-xl);
+  background: var(--accent-primary);
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: var(--accent-contrast);
   margin-bottom: var(--space-md);
-  box-shadow: var(--shadow-glow);
 }
 
 .decision-price-input {

@@ -14,7 +14,8 @@ export const useFinanceStore = create((set, get) => ({
   // spendingGuardState handled below
   recurringBills: [],
   momStats: null,               // { lastMonthIncome, lastMonthExpense }
-  theme: localStorage.getItem('financeme-theme') || 'system',
+  // Default gelap: tampilan utama aplikasi (bisa diganti di Pengaturan)
+  theme: localStorage.getItem('financeme-theme') || 'dark',
   accentColor: localStorage.getItem('financeme-accent') || 'default',
   aiPersonality: localStorage.getItem('financeme-ai-personality') || 'professional',
   paymentInfo: localStorage.getItem('financeme-payment-info') || '',
@@ -122,6 +123,19 @@ export const useFinanceStore = create((set, get) => ({
     const { data, error } = await query;
     if (!error) set({ transactions: data });
     set((s) => ({ loading: { ...s.loading, transactions: false } }));
+  },
+
+  // Riwayat transaksi untuk halaman analisis. Dikembalikan langsung (tidak mengganti
+  // `transactions` di store yang berisi data bulan berjalan untuk halaman lain).
+  fetchTransactionHistory: async (userId, fromDate) => {
+    const { data, error } = await supabase
+      .from('transactions')
+      .select('*, accounts(name, color, currency), categories(name, color, icon)')
+      .eq('user_id', userId)
+      .gte('date', fromDate)
+      .order('date', { ascending: true });
+    if (error) throw error;
+    return data || [];
   },
 
   fetchMoMStats: async (userId, lastMonth) => {

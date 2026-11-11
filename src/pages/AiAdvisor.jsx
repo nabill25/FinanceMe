@@ -132,8 +132,15 @@ export default function AiAdvisor() {
         >
           <ArrowLeft size={20} />
         </button>
-        <div className="advisor-avatar" style={{ backgroundColor: aiPersonality === 'roast' ? '#ef4444' : aiPersonality === 'zen' ? '#10b981' : '#6366f1' }}>
-          <Bot size={24} color="white" />
+        <div
+          className="advisor-avatar"
+          style={aiPersonality === 'roast'
+            ? { backgroundColor: 'var(--accent-danger)', color: '#fff' }
+            : aiPersonality === 'zen'
+            ? { backgroundColor: 'var(--accent-info)', color: '#06202b' }
+            : { backgroundColor: 'var(--accent-primary)', color: 'var(--accent-contrast)' }}
+        >
+          <Bot size={22} />
         </div>
         <div className="advisor-title-area">
           <h1 className="advisor-title">{t('advisor.title')}</h1>

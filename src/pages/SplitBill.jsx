@@ -227,7 +227,7 @@ export default function SplitBill() {
             <ArrowLeft size={20} />
           </button>
           <div className="page-icon-box" style={{ background: 'var(--accent-primary)' }}>
-            <Scissors size={24} color="white" />
+            <Scissors size={22} color="var(--accent-contrast)" />
           </div>
           <div>
             <h1 className="page-title">{t('splitBill.title') || 'Patungan Cerdas'}</h1>

@@ -169,7 +169,7 @@ function SyncModal({ open, onClose, account, onSave }) {
   return (
     <BottomSheet isOpen={open} onClose={onClose} title="Sinkronisasi Saldo">
 
-        <div style={{ padding: '12px', background: 'rgba(99,102,241,0.08)', borderRadius: '8px', marginBottom: '16px', fontSize: '13px' }}>
+        <div style={{ padding: '12px', background: 'var(--accent-soft)', borderRadius: '8px', marginBottom: '16px', fontSize: '13px' }}>
           Masukkan saldo riil yang ada di aplikasi m-banking atau e-wallet Anda. Sistem akan otomatis membuat transaksi penyesuaian agar saldo cocok.
         </div>
 

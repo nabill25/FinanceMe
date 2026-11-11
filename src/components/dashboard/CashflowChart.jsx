@@ -49,11 +49,11 @@ export default function CashflowChart({ days = 30 }) {
         <h3 style={{ fontSize: '15px' }}>Arus Kas {days} Hari Terakhir</h3>
         <div className="cashflow-legend">
           <span className="cashflow-legend-item">
-            <span className="legend-dot" style={{ background: '#10b981' }} />
+            <span className="legend-dot" style={{ background: 'var(--accent-success)' }} />
             Pemasukan
           </span>
           <span className="cashflow-legend-item">
-            <span className="legend-dot" style={{ background: '#ef4444' }} />
+            <span className="legend-dot" style={{ background: 'var(--accent-danger)' }} />
             Pengeluaran
           </span>
         </div>
@@ -62,13 +62,14 @@ export default function CashflowChart({ days = 30 }) {
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={chartData} margin={{ top: 5, right: 10, left: 10, bottom: 0 }}>
             <defs>
+              {/* Warna lewat style (bukan atribut) agar mengikuti tema/aksen */}
               <linearGradient id="incomeGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                <stop offset="5%" style={{ stopColor: 'var(--accent-success)', stopOpacity: 0.3 }} />
+                <stop offset="95%" style={{ stopColor: 'var(--accent-success)', stopOpacity: 0 }} />
               </linearGradient>
               <linearGradient id="expenseGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
+                <stop offset="5%" style={{ stopColor: 'var(--accent-danger)', stopOpacity: 0.25 }} />
+                <stop offset="95%" style={{ stopColor: 'var(--accent-danger)', stopOpacity: 0 }} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.08)" vertical={false} />
@@ -88,18 +89,20 @@ export default function CashflowChart({ days = 30 }) {
             />
             <Tooltip content={<CustomTooltip />} />
             <Area
+              className="cf-income"
               type="monotone"
               dataKey="income"
               name="Pemasukan"
-              stroke="#10b981"
+              stroke="#5fd896"
               strokeWidth={2}
               fill="url(#incomeGrad)"
             />
             <Area
+              className="cf-expense"
               type="monotone"
               dataKey="expense"
               name="Pengeluaran"
-              stroke="#ef4444"
+              stroke="#f0796d"
               strokeWidth={2}
               fill="url(#expenseGrad)"
             />

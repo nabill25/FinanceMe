@@ -1,319 +1,485 @@
-import { useEffect, useState, useMemo } from 'react';
-import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
-import {
-  PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer,
-  BarChart, Bar, XAxis, YAxis, CartesianGrid,
-} from 'recharts';
+import { Fragment, useEffect, useMemo, useState } from 'react';
+import { Sparkles, Download, Receipt } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 import { useFinanceStore } from '../store/financeStore';
 import { useAuthStore } from '../store/authStore';
-import {
-  formatCurrency, formatCurrencyShort, formatCurrencyChart, getCurrentMonth, getMonthLabel,
-  CATEGORY_ICONS
-} from '../lib/utils';
+import { formatCurrency, formatCurrencyChart, getMonthLabel, EXCHANGE_RATES } from '../lib/utils';
 import { exportReportToPDF } from '../lib/exportUtils';
 import { analyzeHabits } from '../lib/gemini';
-import ReactMarkdown from 'react-markdown';
 import './Reports.css';
 
-const CustomPieTooltip = ({ active, payload }) => {
-  if (active && payload?.length) {
-    const d = payload[0];
-    return (
-      <div className="cashflow-tooltip">
-        <p style={{ fontWeight: 600 }}>{d.name}</p>
-        <p style={{ color: d.payload.color }}>{formatCurrency(d.value)}</p>
-        <p className="text-xs text-muted">{d.payload.percent?.toFixed(1)}%</p>
-      </div>
-    );
+// Kategori bawaan yang dihitung sebagai "kebutuhan"; sisanya "keinginan"
+const NEEDS = new Set(['housing', 'bills', 'food', 'transport', 'health', 'education']);
+const TABS = [
+  { id: 'flow', label: 'Arus kas' },
+  { id: 'spending', label: 'Pengeluaran' },
+  { id: 'merchants', label: 'Merchant' },
+];
+const PERIODS = [
+  { id: 'this', label: 'Bulan ini' },
+  { id: 'last', label: 'Bulan lalu' },
+  { id: '3m', label: '3 bulan' },
+];
+const FLOW_RANGES = [
+  { id: 3, label: 'Kuartal' },
+  { id: 6, label: '6 bulan' },
+  { id: 12, label: 'Setahun' },
+];
+const WEEKDAYS = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+
+const pad = (n) => String(n).padStart(2, '0');
+const ymd = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const monthKey = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}`;
+const addMonths = (d, n) => new Date(d.getFullYear(), d.getMonth() + n, 1);
+const endOfMonth = (d) => new Date(d.getFullYear(), d.getMonth() + 1, 0);
+const shortMonth = (d) => new Intl.DateTimeFormat('id-ID', { month: 'short' }).format(d);
+const shortDay = (d) => new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short' }).format(d);
+const toIdr = (t) => t.amount * (EXCHANGE_RATES[t.accounts?.currency || 'IDR'] || 1);
+const inRange = (t, from, to) => t.date >= from && t.date <= to;
+
+/** Rentang periode yang dipilih + periode pembandingnya (untuk bar arsir). */
+function periodRange(id, now) {
+  const thisStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  if (id === 'last') {
+    const start = addMonths(thisStart, -1);
+    const prevStart = addMonths(thisStart, -2);
+    return {
+      from: ymd(start), to: ymd(endOfMonth(start)), prevFrom: ymd(prevStart), prevTo: ymd(endOfMonth(prevStart)),
+      note: `${getMonthLabel(monthKey(start))} · arsir = ${getMonthLabel(monthKey(prevStart))}`,
+    };
   }
-  return null;
-};
+  if (id === '3m') {
+    return {
+      from: ymd(addMonths(thisStart, -2)), to: ymd(now),
+      prevFrom: ymd(addMonths(thisStart, -5)), prevTo: ymd(endOfMonth(addMonths(thisStart, -3))),
+      note: '3 bulan terakhir · arsir = 3 bulan sebelumnya',
+    };
+  }
+  const prevStart = addMonths(thisStart, -1);
+  const prevEnd = new Date(prevStart.getFullYear(), prevStart.getMonth(), Math.min(now.getDate(), endOfMonth(prevStart).getDate()));
+  return {
+    from: ymd(thisStart), to: ymd(now), prevFrom: ymd(prevStart), prevTo: ymd(prevEnd),
+    note: 'Bulan ini sejauh ini · arsir = tanggal yang sama bulan lalu',
+  };
+}
+
+function groupBy(list, keyOf, init) {
+  const map = new Map();
+  list.forEach((t) => {
+    const key = keyOf(t);
+    const cur = map.get(key) || { key, ...init(t), total: 0, count: 0 };
+    cur.total += toIdr(t);
+    cur.count += 1;
+    map.set(key, cur);
+  });
+  return map;
+}
+
+function Segmented({ options, value, onChange, small }) {
+  return (
+    <div className={`tabs ${small ? 'tabs-sm' : ''}`} role="tablist">
+      {options.map((o) => (
+        <button key={o.id} type="button" role="tab" aria-selected={value === o.id}
+          className={`tab ${value === o.id ? 'active' : ''}`} onClick={() => onChange(o.id)}>
+          {o.label}
+        </button>
+      ))}
+    </div>
+  );
+}
 
 export default function ReportsPage() {
   const { user } = useAuthStore();
-  const {
-    transactions, fetchTransactions, getCategorySpending, getMonthSummary,
-  } = useFinanceStore();
-
-  const [currentMonth, setCurrentMonth] = useState(getCurrentMonth());
+  const { fetchTransactionHistory } = useFinanceStore();
+  const [tab, setTab] = useState('spending');
+  const [period, setPeriod] = useState('this');
+  const [flowRange, setFlowRange] = useState(6);
+  const [history, setHistory] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
   const [habitInsight, setHabitInsight] = useState('');
   const [analyzing, setAnalyzing] = useState(false);
 
+  const now = useMemo(() => new Date(), []);
+  const thisStart = useMemo(() => new Date(now.getFullYear(), now.getMonth(), 1), [now]);
+
   useEffect(() => {
-    if (user) fetchTransactions(user.id, { month: currentMonth });
-  }, [user, currentMonth]);
+    if (!user) return;
+    let cancelled = false;
+    setLoading(true);
+    fetchTransactionHistory(user.id, ymd(addMonths(thisStart, -11)))
+      .then((data) => { if (!cancelled) { setHistory(data); setLoadError(''); } })
+      .catch((err) => { if (!cancelled) setLoadError(err.message || 'Gagal memuat data'); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [user, fetchTransactionHistory, thisStart]);
 
-  const { income, expense } = getMonthSummary(currentMonth);
-  const categorySpending = getCategorySpending(currentMonth);
+  // Transfer antar akun sendiri bukan pemasukan/pengeluaran, jadi tidak dihitung
+  const real = useMemo(() => history.filter((t) => !t.transfer_type), [history]);
+  const expenses = useMemo(() => real.filter((t) => t.type === 'expense'), [real]);
+  const range = useMemo(() => periodRange(period, now), [period, now]);
 
-  const pieData = useMemo(() => {
-    const total = categorySpending.reduce((s, c) => s + c.total, 0);
-    return categorySpending.slice(0, 8).map(c => ({
-      name: c.name,
-      value: c.total,
-      color: c.color,
-      percent: total > 0 ? (c.total / total) * 100 : 0,
-    }));
-  }, [categorySpending]);
+  // ── Per kategori (dengan pembanding) ────────────────────────────
+  const categories = useMemo(() => {
+    const cur = groupBy(expenses.filter((t) => inRange(t, range.from, range.to)), (t) => t.category_id || 'none',
+      (t) => ({ name: t.categories?.name || 'Lainnya', icon: t.categories?.icon || 'other_expense' }));
+    const prev = groupBy(expenses.filter((t) => inRange(t, range.prevFrom, range.prevTo)), (t) => t.category_id || 'none', () => ({}));
+    const all = [...cur.values()]
+      .map((c) => ({ ...c, prev: prev.get(c.key)?.total || 0, need: NEEDS.has(c.icon) }))
+      .sort((a, b) => b.total - a.total);
+    const rows = all.slice(0, 9);
+    const max = Math.max(1, ...rows.map((r) => Math.max(r.total, r.prev)));
+    const needs = all.filter((c) => c.need).reduce((s, c) => s + c.total, 0);
+    const wants = all.filter((c) => !c.need).reduce((s, c) => s + c.total, 0);
+    return { all, rows, max, needs, wants };
+  }, [expenses, range]);
 
-  // Build 6-month trend data
-  const trendData = useMemo(() => {
-    const data = [];
-    for (let i = 5; i >= 0; i--) {
-      const m = new Date();
-      m.setMonth(m.getMonth() - i);
-      const mStr = `${m.getFullYear()}-${String(m.getMonth() + 1).padStart(2, '0')}`;
-      const sum = getMonthSummary(mStr);
-      data.push({
-        label: getMonthLabel(mStr).substring(0, 3),
-        income: sum.income,
-        expense: sum.expense,
+  const needPct = categories.needs + categories.wants > 0
+    ? Math.round((categories.needs / (categories.needs + categories.wants)) * 100)
+    : 0;
+
+  // ── Per akun ────────────────────────────────────────────────────
+  const byAccount = useMemo(() => {
+    const rows = [...groupBy(expenses.filter((t) => inRange(t, range.from, range.to)), (t) => t.account_id,
+      (t) => ({ name: t.accounts?.name || 'Akun' })).values()].sort((a, b) => b.total - a.total);
+    return { rows, max: Math.max(1, ...rows.map((r) => r.total)) };
+  }, [expenses, range]);
+
+  // ── Heatmap 12 minggu ───────────────────────────────────────────
+  const heat = useMemo(() => {
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const monday = new Date(today);
+    monday.setDate(today.getDate() - ((today.getDay() + 6) % 7));
+    const start = new Date(monday);
+    start.setDate(monday.getDate() - 7 * 11);
+
+    const totals = new Map();
+    expenses.forEach((t) => totals.set(t.date, (totals.get(t.date) || 0) + toIdr(t)));
+
+    const weeks = Array.from({ length: 12 }, (_, w) => {
+      const weekStart = new Date(start.getFullYear(), start.getMonth(), start.getDate() + w * 7);
+      const days = Array.from({ length: 7 }, (_, d) => {
+        const date = new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate() + d);
+        const key = ymd(date);
+        return { key, date, amount: totals.get(key) || 0, future: date > today };
       });
-    }
-    return data;
-  }, [getMonthSummary]);
-
-  // Build Word Cloud data from expenses
-  const wordCloudData = useMemo(() => {
-    const expenses = transactions.filter(t => t.type === 'expense' && t.description);
-    const wordCounts = {};
-    const stopWords = ['di', 'ke', 'dari', 'yang', 'untuk', 'pada', 'dan', 'atau', 'dengan', 'buat', 'beli', 'bayar'];
-    
-    expenses.forEach(t => {
-      const words = t.description.toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/);
-      words.forEach(w => {
-        if (w.length > 2 && !stopWords.includes(w)) {
-          wordCounts[w] = (wordCounts[w] || 0) + 1;
-        }
-      });
+      return { start: weekStart, days };
     });
 
-    return Object.entries(wordCounts)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 25)
-      .map(([text, value]) => ({ text, value }));
-  }, [transactions]);
+    const days = weeks.flatMap((w) => w.days).filter((d) => !d.future);
+    const amounts = days.map((d) => d.amount).filter((a) => a > 0).sort((a, b) => a - b);
+    const q = (p) => (amounts.length ? amounts[Math.min(amounts.length - 1, Math.floor(p * amounts.length))] : 0);
+    const [t1, t2, t3] = [q(0.25), q(0.5), q(0.75)];
+    const level = (a) => (a <= 0 ? 0 : a <= t1 ? 1 : a <= t2 ? 2 : a <= t3 ? 3 : 4);
+    const top = new Set([...days].filter((d) => d.amount > 0).sort((a, b) => b.amount - a.amount).slice(0, 5).map((d) => d.key));
+    return { weeks, level, top, total: amounts.reduce((s, a) => s + a, 0) };
+  }, [expenses, now]);
 
-  const navigateMonth = (dir) => {
-    const [year, month] = currentMonth.split('-').map(Number);
-    const d = new Date(year, month - 1 + dir);
-    setCurrentMonth(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`);
+  // ── Arus kas bulanan ────────────────────────────────────────────
+  const months = useMemo(() => Array.from({ length: 12 }, (_, i) => {
+    const m = addMonths(thisStart, i - 11);
+    const key = monthKey(m);
+    const list = real.filter((t) => t.date.startsWith(key));
+    const income = list.filter((t) => t.type === 'income').reduce((s, t) => s + toIdr(t), 0);
+    const expense = list.filter((t) => t.type === 'expense').reduce((s, t) => s + toIdr(t), 0);
+    return { key, label: shortMonth(m), income, expense };
+  }), [real, thisStart]);
+
+  const flow = useMemo(() => {
+    const list = months.slice(-flowRange);
+    const income = list.reduce((s, m) => s + m.income, 0);
+    const expense = list.reduce((s, m) => s + m.expense, 0);
+    const max = Math.max(1, ...list.map((m) => Math.max(m.income, m.expense)));
+    return { list, income, expense, kept: income - expense, max };
+  }, [months, flowRange]);
+
+  // ── Merchant ────────────────────────────────────────────────────
+  const merchants = useMemo(() => {
+    const list = expenses.filter((t) => inRange(t, range.from, range.to) && t.description?.trim());
+    const rows = [...groupBy(list, (t) => t.description.trim().toLowerCase().replace(/\s+/g, ' '),
+      (t) => ({ name: t.description.trim(), category: t.categories?.name || 'Lainnya' })).values()]
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 10);
+    return { rows, max: Math.max(1, ...rows.map((r) => r.total)) };
+  }, [expenses, range]);
+
+  const currentMonth = months[months.length - 1];
+
+  const handleExport = () => {
+    const monthCats = [...groupBy(expenses.filter((t) => t.date.startsWith(currentMonth.key)), (t) => t.category_id || 'none',
+      (t) => ({ name: t.categories?.name || 'Lainnya' })).values()].sort((a, b) => b.total - a.total);
+    exportReportToPDF(
+      { income: currentMonth.income, expense: currentMonth.expense, net: currentMonth.income - currentMonth.expense },
+      monthCats,
+      getMonthLabel(currentMonth.key)
+    );
   };
 
   const handleAnalyze = async () => {
     setAnalyzing(true);
     setHabitInsight('');
     try {
-      const insight = await analyzeHabits(trendData, categorySpending, getMonthLabel(currentMonth));
-      setHabitInsight(insight);
+      const trend = months.slice(-6).map(({ label, income, expense }) => ({ label, income, expense }));
+      const monthCats = categories.all.map(({ name, total }) => ({ name, total }));
+      setHabitInsight(await analyzeHabits(trend, monthCats, getMonthLabel(currentMonth.key)));
     } catch (err) {
-      setHabitInsight('Gagal memuat analisis. Silakan coba lagi.');
+      setHabitInsight(`Gagal memuat analisis. ${err.message || ''}`);
     } finally {
       setAnalyzing(false);
     }
   };
 
+  const fmt = (n) => formatCurrency(Math.round(n));
+
   return (
-    <div className="reports-page animate-fade-in">
+    <div className="reports-page insight-page animate-fade-in">
       <div className="page-header">
         <div>
           <h1>Laporan</h1>
-          <p className="text-secondary text-sm">Analisis keuangan Anda</p>
+          <p className="text-secondary text-sm">Ke mana uang Anda masuk, tersimpan, dan keluar.</p>
         </div>
-        <div className="month-nav" style={{ padding: '8px 16px' }}>
-          <button className="btn btn-ghost btn-sm btn-icon" onClick={() => navigateMonth(-1)}>
-            <ChevronLeft size={16} />
-          </button>
-          <span style={{ fontWeight: 700, minWidth: '160px', textAlign: 'center' }}>
-            {getMonthLabel(currentMonth)}
-          </span>
-          <button className="btn btn-ghost btn-sm btn-icon" onClick={() => navigateMonth(1)}>
-            <ChevronRight size={16} />
-          </button>
-        </div>
-        <button 
-          className="btn btn-primary" 
-          onClick={() => exportReportToPDF({ income, expense, net: income - expense }, categorySpending, getMonthLabel(currentMonth))}
-        >
-          Download PDF
+        <button className="btn btn-outline" onClick={handleExport} disabled={loading}>
+          <Download size={16} /> Unduh PDF
         </button>
       </div>
 
-      {/* Income vs Expense summary */}
-      <div className="grid-2">
-        <div className="card reports-summary-card" style={{ '--c': '#10b981' }}>
-          <p className="text-sm" style={{ color: 'var(--accent-success)' }}>Total Pemasukan</p>
-          <h3 className="reports-amount amount-income">{formatCurrency(income)}</h3>
-        </div>
-        <div className="card reports-summary-card" style={{ '--c': '#ef4444' }}>
-          <p className="text-sm" style={{ color: 'var(--accent-danger)' }}>Total Pengeluaran</p>
-          <h3 className="reports-amount amount-expense">{formatCurrency(expense)}</h3>
-        </div>
+      <div className="line-tabs" role="tablist">
+        {TABS.map((t) => (
+          <button key={t.id} type="button" role="tab" aria-selected={tab === t.id}
+            className={`line-tab ${tab === t.id ? 'active' : ''}`} onClick={() => setTab(t.id)}>
+            {t.label}
+          </button>
+        ))}
       </div>
 
-      {/* Charts row */}
-      <div className="reports-charts">
-        {/* Donut chart - expense by category */}
-        <div className="card">
-          <h3 style={{ marginBottom: '20px', fontSize: '15px' }}>Pengeluaran per Kategori</h3>
-          {pieData.length === 0 ? (
-            <div className="empty-state" style={{ padding: '40px' }}>
-              <span className="empty-icon">📊</span>
-              <p>Tidak ada data pengeluaran</p>
-            </div>
-          ) : (
+      {loading ? (
+        <div className="insight-grid" aria-busy="true">
+          <div className="card insight-card insight-skeleton" style={{ height: 360 }} />
+          <div className="insight-side">
+            <div className="card insight-card insight-skeleton" style={{ height: 170 }} />
+            <div className="card insight-card insight-skeleton" style={{ height: 170 }} />
+          </div>
+        </div>
+      ) : loadError ? (
+        <div className="card insight-card insight-empty">Gagal memuat data: {loadError}</div>
+      ) : (
+        <div className="insight-body" key={tab}>
+          {tab === 'spending' && (
             <>
-              <div style={{ height: 260 }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={pieData} cx="50%" cy="50%"
-                      innerRadius={70} outerRadius={110}
-                      paddingAngle={3} dataKey="value"
-                    >
-                      {pieData.map((entry, i) => (
-                        <Cell key={i} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip content={<CustomPieTooltip />} />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-              <div className="pie-legend">
-                {pieData.map((d, i) => (
-                  <div key={i} className="pie-legend-item">
-                    <span className="legend-dot" style={{ background: d.color }} />
-                    <span className="truncate" style={{ flex: 1, fontSize: '13px' }}>{d.name}</span>
-                    <span style={{ fontSize: '13px', fontWeight: 600, color: d.color }}>
-                      {formatCurrencyShort(d.value)}
-                    </span>
+              <div className="insight-grid">
+                {/* Per kategori */}
+                <section className="card insight-card">
+                  <div className="insight-card-head">
+                    <div>
+                      <h3 className="card-heading">Per kategori</h3>
+                      <p className="card-sub">{range.note}</p>
+                    </div>
+                    <Segmented options={PERIODS} value={period} onChange={setPeriod} small />
                   </div>
-                ))}
+                  {categories.rows.length === 0 ? (
+                    <p className="insight-empty">Belum ada pengeluaran pada periode ini.</p>
+                  ) : (
+                    <div className="cat-rows">
+                      {categories.rows.map((c, i) => (
+                        <div className="cat-row" key={c.key} style={{ '--i': i }}
+                          title={`${c.name}: ${fmt(c.total)} (sebelumnya ${fmt(c.prev)})`}>
+                          <span className="cat-row-name">{c.name}</span>
+                          <span className="cat-track">
+                            {c.prev > 0 && <span className="cat-bar-prev" style={{ width: `${(c.prev / categories.max) * 100}%` }} />}
+                            <span className={`cat-bar ${c.need ? '' : 'want'}`} style={{ width: `${(c.total / categories.max) * 100}%` }} />
+                          </span>
+                          <span className="cat-row-amount amount-text">{fmt(c.total)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <div className="insight-legend">
+                    <span><i className="dot" /> Kebutuhan</span>
+                    <span><i className="dot want" /> Keinginan</span>
+                    <span><i className="dot prev" /> Periode pembanding</span>
+                  </div>
+                </section>
+
+                <div className="insight-side">
+                  {/* Kebutuhan vs keinginan */}
+                  <section className="card insight-card">
+                    <h3 className="card-heading">Kebutuhan & keinginan</h3>
+                    <p className="card-sub">{PERIODS.find((p) => p.id === period)?.label}</p>
+                    <div className="nw">
+                      <div className="nw-donut">
+                        <svg viewBox="0 0 120 120" aria-hidden="true">
+                          <circle cx="60" cy="60" r="48" className="nw-track" />
+                          <circle cx="60" cy="60" r="48" className="nw-arc" transform="rotate(-90 60 60)"
+                            style={{ strokeDasharray: `${(needPct / 100) * 301.6} 301.6` }} />
+                        </svg>
+                        <div className="nw-center">
+                          <strong>{needPct}%</strong>
+                          <span>kebutuhan</span>
+                        </div>
+                      </div>
+                      <div className="nw-legend">
+                        <div className="nw-row"><span><i className="dot" /> Kebutuhan</span><strong className="amount-text">{fmt(categories.needs)}</strong></div>
+                        <div className="nw-row"><span><i className="dot want" /> Keinginan</span><strong className="amount-text">{fmt(categories.wants)}</strong></div>
+                        <p className="nw-note">Kebutuhan: perumahan, tagihan, makan, transportasi, kesehatan, pendidikan.</p>
+                      </div>
+                    </div>
+                  </section>
+
+                  {/* Per akun */}
+                  <section className="card insight-card">
+                    <h3 className="card-heading">Dari akun mana</h3>
+                    <p className="card-sub">Pengeluaran per akun, {PERIODS.find((p) => p.id === period)?.label.toLowerCase()}</p>
+                    {byAccount.rows.length === 0 ? (
+                      <p className="insight-empty">Belum ada pengeluaran.</p>
+                    ) : (
+                      <div className="acc-rows">
+                        {byAccount.rows.map((a, i) => (
+                          <div className="acc-row" key={a.key} style={{ '--i': i }}>
+                            <span className="acc-row-name">{a.name}</span>
+                            <span className="cat-track thin">
+                              <span className="cat-bar" style={{ width: `${(a.total / byAccount.max) * 100}%` }} />
+                            </span>
+                            <span className="cat-row-amount amount-text">{fmt(a.total)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </section>
+                </div>
               </div>
+
+              {/* Heatmap */}
+              <section className="card insight-card">
+                <div className="insight-card-head">
+                  <div>
+                    <h3 className="card-heading">Pengeluaran harian</h3>
+                    <p className="card-sub">12 minggu terakhir · 5 hari dengan pengeluaran terbesar diberi garis tepi</p>
+                  </div>
+                  <span className="heat-total amount-text">{fmt(heat.total)}</span>
+                </div>
+                <div className="heatmap">
+                  <span />
+                  {heat.weeks.map((w, i) => (
+                    <span key={w.start.toISOString()} className="heat-col-label">{i % 2 === 0 ? shortDay(w.start) : ''}</span>
+                  ))}
+                  {WEEKDAYS.map((label, d) => (
+                    <Fragment key={label}>
+                      <span className="heat-row-label">{d % 2 === 0 ? label : ''}</span>
+                      {heat.weeks.map((w, wi) => {
+                        const day = w.days[d];
+                        const cls = day.future ? 'is-future' : `l${heat.level(day.amount)} ${heat.top.has(day.key) ? 'is-top' : ''}`;
+                        return (
+                          <span key={day.key} className={`heat-cell ${cls}`} style={{ '--i': wi }}
+                            title={day.future ? '' : `${shortDay(day.date)}: ${fmt(day.amount)}`} />
+                        );
+                      })}
+                    </Fragment>
+                  ))}
+                </div>
+                <div className="heat-legend">
+                  <span>Sedikit</span>
+                  {[0, 1, 2, 3, 4].map((l) => <i key={l} className={`heat-cell l${l}`} />)}
+                  <span>Banyak</span>
+                </div>
+              </section>
             </>
           )}
-        </div>
 
-        {/* Bar chart - 6-month trend */}
-        <div className="card">
-          <h3 style={{ marginBottom: '20px', fontSize: '15px' }}>Tren 6 Bulan Terakhir</h3>
-          <div style={{ height: 260 }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={trendData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.08)" vertical={false} />
-                <XAxis dataKey="label" tick={{ fill: '#475569', fontSize: 12 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: '#475569', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={formatCurrencyChart} width={65} />
-                <Tooltip
-                  formatter={(v) => formatCurrency(v)}
-                  contentStyle={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-default)', borderRadius: '12px', color: 'var(--text-primary)' }}
-                />
-                <Bar dataKey="income" name="Pemasukan" fill="#10b981" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="expense" name="Pengeluaran" fill="#ef4444" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </div>
-
-      {/* Category breakdown table */}
-      {categorySpending.length > 0 && (
-        <div className="card">
-          <h3 style={{ marginBottom: '16px', fontSize: '15px' }}>Rincian per Kategori</h3>
-          <div className="category-breakdown">
-            {categorySpending.map((c, i) => {
-              const pct = expense > 0 ? (c.total / expense) * 100 : 0;
-              return (
-                <div key={i} className="breakdown-row">
-                  <div className="flex items-center gap-sm" style={{ width: '180px', flexShrink: 0 }}>
-                    <span style={{ fontSize: '18px' }}>{CATEGORY_ICONS[c.icon] || '📂'}</span>
-                    <span style={{ fontSize: '13px', fontWeight: 500 }} className="truncate">{c.name}</span>
+          {tab === 'flow' && (
+            <>
+              <section className="card insight-card">
+                <div className="insight-card-head">
+                  <div>
+                    <h3 className="card-heading">Uang masuk & keluar</h3>
+                    <p className="card-sub">{flowRange} bulan terakhir, tanpa transfer antar akun</p>
                   </div>
-                  <div className="progress-bar-container" style={{ flex: 1 }}>
-                    <div className="progress-bar" style={{ width: `${pct}%`, background: c.color }} />
+                  <Segmented options={FLOW_RANGES} value={flowRange} onChange={setFlowRange} small />
+                </div>
+                <div className="flow-legend">
+                  <span><i className="dot" /> Masuk <strong className="amount-text">{fmt(flow.income)}</strong></span>
+                  <span><i className="dot out" /> Keluar <strong className="amount-text">{fmt(flow.expense)}</strong></span>
+                  <span>Disimpan <strong className={`amount-text ${flow.kept < 0 ? 'amount-expense' : ''}`}>{fmt(flow.kept)}</strong></span>
+                </div>
+                <div className="flow-chart">
+                  <div className="flow-axis" aria-hidden="true">
+                    <span>{formatCurrencyChart(flow.max)}</span>
+                    <span>{formatCurrencyChart(flow.max / 2)}</span>
+                    <span>0</span>
                   </div>
-                  <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexShrink: 0 }}>
-                    <span style={{ fontSize: '13px', fontWeight: 700, color: c.color, width: '90px', textAlign: 'right' }}>
-                      {formatCurrencyShort(c.total)}
-                    </span>
-                    <span className="text-xs text-muted" style={{ width: '40px', textAlign: 'right' }}>
-                      {pct.toFixed(0)}%
-                    </span>
+                  <div className="flow-cols" style={{ '--n': flow.list.length }}>
+                    {flow.list.map((m, i) => (
+                      <div className="flow-col" key={m.key} title={`${m.label}: masuk ${fmt(m.income)}, keluar ${fmt(m.expense)}`}>
+                        <div className="flow-bars">
+                          <span className="flow-bar in" style={{ height: `${(m.income / flow.max) * 100}%`, '--i': i }} />
+                          <span className="flow-bar out" style={{ height: `${(m.expense / flow.max) * 100}%`, '--i': i }} />
+                        </div>
+                        <span className="flow-label">{m.label}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
+              </section>
 
-      {/* Word Cloud */}
-      {wordCloudData.length > 0 && (
-        <div className="card word-cloud-card" style={{ marginTop: '24px' }}>
-          <h3 style={{ marginBottom: '16px', fontSize: '15px' }}>Jejak Kata Pengeluaran</h3>
-          <div className="word-cloud-container">
-            {wordCloudData.map((word, i) => {
-              // Calculate font size (min 14px, max 48px)
-              const maxCount = wordCloudData[0].value;
-              const minCount = wordCloudData[wordCloudData.length - 1].value || 1;
-              const range = maxCount - minCount || 1;
-              const size = 14 + ((word.value - minCount) / range) * 34;
-              
-              // Random color from palette
-              const colors = ['#6366f1', '#ec4899', '#f59e0b', '#10b981', '#0ea5e9', '#8b5cf6'];
-              const color = colors[i % colors.length];
-              
-              return (
-                <span 
-                  key={i} 
-                  className="cloud-word"
-                  style={{ 
-                    fontSize: `${size}px`, 
-                    color,
-                    opacity: size > 24 ? 1 : 0.7,
-                    fontWeight: size > 30 ? 800 : (size > 20 ? 600 : 500)
-                  }}
-                  title={`Muncul ${word.value} kali`}
-                >
-                  {word.text}
-                </span>
-              );
-            })}
-          </div>
-        </div>
-      )}
+              <section className="card insight-card">
+                <div className="insight-card-head">
+                  <div>
+                    <h3 className="card-heading" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <Sparkles size={16} style={{ color: 'var(--accent-primary)' }} /> Analisis kebiasaan (AI)
+                    </h3>
+                    <p className="card-sub">Membandingkan {getMonthLabel(currentMonth.key)} dengan 5 bulan sebelumnya</p>
+                  </div>
+                  {!analyzing && (
+                    <button className="btn btn-primary btn-sm" onClick={handleAnalyze}>
+                      {habitInsight ? 'Analisis ulang' : 'Analisis sekarang'}
+                    </button>
+                  )}
+                </div>
+                {analyzing ? (
+                  <div className="insight-loading"><span className="spinner" /> Membaca pola belanja Anda…</div>
+                ) : habitInsight ? (
+                  <div className="insight-markdown"><ReactMarkdown>{habitInsight}</ReactMarkdown></div>
+                ) : (
+                  <p className="card-sub">Tekan tombol untuk mendapat ringkasan kebiasaan belanja dari AI.</p>
+                )}
+              </section>
+            </>
+          )}
 
-      {/* AI Habit Analysis */}
-      <div className="card" style={{ marginTop: '24px', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '16px', margin: 0 }}>
-            <Sparkles size={20} className="text-primary" />
-            Analisis Kebiasaan Belanja AI
-          </h3>
-          {!habitInsight && !analyzing && (
-            <button className="btn btn-primary btn-sm" onClick={handleAnalyze}>
-              Analisis Bulan Ini
-            </button>
+          {tab === 'merchants' && (
+            <section className="card insight-card">
+              <div className="insight-card-head">
+                <div>
+                  <h3 className="card-heading">Tempat belanja teratas</h3>
+                  <p className="card-sub">Dikelompokkan dari keterangan transaksi</p>
+                </div>
+                <Segmented options={PERIODS} value={period} onChange={setPeriod} small />
+              </div>
+              {merchants.rows.length === 0 ? (
+                <p className="insight-empty">Belum ada pengeluaran dengan keterangan pada periode ini.</p>
+              ) : (
+                <div className="merchant-rows">
+                  {merchants.rows.map((m, i) => (
+                    <div className="merchant-row" key={m.key} style={{ '--i': i }}>
+                      <span className="merchant-rank">{i + 1}</span>
+                      <span className="merchant-info">
+                        <span className="merchant-name">{m.name}</span>
+                        <span className="merchant-meta">{m.category} · {m.count}× transaksi</span>
+                      </span>
+                      <span className="cat-track thin merchant-track">
+                        <span className="cat-bar" style={{ width: `${(m.total / merchants.max) * 100}%` }} />
+                      </span>
+                      <span className="cat-row-amount amount-text">{fmt(m.total)}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <p className="card-sub" style={{ marginTop: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <Receipt size={14} /> Tulis keterangan yang konsisten (mis. “Indomaret”) agar pengelompokannya akurat.
+              </p>
+            </section>
           )}
         </div>
-        
-        {analyzing ? (
-          <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>
-            <span className="spinner" style={{ marginBottom: '16px' }} />
-            <p>Membaca pola kebiasaan belanja Anda...</p>
-          </div>
-        ) : habitInsight ? (
-          <div className="insight-content" style={{ lineHeight: 1.6, fontSize: '15px' }}>
-            <ReactMarkdown>{habitInsight}</ReactMarkdown>
-            <div style={{ marginTop: '16px', textAlign: 'right' }}>
-              <button className="btn btn-outline btn-sm" onClick={handleAnalyze}>Analisis Ulang</button>
-            </div>
-          </div>
-        ) : (
-          <p className="text-secondary text-sm" style={{ margin: 0 }}>
-            Klik tombol di atas untuk mendapatkan wawasan tentang pola pengeluaran Anda bulan ini dibandingkan 5 bulan terakhir.
-          </p>
-        )}
-      </div>
+      )}
     </div>
   );
 }

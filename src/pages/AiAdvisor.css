@@ -97,7 +97,7 @@
 
 .advisor-message.user .advisor-bubble {
   background: var(--accent-primary);
-  color: white;
+  color: var(--accent-contrast);
   border-bottom-right-radius: 4px;
 }
 
@@ -193,7 +193,7 @@
   height: 44px;
   border-radius: 50%;
   background: var(--accent-primary);
-  color: white;
+  color: var(--accent-contrast);
   border: none;
   display: flex;
   align-items: center;

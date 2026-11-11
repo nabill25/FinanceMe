@@ -41,8 +41,8 @@
 .settings-info {
   display: flex; gap: 12px; align-items: flex-start;
   padding: var(--space-md) var(--space-lg);
-  background: rgba(99,102,241,0.05);
-  border: 1px solid rgba(99,102,241,0.2);
+  background: color-mix(in srgb, var(--accent-primary) 6%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--accent-primary) 22%, transparent);
 }
 
 /* Theme Options */
@@ -53,7 +53,8 @@
 }
 
 .theme-btn {
-  background: var(--bg-main);
+  background: var(--input-bg);
+  font-family: inherit;
   border: 1px solid var(--border-default);
   padding: 12px;
   border-radius: 12px;
@@ -71,14 +72,14 @@
 
 .theme-btn:hover {
   border-color: var(--border-subtle);
-  background: var(--bg-elevated);
+  background: var(--surface-hover);
 }
 
 .theme-btn.active {
   border-color: var(--accent-primary);
-  background: rgba(99, 102, 241, 0.05); /* Safe fallback, real color handled by css var */
+  background: var(--accent-soft);
   color: var(--accent-primary);
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-primary) 25%, transparent);
 }
 /* If accent changes, we can use the variable */
 [data-accent] .theme-btn.active {

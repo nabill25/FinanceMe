@@ -1,5 +1,5 @@
 .cashflow-tooltip {
-  background: var(--bg-elevated);
+  background: var(--surface-strong);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-md);
   padding: var(--space-sm) var(--space-md);

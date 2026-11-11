@@ -52,9 +52,9 @@ export default function App() {
       document.documentElement.setAttribute('data-theme', actualTheme);
       document.documentElement.setAttribute('data-accent', accentColor);
       // Warna status bar HP mengikuti app bar (sebelumnya selalu hitam)
-      const statusBarColors = { light: '#ffffff', dark: '#1e293b', 'dark-amoled': '#000000' };
+      const statusBarColors = { light: '#f4f8f5', dark: '#0b110d', 'dark-amoled': '#000000' };
       document.querySelector('meta[name="theme-color"]')
-        ?.setAttribute('content', statusBarColors[actualTheme] || '#ffffff');
+        ?.setAttribute('content', statusBarColors[actualTheme] || '#0b110d');
     };
 
     applyTheme();
