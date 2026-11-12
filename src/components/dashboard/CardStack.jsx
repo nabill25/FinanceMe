@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, MotionConfig, useMotionValue, useTransform } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Nfc, RotateCw, ArrowUpRight, Smartphone, Wallet, TrendingUp, Plus } from 'lucide-react';
@@ -14,6 +14,8 @@ const LIFT = 11;
 const SPRING = { type: 'spring', stiffness: 300, damping: 30, mass: 0.9 };
 const THROW = { duration: 0.42, ease: [0.4, 0, 0.2, 1] };
 const FLIP = { duration: 0.6, ease: [0.22, 0.61, 0.36, 1] };
+// Pointer yang bergerak lebih dari ini dihitung menggeser, bukan klik, jadi kartu tidak dibalik.
+const TAP_SLOP = 8;
 const TYPE_ICONS = { ewallet: Smartphone, cash: Wallet, investment: TrendingUp };
 const monthName = new Intl.DateTimeFormat('id-ID', { month: 'long' }).format(new Date());
 
@@ -67,6 +69,13 @@ function DeckCard({ account, depth, leavingDir, flipped, canDrag, holder, stats,
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-260, 260], [-12, 12]);
   const isTop = depth === 0 && !leavingDir;
+  // Framer Motion tetap menganggap lepasan setelah menggeser sebagai "tap" (pointer masih di
+  // atas kartu yang ikut bergeser), jadi jarak geser dicatat dan tap setelah geser diabaikan.
+  const press = useRef({ x: 0, y: 0, moved: 0 });
+  const handleTap = (e) => {
+    const p = press.current;
+    if (Math.max(p.moved, Math.hypot(e.clientX - p.x, e.clientY - p.y)) <= TAP_SLOP) onFlip();
+  };
 
   const target = leavingDir
     ? { x: leavingDir * 560, y: '0%', scale: 1, opacity: 0, filter: 'brightness(1)' }
@@ -89,11 +98,13 @@ function DeckCard({ account, depth, leavingDir, flipped, canDrag, holder, stats,
       drag={isTop && canDrag ? 'x' : false}
       dragConstraints={{ left: 0, right: 0 }}
       dragElastic={0.8}
+      onPointerDown={(e) => { press.current = { x: e.clientX, y: e.clientY, moved: 0 }; }}
+      onDrag={(_, info) => { press.current.moved = Math.max(press.current.moved, Math.abs(info.offset.x)); }}
       onDragEnd={(_, info) => {
         const dir = Math.sign(info.offset.x || info.velocity.x);
         if (dir && (Math.abs(info.offset.x) > 110 || Math.abs(info.velocity.x) > 650)) onThrow(dir);
       }}
-      onTap={isTop ? onFlip : undefined}
+      onTap={isTop ? handleTap : undefined}
       onKeyDown={isTop ? onKey : undefined}
       role={isTop ? 'button' : undefined}
       tabIndex={isTop ? 0 : -1}
