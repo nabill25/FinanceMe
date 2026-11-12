@@ -124,6 +124,10 @@ export default function Dashboard() {
 
   const handleExport = () => {
     const real = monthTx.filter((t) => !t.transfer_type);
+    if (real.length === 0) {
+      toast.info(`Belum ada pemasukan atau pengeluaran di ${monthLabel} untuk direkap.`);
+      return;
+    }
     const income = real.filter((t) => t.type === 'income').reduce((s, t) => s + toIdr(t), 0);
     const expense = real.filter((t) => t.type === 'expense').reduce((s, t) => s + toIdr(t), 0);
     const byCategory = new Map();
@@ -132,8 +136,13 @@ export default function Dashboard() {
       byCategory.set(name, (byCategory.get(name) || 0) + toIdr(t));
     });
     const cats = [...byCategory.entries()].map(([name, total]) => ({ name, total })).sort((a, b) => b.total - a.total);
-    exportReportToPDF({ income, expense, net: income - expense }, cats, monthLabel);
-    toast.success(`Rekap ${monthLabel} diunduh`);
+    try {
+      exportReportToPDF({ income, expense, net: income - expense }, cats, monthLabel);
+      toast.success(`Rekap ${monthLabel} diunduh`);
+    } catch (err) {
+      console.error(err);
+      toast.error('Rekap gagal dibuat. Coba lagi.');
+    }
   };
 
   return (
@@ -146,7 +155,7 @@ export default function Dashboard() {
           <p className="dashboard-subline">{headerLine(payday, recurringBills, today)}</p>
         </div>
         <div className="dashboard-actions">
-          <button className="btn btn-outline" onClick={handleExport} disabled={monthTx.length === 0}>
+          <button className="btn btn-outline" onClick={handleExport} disabled={!monthReady} title={`Unduh rekap ${monthLabel} (PDF)`}>
             <Download size={16} /> Rekap
           </button>
           {canTransfer ? (

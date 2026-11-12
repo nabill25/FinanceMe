@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useMemo, useState } from 'react';
 import { Sparkles, Download, Receipt, ArrowDownLeft, ArrowUpRight, PiggyBank } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import { toast } from 'sonner';
 import { useFinanceStore } from '../store/financeStore';
 import { useAuthStore } from '../store/authStore';
 import { formatCurrency, getMonthLabel, EXCHANGE_RATES } from '../lib/utils';
@@ -203,13 +204,20 @@ export default function ReportsPage() {
   const currentMonth = months[months.length - 1];
 
   const handleExport = () => {
+    const label = getMonthLabel(currentMonth.key);
     const monthCats = [...groupBy(expenses.filter((t) => t.date.startsWith(currentMonth.key)), (t) => t.category_id || 'none',
       (t) => ({ name: t.categories?.name || 'Lainnya' })).values()].sort((a, b) => b.total - a.total);
-    exportReportToPDF(
-      { income: currentMonth.income, expense: currentMonth.expense, net: currentMonth.income - currentMonth.expense },
-      monthCats,
-      getMonthLabel(currentMonth.key)
-    );
+    try {
+      exportReportToPDF(
+        { income: currentMonth.income, expense: currentMonth.expense, net: currentMonth.income - currentMonth.expense },
+        monthCats,
+        label
+      );
+      toast.success(`Laporan ${label} diunduh`);
+    } catch (err) {
+      console.error(err);
+      toast.error('PDF gagal dibuat. Coba lagi.');
+    }
   };
 
   const handleAnalyze = async () => {

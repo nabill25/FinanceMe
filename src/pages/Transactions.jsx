@@ -413,6 +413,21 @@ export default function TransactionsPage() {
     }
   };
 
+  const handleExport = (format) => {
+    if (displayed.length === 0) {
+      toast.info('Tidak ada transaksi untuk diunduh pada filter ini.');
+      return;
+    }
+    try {
+      if (format === 'pdf') exportTransactionsToPDF(displayed, filters.month);
+      else exportTransactionsToExcel(displayed, filters.month);
+      toast.success(`${displayed.length} transaksi diunduh (${format === 'pdf' ? 'PDF' : 'Excel'})`);
+    } catch (err) {
+      console.error(err);
+      toast.error('File gagal dibuat. Coba lagi.');
+    }
+  };
+
   return (
     <div className="transactions-page animate-fade-in">
       <div className="page-header">
@@ -421,10 +436,10 @@ export default function TransactionsPage() {
           <p className="text-secondary text-sm">Riwayat pemasukan & pengeluaran</p>
         </div>
         <div className="page-header-actions">
-          <button className="btn btn-outline" onClick={() => exportTransactionsToPDF(displayed, filters.month)}>
+          <button className="btn btn-outline" onClick={() => handleExport('pdf')}>
             PDF
           </button>
-          <button className="btn btn-outline" onClick={() => exportTransactionsToExcel(displayed, filters.month)}>
+          <button className="btn btn-outline" onClick={() => handleExport('excel')}>
             Excel
           </button>
           <button className="btn btn-primary" onClick={() => { setEditTx(null); setModalOpen(true); }}>

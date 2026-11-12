@@ -1,5 +1,7 @@
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+// jspdf-autotable v5 tidak lagi menempel ke jsPDF saat di-import (doc.autoTable tidak ada),
+// jadi tabelnya dipanggil lewat fungsi autoTable(doc, opsi).
+import { autoTable } from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import { formatCurrency } from './utils';
 
@@ -31,7 +33,7 @@ export const exportTransactionsToPDF = (transactions, monthLabel) => {
     tableRows.push(transactionData);
   });
 
-  doc.autoTable({
+  autoTable(doc, {
     head: [tableColumn],
     body: tableRows,
     startY: 40,
@@ -140,7 +142,7 @@ export const exportReportToPDF = (reportData, categoryData, monthLabel) => {
       ]);
     });
 
-    doc.autoTable({
+    autoTable(doc, {
       head: [tableColumn],
       body: tableRows,
       startY: 115,
