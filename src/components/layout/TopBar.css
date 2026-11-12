@@ -196,8 +196,18 @@
   box-shadow: 0 0 0 2px var(--window-solid);
 }
 
+/* Ikon tombol bergerak kecil saat diarahkan: + berputar, pesawat kertas "terbang" */
+.topbar-add svg,
+.topbar-ring svg,
+.topbar-icon svg {
+  transition: transform 0.4s var(--ease-spring);
+}
+
 @media (hover: hover) {
   .topbar-add:hover { background: color-mix(in srgb, var(--accent-primary) 88%, white); }
+  .topbar-add:hover svg { transform: rotate(90deg); }
+  .topbar-ring:hover svg { transform: translate(2px, -2px); }
+  .topbar-icon:hover svg { transform: rotate(18deg) scale(1.06); }
   .topbar-ring:hover,
   .topbar-icon:hover,
   .topbar-actions .notification-btn:hover { background: var(--surface-hover); color: var(--text-primary); }

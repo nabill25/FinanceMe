@@ -47,15 +47,17 @@ export default function NotificationBell() {
   return (
     <div className="notification-wrapper" ref={dropdownRef}>
       <button 
-        className="btn btn-icon btn-ghost notification-btn"
+        className={`btn btn-icon btn-ghost notification-btn ${unreadCount > 0 ? 'has-unread' : ''}`}
+        aria-label={unreadCount > 0 ? `Notifikasi, ${unreadCount} belum dibaca` : 'Notifikasi'}
         onClick={() => {
           setIsOpen(!isOpen);
           handleRequestPermission();
         }}
       >
-        <Bell size={20} />
+        {/* key: ikon & badge dipasang ulang saat jumlahnya berubah, jadi animasinya diputar lagi */}
+        <Bell size={20} key={unreadCount} />
         {unreadCount > 0 && (
-          <span className="notification-badge">{unreadCount > 99 ? '99+' : unreadCount}</span>
+          <span className="notification-badge" key={`badge-${unreadCount}`}>{unreadCount > 99 ? '99+' : unreadCount}</span>
         )}
       </button>
 

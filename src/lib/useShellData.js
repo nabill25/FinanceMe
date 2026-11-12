@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useFinanceStore } from '../store/financeStore';
 import { useAuthStore } from '../store/authStore';
 import { getCurrentMonth } from './utils';
+import { switchTheme } from './themeTransition';
 
 const localDateStr = (d) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -11,7 +12,8 @@ export function useThemeToggle() {
   const { theme, setTheme } = useFinanceStore();
   const isDark = theme === 'dark' || theme === 'dark-amoled'
     || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-  return { isDark, toggleTheme: () => setTheme(isDark ? 'light' : 'dark') };
+  // Dengan event klik: lingkaran tema baru melebar dari tombol yang diklik
+  return { isDark, toggleTheme: (event) => switchTheme(isDark ? 'light' : 'dark', setTheme, event) };
 }
 
 /** Inisial & nama depan pengguna untuk avatar dan sapaan. */

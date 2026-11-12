@@ -2,7 +2,11 @@ import { useMemo } from 'react';
 import { useFinanceStore } from '../../store/financeStore';
 import { getCurrentMonth } from '../../lib/utils';
 import { Activity, HeartPulse, AlertTriangle } from 'lucide-react';
+import AnimatedNumber from '../AnimatedNumber';
 import './FinancialHealthWidget.css';
+
+// Skor ditampilkan sebagai bilangan bulat (stabil: didefinisikan di luar komponen)
+const scoreText = (v) => String(Math.round(v));
 
 export default function FinancialHealthWidget() {
   const { getMonthSummary, spendingLimit, spendingGuardState } = useFinanceStore();
@@ -133,12 +137,15 @@ export default function FinancialHealthWidget() {
               strokeDasharray={circumference}
               strokeDashoffset={strokeDashoffset}
               strokeLinecap="round"
-              style={{ transition: 'stroke-dashoffset 1s ease-out, stroke 0.5s' }}
+              className="health-ring"
+              style={{ '--circ': circumference, transition: 'stroke-dashoffset 1s ease-out, stroke 0.5s' }}
               transform="rotate(-90 50 50)"
             />
           </svg>
           <div className="health-score-text">
-            <span style={{ color: healthData.color }}>{healthData.score ?? '–'}</span>
+            <span style={{ color: healthData.color }}>
+              {healthData.score == null ? '–' : <AnimatedNumber value={healthData.score} format={scoreText} duration={1.3} />}
+            </span>
           </div>
         </div>
 

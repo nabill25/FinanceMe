@@ -10,6 +10,7 @@ import BudgetSimulatorWidget from '../components/dashboard/BudgetSimulatorWidget
 import BottomSheet from '../components/BottomSheet';
 import VisualBudget from '../components/VisualBudget';
 import { toast } from 'sonner';
+import AnimatedNumber from '../components/AnimatedNumber';
 import './Budget.css';
 
 function BudgetModal({ open, onClose, categories, usedCategoryIds, userId, month, onSave }) {
@@ -339,18 +340,18 @@ export default function BudgetPage() {
             <div>
               <p className="text-sm text-muted">Total Anggaran</p>
               <h2 style={{ fontSize: '1.8rem', fontWeight: 800, letterSpacing: '-0.02em' }}>
-                {formatCurrency(totalBudget)}
+                <AnimatedNumber value={totalBudget} />
               </h2>
             </div>
             <div className="budget-summary-stats">
               <div className="budget-stat">
                 <span className="text-xs text-muted">Terpakai</span>
-                <span style={{ fontWeight: 700, color: 'var(--accent-danger)' }}>{formatCurrency(totalSpent)}</span>
+                <span style={{ fontWeight: 700, color: 'var(--accent-danger)' }}><AnimatedNumber value={totalSpent} /></span>
               </div>
               <div className="budget-stat">
                 <span className="text-xs text-muted">Sisa</span>
                 <span style={{ fontWeight: 700, color: 'var(--accent-success)' }}>
-                  {formatCurrency(Math.max(totalBudget - totalSpent, 0))}
+                  <AnimatedNumber value={Math.max(totalBudget - totalSpent, 0)} />
                 </span>
               </div>
               {overBudget > 0 && (

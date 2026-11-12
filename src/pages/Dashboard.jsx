@@ -22,6 +22,7 @@ import GoalProgressCard from '../components/dashboard/GoalProgressCard';
 import FinancialHealthWidget from '../components/dashboard/FinancialHealthWidget';
 import AiInsightsWidget from '../components/dashboard/AiInsightsWidget';
 import AchievementsWidget from '../components/dashboard/AchievementsWidget';
+import Reveal from '../components/Reveal';
 import './Dashboard.css';
 
 const greetingFor = (hour) => {
@@ -186,89 +187,93 @@ export default function Dashboard() {
 
       {/* Widget lain */}
       <div className="overview-more">
-        <section className="card widget">
-          <div className="widget-head">
-            <div>
-              <h3 className="card-heading">Transaksi terbaru</h3>
-              <p className="card-sub">{monthLabel}</p>
+        <Reveal>
+          <section className="card widget">
+            <div className="widget-head">
+              <div>
+                <h3 className="card-heading">Transaksi terbaru</h3>
+                <p className="card-sub">{monthLabel}</p>
+              </div>
+              <Link to="/transactions" className="widget-link">Semua <ChevronRight size={14} /></Link>
             </div>
-            <Link to="/transactions" className="widget-link">Semua <ChevronRight size={14} /></Link>
-          </div>
-          {recentTx.length === 0 ? (
-            <div className="widget-empty">
-              <p>Belum ada transaksi bulan ini.</p>
-              <button type="button" className="pill-btn" onClick={() => setQuickAddOpen(true)}>
-                <Plus size={14} /> Catat transaksi
-              </button>
+            {recentTx.length === 0 ? (
+              <div className="widget-empty">
+                <p>Belum ada transaksi bulan ini.</p>
+                <button type="button" className="pill-btn" onClick={() => setQuickAddOpen(true)}>
+                  <Plus size={14} /> Catat transaksi
+                </button>
+              </div>
+            ) : (
+              <div className="recent-tx-list">
+                {recentTx.map((tx) => {
+                  const sign = tx.type === 'income' ? '+' : '−';
+                  const tone = tx.transfer_type ? 'is-transfer' : tx.type === 'income' ? 'is-income' : '';
+                  return (
+                    <div key={tx.id} className="recent-tx-item">
+                      <div className="recent-tx-icon" aria-hidden="true">
+                        {tx.transfer_type ? '⇄' : CATEGORY_ICONS[tx.categories?.icon] || (tx.type === 'income' ? '💰' : '💸')}
+                      </div>
+                      <div className="recent-tx-info">
+                        <span className="recent-tx-desc">{tx.description || tx.categories?.name || 'Transaksi'}</span>
+                        <span className="recent-tx-meta">{tx.accounts?.name} · {formatDateShort(tx.date)}</span>
+                      </div>
+                      <span className={`recent-tx-amount amount-text ${tone}`}>
+                        {sign}{formatCurrency(tx.amount, tx.accounts?.currency || 'IDR')}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+        </Reveal>
+
+        <Reveal>
+          <section className="card widget">
+            <div className="widget-head">
+              <div>
+                <h3 className="card-heading">Anggaran bulan ini</h3>
+                <p className="card-sub">
+                  {budgets.length === 0 ? 'Belum ada anggaran' : overBudget > 0 ? `${countWord(overBudget, true)} kategori melewati batas` : 'Semua masih di bawah batas'}
+                </p>
+              </div>
+              <Link to="/budget" className="widget-link">Kelola <ChevronRight size={14} /></Link>
             </div>
-          ) : (
-            <div className="recent-tx-list">
-              {recentTx.map((tx) => {
-                const sign = tx.type === 'income' ? '+' : '−';
-                const tone = tx.transfer_type ? 'is-transfer' : tx.type === 'income' ? 'is-income' : '';
-                return (
-                  <div key={tx.id} className="recent-tx-item">
-                    <div className="recent-tx-icon" aria-hidden="true">
-                      {tx.transfer_type ? '⇄' : CATEGORY_ICONS[tx.categories?.icon] || (tx.type === 'income' ? '💰' : '💸')}
+            {budgetProgress.length === 0 ? (
+              <div className="widget-empty">
+                <p>Atur batas belanja per kategori agar tahu kapan harus mengerem.</p>
+                <Link to="/budget" className="pill-btn"><Plus size={14} /> Buat anggaran</Link>
+              </div>
+            ) : (
+              <div className="budget-rows">
+                {budgetProgress.slice(0, 5).map((b, i) => (
+                  <div className="budget-row" key={b.id} style={{ '--i': i }}>
+                    <div className="budget-row-top">
+                      <span className="budget-row-name">{b.categories?.name || 'Kategori'}</span>
+                      <span className={`budget-row-amount amount-text ${b.isOver ? 'is-over' : ''}`}>
+                        {formatCurrency(b.spent)} <span>/ {formatCurrency(b.amount)}</span>
+                      </span>
                     </div>
-                    <div className="recent-tx-info">
-                      <span className="recent-tx-desc">{tx.description || tx.categories?.name || 'Transaksi'}</span>
-                      <span className="recent-tx-meta">{tx.accounts?.name} · {formatDateShort(tx.date)}</span>
-                    </div>
-                    <span className={`recent-tx-amount amount-text ${tone}`}>
-                      {sign}{formatCurrency(tx.amount, tx.accounts?.currency || 'IDR')}
+                    <span className="budget-track">
+                      <span
+                        className={`budget-fill ${b.isOver ? 'over' : b.pct > 85 ? 'warn' : ''}`}
+                        style={{ width: `${Math.min(b.pct, 100)}%` }}
+                      />
                     </span>
                   </div>
-                );
-              })}
-            </div>
-          )}
-        </section>
+                ))}
+              </div>
+            )}
+          </section>
+        </Reveal>
 
-        <section className="card widget">
-          <div className="widget-head">
-            <div>
-              <h3 className="card-heading">Anggaran bulan ini</h3>
-              <p className="card-sub">
-                {budgets.length === 0 ? 'Belum ada anggaran' : overBudget > 0 ? `${countWord(overBudget, true)} kategori melewati batas` : 'Semua masih di bawah batas'}
-              </p>
-            </div>
-            <Link to="/budget" className="widget-link">Kelola <ChevronRight size={14} /></Link>
-          </div>
-          {budgetProgress.length === 0 ? (
-            <div className="widget-empty">
-              <p>Atur batas belanja per kategori agar tahu kapan harus mengerem.</p>
-              <Link to="/budget" className="pill-btn"><Plus size={14} /> Buat anggaran</Link>
-            </div>
-          ) : (
-            <div className="budget-rows">
-              {budgetProgress.slice(0, 5).map((b, i) => (
-                <div className="budget-row" key={b.id} style={{ '--i': i }}>
-                  <div className="budget-row-top">
-                    <span className="budget-row-name">{b.categories?.name || 'Kategori'}</span>
-                    <span className={`budget-row-amount amount-text ${b.isOver ? 'is-over' : ''}`}>
-                      {formatCurrency(b.spent)} <span>/ {formatCurrency(b.amount)}</span>
-                    </span>
-                  </div>
-                  <span className="budget-track">
-                    <span
-                      className={`budget-fill ${b.isOver ? 'over' : b.pct > 85 ? 'warn' : ''}`}
-                      style={{ width: `${Math.min(b.pct, 100)}%` }}
-                    />
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-
-        <UpcomingBillsWidget />
-        <AiInsightsWidget />
-        <FinancialHealthWidget />
-        <GoalProgressCard />
-        <MonthlySpendingDonut />
-        <BudgetSimulatorWidget />
-        <AchievementsWidget />
+        <Reveal><UpcomingBillsWidget /></Reveal>
+        <Reveal><AiInsightsWidget /></Reveal>
+        <Reveal><FinancialHealthWidget /></Reveal>
+        <Reveal><GoalProgressCard /></Reveal>
+        <Reveal><MonthlySpendingDonut /></Reveal>
+        <Reveal><BudgetSimulatorWidget /></Reveal>
+        <Reveal><AchievementsWidget /></Reveal>
       </div>
     </div>
   );

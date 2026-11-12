@@ -75,12 +75,20 @@
   gap: 16px;
 }
 
+/* Pesan baru muncul dari sisi pengirimnya */
+@keyframes advisorMsgIn {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
 .advisor-message {
+  animation: advisorMsgIn 0.4s var(--ease-out) backwards;
   max-width: 85%;
   display: flex;
   flex-direction: column;
 }
 
+.advisor-message.user { transform-origin: right bottom; }
+.advisor-message.model { transform-origin: left bottom; }
 .advisor-message.user {
   align-self: flex-end;
 }

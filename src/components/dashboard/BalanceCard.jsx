@@ -4,6 +4,7 @@ import CountUp from 'react-countup';
 import { Eye, EyeOff, TrendingUp, TrendingDown } from 'lucide-react';
 import { useFinanceStore } from '../../store/financeStore';
 import { formatCurrency } from '../../lib/utils';
+import AnimatedNumber from '../AnimatedNumber';
 import './BalanceCard.css';
 
 const CHART_H = 150;
@@ -171,7 +172,7 @@ export default function BalanceCard({ totalBalance, accounts, spend, change, ser
             ].map(([label, value]) => (
               <div className="bal-pill" key={label} title={`Pengeluaran ${label.toLowerCase()} (tanpa transfer antar akun)`}>
                 <span>{label}</span>
-                <strong className="amount-text">{fmt(value)}</strong>
+                <strong className="amount-text"><AnimatedNumber value={value} /></strong>
               </div>
             ))}
           </div>

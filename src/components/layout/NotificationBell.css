@@ -13,7 +13,23 @@
   background: var(--bg-main);
 }
 
+/* Ada notifikasi belum dibaca: lonceng berayun sekali (juga saat jumlahnya bertambah)
+   dan badge-nya muncul dengan efek "pop" */
+.notification-btn.has-unread > svg {
+  transform-origin: 50% 2px;
+  animation: bellRing 1.1s ease-in-out 0.9s both;
+}
+@keyframes bellRing {
+  0%, 100% { transform: none; }
+  15% { transform: rotate(14deg); }
+  30% { transform: rotate(-12deg); }
+  45% { transform: rotate(8deg); }
+  60% { transform: rotate(-5deg); }
+  75% { transform: rotate(2deg); }
+}
+
 .notification-badge {
+  animation: badgePop 0.45s var(--ease-spring) 0.9s backwards;
   position: absolute;
   top: 2px;
   right: 2px;

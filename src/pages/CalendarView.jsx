@@ -20,6 +20,8 @@ export default function CalendarView() {
   
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
+  // Arah pindah bulan (-1 mundur, 1 maju): grid kalender meluncur dari sisi itu
+  const [slideDir, setSlideDir] = useState(0);
 
   const month = currentDate.getMonth();
   const year = currentDate.getFullYear();
@@ -27,9 +29,13 @@ export default function CalendarView() {
   const monthName = currentDate.toLocaleString('id-ID', { month: 'long', year: 'numeric' });
 
   // Navigation
-  const prevMonth = () => setCurrentDate(new Date(year, month - 1, 1));
-  const nextMonth = () => setCurrentDate(new Date(year, month + 1, 1));
-  const goToToday = () => setCurrentDate(new Date());
+  const prevMonth = () => { setSlideDir(-1); setCurrentDate(new Date(year, month - 1, 1)); };
+  const nextMonth = () => { setSlideDir(1); setCurrentDate(new Date(year, month + 1, 1)); };
+  const goToToday = () => {
+    const now = new Date();
+    setSlideDir(Math.sign((now.getFullYear() - year) * 12 + now.getMonth() - month));
+    setCurrentDate(now);
+  };
 
   // Generate calendar grid
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -88,7 +94,7 @@ export default function CalendarView() {
           <button className="btn btn-outline btn-icon" onClick={prevMonth} aria-label="Bulan sebelumnya">
             <ChevronLeft size={18} />
           </button>
-          <span className="calendar-month-title">{monthName}</span>
+          <span className="calendar-month-title" key={monthName} style={{ '--cal-dir': slideDir }}>{monthName}</span>
           <button className="btn btn-outline btn-icon" onClick={nextMonth} aria-label="Bulan berikutnya">
             <ChevronRight size={18} />
           </button>
@@ -97,7 +103,7 @@ export default function CalendarView() {
       </div>
 
       <div className="card calendar-container">
-        <div className="calendar-grid">
+        <div className="calendar-grid" key={`${year}-${month}`} style={{ '--cal-dir': slideDir }}>
           {weekDays.map(wd => (
             <div key={wd} className="calendar-weekday">{wd}</div>
           ))}

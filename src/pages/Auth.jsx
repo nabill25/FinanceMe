@@ -1,14 +1,16 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Wallet, Eye, EyeOff, ArrowRight, AlertTriangle } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { isSupabaseConfigured } from '../lib/supabase';
 import { toast } from 'sonner';
+import TabIndicator from '../components/TabIndicator';
 import './Auth.css';
 
 
 export default function AuthPage() {
   const [mode, setMode] = useState('login'); // 'login' | 'register'
+  const tabsId = useId();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
@@ -76,12 +78,14 @@ export default function AuthPage() {
             className={`tab ${mode === 'login' ? 'active' : ''}`}
             onClick={() => setMode('login')}
           >
+            {mode === 'login' && <TabIndicator id={tabsId} />}
             Masuk
           </button>
           <button
             className={`tab ${mode === 'register' ? 'active' : ''}`}
             onClick={() => setMode('register')}
           >
+            {mode === 'register' && <TabIndicator id={tabsId} />}
             Daftar
           </button>
         </div>

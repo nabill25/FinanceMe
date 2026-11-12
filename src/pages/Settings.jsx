@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useId } from 'react';
 import { Shield, ShieldAlert, ShieldCheck, Clock, Info, Palette, Monitor, Sun, Moon, MoonStar, Bot, Languages, CreditCard } from 'lucide-react';
 import { useFinanceStore } from '../store/financeStore';
 import { useAuthStore } from '../store/authStore';
 import { useLanguageStore } from '../store/languageStore';
 import { formatCurrency } from '../lib/utils';
 import { toast } from 'sonner';
+import TabIndicator from '../components/TabIndicator';
+import { switchTheme } from '../lib/themeTransition';
 import './Settings.css';
 
 const PERIOD_OPTIONS = [
@@ -45,6 +47,7 @@ export default function SettingsPage() {
   const { user } = useAuthStore();
   const { spendingLimit, spendingGuardState, fetchSpendingLimit, upsertSpendingLimit, checkSpendingGuard, aiPersonality, setAiPersonality, paymentInfo, setPaymentInfo } = useFinanceStore();
   const { t, language, setLanguage } = useLanguageStore();
+  const periodTabsId = useId();
 
   const [form, setForm] = useState({
     limit_amount: '',
@@ -178,6 +181,7 @@ export default function SettingsPage() {
                     <button key={p.value} type="button"
                       className={`tab ${form.period === p.value ? 'active' : ''}`}
                       onClick={() => setForm(f => ({ ...f, period: p.value }))}>
+                      {form.period === p.value && <TabIndicator id={periodTabsId} />}
                       {p.label}
                     </button>
                   ))}
@@ -245,7 +249,7 @@ export default function SettingsPage() {
                 <button
                   key={id}
                   className={`theme-btn ${theme === id ? 'active' : ''}`}
-                  onClick={() => setTheme(id)}
+                  onClick={(e) => switchTheme(id, setTheme, e)}
                 >
                   <Icon size={16} />
                   {label}

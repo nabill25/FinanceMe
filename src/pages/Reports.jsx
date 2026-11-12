@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useMemo, useState } from 'react';
+import { Fragment, useEffect, useId, useMemo, useState } from 'react';
 import { Sparkles, Download, Receipt, ArrowDownLeft, ArrowUpRight, PiggyBank } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { toast } from 'sonner';
@@ -9,6 +9,8 @@ import { exportReportToPDF } from '../lib/exportUtils';
 import { analyzeHabits } from '../lib/gemini';
 import { monthlyFlow } from '../lib/overview';
 import MoneyFlowCard from '../components/dashboard/MoneyFlowCard';
+import TabIndicator from '../components/TabIndicator';
+import AnimatedNumber from '../components/AnimatedNumber';
 import './Reports.css';
 
 // Kategori bawaan yang dihitung sebagai "kebutuhan"; sisanya "keinginan"
@@ -73,11 +75,13 @@ function groupBy(list, keyOf, init) {
 }
 
 function Segmented({ options, value, onChange, small }) {
+  const tabsId = useId();
   return (
     <div className={`tabs ${small ? 'tabs-sm' : ''}`} role="tablist">
       {options.map((o) => (
         <button key={o.id} type="button" role="tab" aria-selected={value === o.id}
           className={`tab ${value === o.id ? 'active' : ''}`} onClick={() => onChange(o.id)}>
+          {value === o.id && <TabIndicator id={tabsId} />}
           {o.label}
         </button>
       ))}
@@ -89,6 +93,7 @@ export default function ReportsPage() {
   const { user } = useAuthStore();
   const { fetchTransactionHistory } = useFinanceStore();
   const [tab, setTab] = useState('spending');
+  const lineTabsId = useId();
   const [period, setPeriod] = useState('this');
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -252,6 +257,7 @@ export default function ReportsPage() {
         {TABS.map((t) => (
           <button key={t.id} type="button" role="tab" aria-selected={tab === t.id}
             className={`line-tab ${tab === t.id ? 'active' : ''}`} onClick={() => setTab(t.id)}>
+            {tab === t.id && <TabIndicator id={lineTabsId} variant="line" />}
             {t.label}
           </button>
         ))}
@@ -323,8 +329,8 @@ export default function ReportsPage() {
                         </div>
                       </div>
                       <div className="nw-legend">
-                        <div className="nw-row"><span><i className="dot" /> Kebutuhan</span><strong className="amount-text">{fmt(categories.needs)}</strong></div>
-                        <div className="nw-row"><span><i className="dot want" /> Keinginan</span><strong className="amount-text">{fmt(categories.wants)}</strong></div>
+                        <div className="nw-row"><span><i className="dot" /> Kebutuhan</span><strong className="amount-text"><AnimatedNumber value={categories.needs} /></strong></div>
+                        <div className="nw-row"><span><i className="dot want" /> Keinginan</span><strong className="amount-text"><AnimatedNumber value={categories.wants} /></strong></div>
                         <p className="nw-note">Kebutuhan: perumahan, tagihan, makan, transportasi, kesehatan, pendidikan.</p>
                       </div>
                     </div>
@@ -360,7 +366,7 @@ export default function ReportsPage() {
                     <h3 className="card-heading">Pengeluaran harian</h3>
                     <p className="card-sub">12 minggu terakhir · 5 hari dengan pengeluaran terbesar diberi garis tepi</p>
                   </div>
-                  <span className="heat-total amount-text">{fmt(heat.total)}</span>
+                  <span className="heat-total amount-text"><AnimatedNumber value={heat.total} /></span>
                 </div>
                 <div className="heatmap">
                   <span />
@@ -395,21 +401,21 @@ export default function ReportsPage() {
               <div className="flow-stats">
                 <section className="card flow-stat" style={{ '--i': 0 }}>
                   <span className="flow-stat-label"><ArrowDownLeft size={15} /> Rata-rata masuk sebulan</span>
-                  <strong className="flow-stat-value amount-text">{fmt(averages.inc)}</strong>
+                  <strong className="flow-stat-value amount-text"><AnimatedNumber value={averages.inc} /></strong>
                   <span className="flow-stat-note">
                     {averages.months === 0 ? 'Belum ada bulan yang lengkap' : `${averages.months} bulan terakhir · ${averages.sources} sumber pemasukan`}
                   </span>
                 </section>
                 <section className="card flow-stat" style={{ '--i': 1 }}>
                   <span className="flow-stat-label"><ArrowUpRight size={15} /> Rata-rata keluar sebulan</span>
-                  <strong className="flow-stat-value amount-text">{fmt(averages.exp)}</strong>
+                  <strong className="flow-stat-value amount-text"><AnimatedNumber value={averages.exp} /></strong>
                   <span className="flow-stat-note">
                     {averages.topCat ? `Terbesar: ${averages.topCat.name}` : 'Belum ada pengeluaran'}
                   </span>
                 </section>
                 <section className="card flow-stat" style={{ '--i': 2 }}>
                   <span className="flow-stat-label"><PiggyBank size={15} /> Rata-rata disimpan</span>
-                  <strong className={`flow-stat-value amount-text ${averages.kept < 0 ? 'is-negative' : ''}`}>{fmt(averages.kept)}</strong>
+                  <strong className={`flow-stat-value amount-text ${averages.kept < 0 ? 'is-negative' : ''}`}><AnimatedNumber value={averages.kept} /></strong>
                   <span className="flow-stat-note">
                     {averages.rate === null ? 'Belum ada pemasukan' : `${averages.rate}% dari pemasukan (target 20%)`}
                   </span>

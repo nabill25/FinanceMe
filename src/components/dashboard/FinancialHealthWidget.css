@@ -65,3 +65,11 @@
     font-size: 22px;
   }
 }
+
+/* Lingkar skor terisi dari nol saat widget muncul, angkanya ikut berhitung */
+.health-ring {
+  animation: healthRingIn 1.3s cubic-bezier(0.22, 0.61, 0.36, 1) 0.35s backwards;
+}
+@keyframes healthRingIn {
+  from { stroke-dashoffset: var(--circ); }
+}

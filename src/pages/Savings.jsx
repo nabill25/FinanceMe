@@ -6,6 +6,7 @@ import { formatCurrency, clamp } from '../lib/utils';
 import { toast } from 'sonner';
 import confetti from 'canvas-confetti';
 import BottomSheet from '../components/BottomSheet';
+import AnimatedNumber from '../components/AnimatedNumber';
 import './Savings.css';
 
 const POT_ICONS = ['🐷', '🏖️', '🚗', '🏠', '✈️', '🎓', '💊', '💍', '📱', '🎮', '🌍', '🎁'];
@@ -213,14 +214,14 @@ export default function SavingsPage() {
           <PiggyBank size={28} style={{ color: 'var(--accent-primary)' }} />
           <div>
             <p className="text-xs text-muted">Total Terkumpul</p>
-            <p className="savings-summary-amount" style={{ color: 'var(--accent-primary)' }}>{formatCurrency(totalSaved)}</p>
+            <p className="savings-summary-amount" style={{ color: 'var(--accent-primary)' }}><AnimatedNumber value={totalSaved} /></p>
           </div>
         </div>
         <div className="savings-summary-divider" />
         <div className="savings-summary-item">
           <div>
             <p className="text-xs text-muted">Total Target</p>
-            <p className="savings-summary-amount">{formatCurrency(totalTarget)}</p>
+            <p className="savings-summary-amount"><AnimatedNumber value={totalTarget} /></p>
           </div>
         </div>
         <div className="savings-summary-divider" />

@@ -9,6 +9,7 @@ import ProviderLogo from '../components/ProviderLogo';
 import { toast } from 'sonner';
 import TransferModal from '../components/TransferModal';
 import BottomSheet from '../components/BottomSheet';
+import AnimatedNumber from '../components/AnimatedNumber';
 import './Accounts.css';
 
 const COLORS = [
@@ -461,7 +462,7 @@ export default function AccountsPage() {
       {/* Total balance */}
       <div className="accounts-total card">
         <p className="card-heading">Total saldo</p>
-        <h2 className="accounts-total-amount">{formatCurrency(totalBalance)}</h2>
+        <h2 className="accounts-total-amount"><AnimatedNumber value={totalBalance} /></h2>
         <p className="card-sub">{accounts.length} akun terdaftar · ketuk kartu untuk melihat detail</p>
       </div>
 

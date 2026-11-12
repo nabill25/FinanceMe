@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { formatCurrency, formatCurrencyChart } from '../../lib/utils';
+import TabIndicator from '../TabIndicator';
 import './MoneyFlowCard.css';
 
 const RANGES = [
@@ -27,6 +28,7 @@ const fmt = (n) => formatCurrency(Math.round(n));
 export default function MoneyFlowCard({ months, loading = false, defaultRange = 12, className = '' }) {
   const [range, setRange] = useState(defaultRange);
   const [hover, setHover] = useState(null);
+  const tabsId = useId();
 
   const list = months.slice(-range);
   const income = list.reduce((s, m) => s + m.income, 0);
@@ -48,6 +50,7 @@ export default function MoneyFlowCard({ months, loading = false, defaultRange = 
           {RANGES.map((r) => (
             <button key={r.id} type="button" role="tab" aria-selected={range === r.id}
               className={`tab ${range === r.id ? 'active' : ''}`} onClick={() => { setRange(r.id); setHover(null); }}>
+              {range === r.id && <TabIndicator id={tabsId} />}
               {r.label}
             </button>
           ))}

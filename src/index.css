@@ -100,6 +100,8 @@
   /* Gerak animasi: cukup lambat agar terlihat, tetap halus */
   --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
   --dur-page: 0.5s;
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1); /* sedikit memantul */
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
   --sidebar-width: 260px;
   --bottom-nav-height: calc(64px + env(safe-area-inset-bottom, 20px));
   --safe-area-top: env(safe-area-inset-top, 0px);
@@ -459,6 +461,8 @@ h1, h2, h3, h4, h5, h6 {
   height: 100%;
   border-radius: var(--radius-full);
   transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Terisi dari nol saat muncul, lalu bergerak halus saat nilainya berubah */
+  animation: progressFill 1.1s var(--ease-out) 0.25s backwards;
 }
 
 /* Empty state */
@@ -679,10 +683,13 @@ h1, h2, h3, h4, h5, h6 {
   border-radius: 50%;
   background: white;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.2s ease;
 }
 .toggle-switch input:checked + .toggle-track { background: var(--accent-primary); }
 .toggle-switch input:checked + .toggle-track::after { transform: translateX(20px); }
+/* Saat ditekan, kenop sedikit melebar ke arah geraknya */
+.toggle-switch:active .toggle-track::after { width: 23px; }
+.toggle-switch:active input:checked + .toggle-track::after { transform: translateX(15px); }
 .toggle-switch input:focus-visible + .toggle-track {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-primary) 30%, transparent);
 }
@@ -855,6 +862,8 @@ h1, h2, h3, h4, h5, h6 {
    .line-tabs   : tab bergaris bawah untuk bagian halaman
    ===================== */
 .tabs {
+  position: relative;
+  isolation: isolate; /* pil aktif (z-index -1) tetap di atas latar .tabs */
   display: flex;
   background-color: var(--input-bg);
   border: 1px solid var(--border-default);
@@ -863,6 +872,7 @@ h1, h2, h3, h4, h5, h6 {
   gap: 2px;
 }
 .tab {
+  position: relative;
   flex: 1;
   padding: 7px 14px;
   text-align: center;
@@ -879,10 +889,19 @@ h1, h2, h3, h4, h5, h6 {
   -webkit-tap-highlight-color: transparent;
 }
 .tab:hover { color: var(--text-primary); }
+/* Latar tab aktif digambar oleh <TabIndicator> yang meluncur antar tab */
 .tab.active {
-  background: var(--accent-primary);
+  background: transparent;
   color: var(--accent-contrast);
   transform: none;
+}
+.tab-indicator {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--accent-primary);
+  box-shadow: 0 6px 16px -10px color-mix(in srgb, var(--accent-primary) 90%, transparent);
 }
 .tabs-sm .tab { padding: 5px 11px; font-size: 12.5px; }
 
@@ -909,8 +928,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 .line-tab:hover { color: var(--text-primary); }
 .line-tab.active { color: var(--text-primary); }
-.line-tab.active::after {
-  content: '';
+/* Garis bawah tab aktif meluncur ke tab yang dipilih (<TabIndicator variant="line">) */
+.line-tab-indicator {
   position: absolute;
   left: 0;
   right: 0;
@@ -918,11 +937,6 @@ h1, h2, h3, h4, h5, h6 {
   height: 2px;
   border-radius: 2px;
   background: var(--accent-primary);
-  animation: lineTabIn 0.35s var(--ease-out);
-}
-@keyframes lineTabIn {
-  from { transform: scaleX(0.3); opacity: 0; }
-  to { transform: none; opacity: 1; }
 }
 
 /* =====================
@@ -1072,6 +1086,10 @@ h1, h2, h3, h4, h5, h6 {
 @keyframes progressFill {
   from { width: 0%; }
 }
+@keyframes badgePop {
+  from { transform: scale(0); }
+  to { transform: none; }
+}
 
 /* =====================
    ANIMATION CLASSES
@@ -1149,6 +1167,48 @@ h1, h2, h3, h4, h5, h6 {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* =====================
+   MICRO-INTERACTIONS
+   Umpan balik kecil saat diarahkan/ditekan. Hanya transform & opacity (ringan),
+   dan hanya di perangkat yang punya hover.
+   ===================== */
+/* Angka yang berhitung (AnimatedNumber): lebar digit tetap agar teks tidak bergetar */
+.num-anim { font-variant-numeric: tabular-nums; }
+
+.card {
+  transition: border-color 0.35s ease, box-shadow 0.35s ease, background-color 0.35s ease;
+}
+.widget-link svg { transition: transform 0.3s var(--ease-spring); }
+.pill-btn svg { transition: transform 0.35s var(--ease-spring); }
+
+@media (hover: hover) {
+  /* Tepi kartu kaca sedikit menyala */
+  .card:hover { border-color: color-mix(in srgb, var(--accent-primary) 24%, var(--border-default)); }
+  /* Tombol utama terangkat sedikit dengan cahaya aksen */
+  .btn-primary:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 26px -14px color-mix(in srgb, var(--accent-primary) 90%, transparent);
+    filter: brightness(1.05);
+  }
+  .widget-link:hover svg { transform: translateX(3px); }
+  .pill-btn:hover .lucide-arrow-up-right { transform: translate(2px, -2px); }
+  .pill-btn:hover .lucide-plus { transform: rotate(90deg); }
+}
+
+/* Ganti tema terang/gelap: lingkaran tema baru melebar dari tombol yang diklik
+   (lib/themeTransition.js). Animasi bawaan browser dimatikan, diganti clip-path. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+.theme-switching,
+.theme-switching *,
+.theme-switching *::before,
+.theme-switching *::after {
+  transition: none !important;
 }
 
 /* =====================

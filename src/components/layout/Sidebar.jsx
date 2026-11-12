@@ -3,6 +3,7 @@ import {
   LogOut, Wallet, X, Sun, Moon, Eye, EyeOff, PanelLeftClose, PanelLeftOpen, Ellipsis, Settings, LayoutGrid, ChevronDown,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
 import NotificationBell from './NotificationBell';
 import { NAV_GROUPS } from './navItems';
 import { useAuthStore } from '../../store/authStore';
@@ -15,6 +16,8 @@ import { formatCurrency } from '../../lib/utils';
 import './Sidebar.css';
 
 const FOLDABLE_GROUP = 1; // kelompok alat tambahan (lihat navItems.js)
+// Pil menu aktif meluncur ke menu yang baru dipilih
+const PILL_SPRING = { type: 'spring', stiffness: 360, damping: 34, mass: 0.9 };
 const readToolsOpen = () => {
   try { return localStorage.getItem('financeme-nav-more') === 'open'; } catch { return false; }
 };
@@ -58,7 +61,7 @@ function UserMenu({ open, onClose, onSignOut, isDark, toggleTheme }) {
       <NavLink to="/settings" className="user-menu-item" role="menuitem" onClick={onClose}>
         <Settings size={16} /> Pengaturan
       </NavLink>
-      <button type="button" className="user-menu-item" role="menuitem" onClick={() => { toggleTheme(); onClose(); }}>
+      <button type="button" className="user-menu-item" role="menuitem" onClick={(e) => { toggleTheme(e); onClose(); }}>
         {isDark ? <Sun size={16} /> : <Moon size={16} />} {isDark ? 'Mode terang' : 'Mode gelap'}
       </button>
       <button type="button" className="user-menu-item danger" role="menuitem" onClick={onSignOut}>
@@ -172,7 +175,8 @@ export default function Sidebar() {
           </button>
         </div>
 
-        <nav className="sidebar-nav" aria-label="Menu">
+        {/* layoutScroll: posisi pil tetap benar walau daftar menu di-scroll */}
+        <motion.nav className="sidebar-nav" aria-label="Menu" layoutScroll>
           {NAV_GROUPS.map((group, gi) => {
             const foldable = gi === FOLDABLE_GROUP;
             const activeInside = group.some((item) => item.to !== '/' && pathname.startsWith(item.to));
@@ -206,16 +210,23 @@ export default function Sidebar() {
                     title={sidebarCollapsed ? label : undefined}
                     className={({ isActive }) => `sidebar-nav-item ${isActive ? 'active' : ''}`}
                   >
-                    <Icon size={18} />
-                    <span className="sidebar-nav-label">{label}</span>
-                    {count > 0 && <span className="sidebar-badge" aria-label={`${count} perlu perhatian`}>{count}</span>}
+                    {({ isActive }) => (
+                      <>
+                        {isActive && (
+                          <motion.span layoutId="sidebar-active-pill" className="sidebar-active-pill" transition={PILL_SPRING} aria-hidden="true" />
+                        )}
+                        <Icon size={18} />
+                        <span className="sidebar-nav-label">{label}</span>
+                        {count > 0 && <span className="sidebar-badge" aria-label={`${count} perlu perhatian`}>{count}</span>}
+                      </>
+                    )}
                   </NavLink>
                 );
               })}
             </div>
             );
           })}
-        </nav>
+        </motion.nav>
 
         <SafeToSpend data={shell} />
 

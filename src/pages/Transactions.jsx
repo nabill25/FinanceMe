@@ -13,6 +13,7 @@ import AiTransactionInput from '../components/AiTransactionInput';
 import { toast } from 'sonner';
 import TagInput from '../components/TagInput';
 import BottomSheet from '../components/BottomSheet';
+import AnimatedNumber from '../components/AnimatedNumber';
 import './Transactions.css';
 
 const defaultForm = {
@@ -478,14 +479,14 @@ export default function TransactionsPage() {
           <div className="tx-summary-icon income"><ArrowUpCircle size={20} /></div>
           <div>
             <p className="text-xs text-muted">Pemasukan</p>
-            <p className="tx-summary-amount amount-income">{formatCurrency(totalIncome)}</p>
+            <p className="tx-summary-amount amount-income"><AnimatedNumber value={totalIncome} /></p>
           </div>
         </div>
         <div className="tx-summary-item card">
           <div className="tx-summary-icon expense"><ArrowDownCircle size={20} /></div>
           <div>
             <p className="text-xs text-muted">Pengeluaran</p>
-            <p className="tx-summary-amount amount-expense">{formatCurrency(totalExpense)}</p>
+            <p className="tx-summary-amount amount-expense"><AnimatedNumber value={totalExpense} /></p>
           </div>
         </div>
         <div className="tx-summary-item card">
@@ -495,7 +496,7 @@ export default function TransactionsPage() {
           <div>
             <p className="text-xs text-muted">Selisih</p>
             <p className={`tx-summary-amount ${totalIncome - totalExpense >= 0 ? 'amount-income' : 'amount-expense'}`}>
-              {formatCurrency(Math.abs(totalIncome - totalExpense))}
+              <AnimatedNumber value={Math.abs(totalIncome - totalExpense)} />
             </p>
           </div>
         </div>

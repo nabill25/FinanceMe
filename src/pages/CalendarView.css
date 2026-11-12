@@ -26,6 +26,17 @@
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 8px;
+  animation: calSlide 0.45s var(--ease-out) backwards;
+}
+
+/* Ganti bulan: grid & judul bulan meluncur masuk dari arah navigasi */
+.calendar-month-title {
+  display: inline-block;
+  animation: calSlide 0.4s var(--ease-out) backwards;
+}
+@keyframes calSlide {
+  from { opacity: 0; transform: translateX(calc(var(--cal-dir, 0) * 28px)); }
+  to { opacity: 1; transform: none; }
 }
 
 .calendar-weekday {
