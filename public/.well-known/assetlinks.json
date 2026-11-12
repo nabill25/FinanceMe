@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.vercel.financeme_three.twa",
+      "sha256_cert_fingerprints": [
+        "88:0B:D4:CF:98:97:60:5D:E4:B6:31:74:98:35:F2:A0:17:E4:30:61:97:59:7E:2F:08:51:FB:11:21:2B:C0:1C"
+      ]
+    }
+  }
+]
