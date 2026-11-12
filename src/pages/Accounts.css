@@ -6,17 +6,14 @@
 
 /* Ringkasan total saldo: panel kaca dengan angka besar */
 .accounts-total {
-  padding: 22px 24px;
-  background:
-    radial-gradient(70% 120% at 100% 0%, color-mix(in srgb, var(--accent-primary) 13%, transparent), transparent 70%),
-    var(--surface);
+  padding: 20px 22px;
 }
 
 .accounts-total-amount {
   font-size: clamp(1.9rem, 6vw, 2.6rem);
   font-weight: 400;
   letter-spacing: -0.035em;
-  margin: 6px 0 4px;
+  margin: 8px 0 6px;
   font-variant-numeric: tabular-nums;
   word-break: break-all;
 }
@@ -56,19 +53,28 @@
   flex-direction: column;
   justify-content: space-between;
   overflow: hidden;
-  color: #fff;
+  color: #eef4fb;
   cursor: pointer;
   user-select: none;
   outline: none;
   -webkit-tap-highlight-color: transparent;
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.18);
+  /* Kaca berwarna aksen, diberi sedikit warna akun (sama dengan widget Kartu di Beranda) */
+  --glass-1: color-mix(in srgb, var(--accent-primary) 54%, var(--card-glass-base));
+  --glass-2: color-mix(in srgb, var(--accent-primary) 37%, var(--card-glass-base));
+  --glass-3: color-mix(in srgb, var(--accent-primary) 24%, var(--card-glass-base));
   background:
-    radial-gradient(120% 140% at 0% 0%, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0) 55%),
-    linear-gradient(135deg, var(--acc-color), color-mix(in srgb, var(--acc-color) 70%, #000));
+    linear-gradient(115deg, transparent 38%, rgba(255, 255, 255, 0.06) 46%, transparent 56%),
+    radial-gradient(130% 110% at 0% 0%, rgba(255, 255, 255, 0.17) 0%, rgba(255, 255, 255, 0) 52%),
+    linear-gradient(150deg,
+      color-mix(in srgb, var(--acc-color) 22%, var(--glass-1)) 0%,
+      color-mix(in srgb, var(--acc-color) 16%, var(--glass-2)) 55%,
+      color-mix(in srgb, var(--acc-color) 12%, var(--glass-3)) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.22),
-    0 -1px 6px rgba(15, 23, 42, 0.10),
-    0 10px 24px -14px rgba(15, 23, 42, 0.55);
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 -1px 6px rgba(0, 0, 0, 0.12),
+    0 14px 30px -16px rgba(0, 0, 0, 0.6);
   transition: translate 0.2s ease, filter 0.2s ease;
 }
 

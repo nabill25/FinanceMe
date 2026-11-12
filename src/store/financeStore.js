@@ -250,7 +250,7 @@ export const useFinanceStore = create((set, get) => ({
           particleCount: 80,
           spread: 70,
           origin: { y: 0.8 },
-          colors: ['#10b981', '#34d399', '#ffffff'],
+          colors: ['#6ea8ff', '#a8caff', '#ffffff'],
           disableForReducedMotion: true
         });
       });

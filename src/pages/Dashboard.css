@@ -4,19 +4,26 @@
   gap: var(--space-lg);
 }
 
+/* Header: tanggal, sapaan besar, satu kalimat konteks, dua aksi */
 .dashboard-header {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
   gap: var(--space-md);
   flex-wrap: wrap;
+  margin-bottom: 4px;
 }
 
 .dashboard-greeting {
-  font-size: 2.2rem;
-  font-weight: 500;
-  letter-spacing: -0.025em;
+  font-size: 2.3rem;
+  font-weight: 400;
+  letter-spacing: -0.03em;
   margin-bottom: 6px;
+}
+
+.dashboard-subline {
+  font-size: 13.5px;
+  color: var(--text-secondary);
 }
 
 .dashboard-actions {
@@ -24,258 +31,92 @@
   gap: var(--space-sm);
 }
 
-/* Kartu "Total saldo" */
-.balance-hero {
-  position: relative;
-  overflow: hidden;
-  padding: 22px 24px;
-  background:
-    radial-gradient(70% 90% at 100% 0%, color-mix(in srgb, var(--accent-primary) 13%, transparent), transparent 70%),
-    var(--surface);
+.dashboard-actions .btn {
+  height: 42px;
+  padding: 0 18px;
+  border-radius: 13px;
 }
 
-.balance-hero-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: var(--space-md);
-}
-
-.balance-hero-main {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px 14px;
-  margin: 14px 0 18px;
-}
-
-.balance-hero-amount {
-  font-size: clamp(2rem, 7vw, 3rem);
-  font-weight: 400;
-  letter-spacing: -0.035em;
-  line-height: 1.05;
-  font-variant-numeric: tabular-nums;
-  word-break: break-all;
-}
-
-.balance-delta {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 500;
-}
-
-.balance-delta.up {
-  color: var(--accent-success);
-  background: color-mix(in srgb, var(--accent-success) 14%, transparent);
-}
-
-.balance-delta.down {
-  color: var(--accent-danger);
-  background: color-mix(in srgb, var(--accent-danger) 14%, transparent);
-}
-
-/* Pil statistik kecil */
-.balance-pills {
+/* =====================
+   Kartu (kiri, setinggi dua kartu) · Total saldo · Uang masuk & keluar
+   ===================== */
+.overview-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
-  margin-bottom: 18px;
-}
-
-.balance-pill {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  background: var(--input-bg);
-  border: 1px solid var(--border-subtle);
-  min-width: 0;
-}
-
-.balance-pill span {
-  font-size: 11.5px;
-  color: var(--text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.balance-pill strong {
-  font-size: 14.5px;
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.balance-hero-accounts {
-  display: flex;
-  gap: var(--space-sm);
-  flex-wrap: wrap;
-  padding-top: 16px;
-  border-top: 1px solid var(--border-subtle);
-}
-
-.balance-hero-account {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  padding: 6px 12px 6px 6px;
-  border-radius: 999px;
-  background: var(--input-bg);
-  border: 1px solid var(--border-subtle);
-  text-decoration: none;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
-}
-
-@media (hover: hover) {
-  .balance-hero-account:hover {
-    border-color: color-mix(in srgb, var(--accent-primary) 40%, var(--border-default));
-  }
-}
-
-.balance-account-text {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.2;
-}
-
-.balance-account-name {
-  font-size: 11.5px;
-  color: var(--text-muted);
-}
-
-.balance-account-amount {
-  font-size: 13.5px;
-  font-weight: 500;
-  color: var(--text-primary);
-  font-variant-numeric: tabular-nums;
-}
-
-.balance-hero-add-account {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--text-secondary);
-  font-size: 13px;
-  font-weight: 500;
-  text-decoration: none;
-  border: 1px dashed var(--border-default);
-  border-radius: 999px;
-  padding: 7px 14px;
-}
-
-/* Stat cards */
-.stat-card {
-  position: relative;
-  overflow: hidden;
-}
-
-.stat-card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-
-.stat-card-label {
-  font-size: 12.5px;
-  font-weight: 400;
-  color: var(--text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.stat-card-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.stat-card-value {
-  font-size: clamp(1.05rem, 3.5vw, 1.5rem);
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-  color: var(--text-primary);
-  letter-spacing: -0.02em;
-  margin-bottom: 6px;
-  word-break: break-all;
-  line-height: 1.1;
-}
-
-.stat-card-trend {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 11px;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: var(--radius-full);
-}
-
-.trend-up {
-  color: var(--accent-success);
-  background: color-mix(in srgb, var(--accent-success) 14%, transparent);
-}
-.trend-down {
-  color: var(--accent-danger);
-  background: color-mix(in srgb, var(--accent-danger) 14%, transparent);
-}
-
-/* Layout rows */
-/* minmax(0, 1fr): teks panjang (mis. deskripsi transaksi) tidak boleh melebarkan kolom
-   melewati layar; tanpa ini kartu di HP bisa selebar 600px */
-.dashboard-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 340px;
+  grid-template-columns: minmax(0, 0.72fr) minmax(0, 1fr);
+  grid-template-areas:
+    "cards balance"
+    "cards flow";
   gap: var(--space-lg);
-  align-items: start;
+  align-items: stretch;
 }
 
-.dashboard-chart { min-width: 0; }
-.dashboard-budget { height: fit-content; }
+.overview-grid > .cards-widget { grid-area: cards; }
+.overview-grid > .bal-card { grid-area: balance; }
+.overview-grid > .flow-card { grid-area: flow; }
 
-/* Recent transactions */
+/* Tiga kartu utama muncul bergiliran (kontainernya sendiri tidak dianimasikan) */
+.page-transition .dashboard > .overview-grid,
+.page-transition .dashboard > .overview-more {
+  animation: none;
+}
+
+.page-transition .overview-grid > *,
+.page-transition .overview-more > * {
+  animation: sectionIn var(--dur-page) var(--ease-out) backwards;
+}
+
+.page-transition .overview-grid > :nth-child(1) { animation-delay: 90ms; }
+.page-transition .overview-grid > :nth-child(2) { animation-delay: 160ms; }
+.page-transition .overview-grid > :nth-child(3) { animation-delay: 230ms; }
+.page-transition .overview-more > * { animation-delay: 300ms; }
+.page-transition .overview-more > :nth-child(n+4) { animation-delay: 360ms; }
+.page-transition .overview-more > :nth-child(n+7) { animation-delay: 420ms; }
+
+/* =====================
+   Widget lain: kolom bertumpuk (masonry) agar tidak ada celah kosong
+   ===================== */
+.overview-more {
+  columns: 3 300px;
+  column-gap: var(--space-lg);
+}
+
+.overview-more > * {
+  break-inside: avoid;
+  margin: 0 0 var(--space-lg);
+  width: 100%;
+}
+
+/* Transaksi terbaru */
 .recent-tx-list {
   display: flex;
   flex-direction: column;
-  gap: 2px;
 }
 
 .recent-tx-item {
   display: flex;
   align-items: center;
-  gap: var(--space-md);
-  padding: 10px var(--space-sm);
-  border-radius: var(--radius-md);
-  transition: background var(--transition-fast);
-  cursor: default;
-  -webkit-tap-highlight-color: transparent;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid var(--border-subtle);
 }
 
-.recent-tx-item:hover { background: var(--surface-hover); }
-.recent-tx-item:active { background: var(--surface-hover); }
+.recent-tx-item:first-child {
+  border-top: none;
+  padding-top: 2px;
+}
 
 .recent-tx-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-md);
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  font-size: 17px;
   flex-shrink: 0;
+  background: var(--input-bg);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
 }
 
 .recent-tx-info {
@@ -286,7 +127,7 @@
 }
 
 .recent-tx-desc {
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 500;
   color: var(--text-primary);
   overflow: hidden;
@@ -295,24 +136,100 @@
 }
 
 .recent-tx-meta {
-  font-size: 12px;
+  font-size: 11.5px;
   color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .recent-tx-amount {
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 500;
   font-variant-numeric: tabular-nums;
   flex-shrink: 0;
   white-space: nowrap;
+  color: var(--text-primary);
+}
+
+.recent-tx-amount.is-income { color: var(--accent-success); }
+.recent-tx-amount.is-transfer { color: var(--text-muted); }
+
+/* Anggaran bulan ini */
+.budget-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.budget-row-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 7px;
+}
+
+.budget-row-name {
+  min-width: 0;
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.budget-row-amount {
+  font-size: 13px;
+  color: var(--text-primary);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.budget-row-amount span {
+  color: var(--text-muted);
+}
+
+.budget-row-amount.is-over {
+  color: var(--accent-danger);
+}
+
+.budget-track {
+  display: block;
+  height: 8px;
+  border-radius: 6px;
+  background: var(--track);
+  overflow: hidden;
+}
+
+.budget-fill {
+  display: block;
+  height: 100%;
+  border-radius: 6px;
+  background: var(--accent-primary);
+  transform-origin: left center;
+  animation: budgetGrow 0.9s var(--ease-out) backwards;
+  animation-delay: calc(350ms + var(--i, 0) * 60ms);
+}
+
+.budget-fill.warn { background: var(--accent-sand); }
+.budget-fill.over { background: var(--accent-danger); }
+
+@keyframes budgetGrow {
+  from { transform: scaleX(0); }
+  to { transform: none; }
 }
 
 /* =====================
    RESPONSIVE
    ===================== */
 @media (max-width: 1100px) {
-  .dashboard-row {
+  .overview-grid {
     grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "balance"
+      "cards"
+      "flow";
   }
 }
 
@@ -322,7 +239,7 @@
   }
 
   .dashboard-greeting {
-    font-size: 1.65rem;
+    font-size: 1.75rem;
   }
 
   .dashboard-actions {
@@ -334,35 +251,15 @@
     justify-content: center;
   }
 
-  .balance-hero {
-    padding: var(--space-lg);
-  }
-
-  .balance-hero-main {
-    margin: 10px 0 14px;
-  }
-
-  /* 2 x 2 pil di HP */
-  .balance-pills {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
-  }
-
-  .balance-hero-accounts {
-    gap: 6px;
-  }
-
-  .dashboard-row {
-    grid-template-columns: minmax(0, 1fr);
+  .overview-grid {
     gap: var(--space-md);
   }
 
-  .recent-tx-icon {
-    width: 36px;
-    height: 36px;
-    font-size: 15px;
+  .overview-more {
+    columns: 1;
   }
 
-  .recent-tx-desc { font-size: 13px; }
-  .recent-tx-amount { font-size: 13px; }
+  .overview-more > * {
+    margin-bottom: var(--space-md);
+  }
 }

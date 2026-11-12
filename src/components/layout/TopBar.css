@@ -2,6 +2,7 @@
   display: none;
 }
 
+/* Desktop: baris atas di dalam "jendela", tanpa latar sampai konten di-scroll */
 @media (min-width: 769px) {
   .topbar {
     position: sticky;
@@ -9,26 +10,32 @@
     z-index: 50;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: var(--space-lg);
-    padding: 14px var(--space-xl);
-    background: var(--bg-appbar);
-    backdrop-filter: blur(var(--glass-blur)) saturate(140%);
-    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
-    border-bottom: 1px solid var(--border-subtle);
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 18px 32px 14px;
+    background: transparent;
+    border-bottom: 1px solid transparent;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+  }
+
+  .layout-main.is-scrolled .topbar {
+    background: var(--topbar-scrolled);
+    border-bottom-color: var(--border-subtle);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
   }
 }
 
-/* Pencarian berbentuk pil */
+/* Pencarian */
 .cmd {
   position: relative;
-  flex: 0 1 460px;
+  flex: 0 1 420px;
   display: flex;
   align-items: center;
   gap: 10px;
-  height: 42px;
-  padding: 0 10px 0 16px;
-  border-radius: 999px;
+  height: 44px;
+  padding: 0 8px 0 16px;
+  border-radius: 15px;
   background: var(--input-bg);
   border: 1px solid var(--border-default);
   color: var(--text-muted);
@@ -48,7 +55,7 @@
   outline: none;
   color: var(--text-primary);
   font: inherit;
-  font-size: 14px;
+  font-size: 13.5px;
 }
 
 .cmd input::placeholder {
@@ -57,9 +64,9 @@
 
 .cmd kbd {
   font: inherit;
-  font-size: 11px;
-  padding: 2px 7px;
-  border-radius: 7px;
+  font-size: 10.5px;
+  padding: 3px 7px;
+  border-radius: 8px;
   background: var(--surface-hover);
   border: 1px solid var(--border-default);
   color: var(--text-muted);
@@ -126,49 +133,82 @@
 }
 
 .topbar-add,
+.topbar-ring,
 .topbar-icon,
-.topbar-actions .notification-btn {
-  width: 40px;
-  height: 40px;
-  min-width: 40px;
+.topbar-actions .notification-btn,
+.topbar-avatar {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  min-height: 42px;
+  padding: 0;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  font-family: inherit;
 }
 
+/* Tombol tambah: lingkaran aksen */
 .topbar-add {
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   border: none;
   background: var(--accent-primary);
   color: var(--accent-contrast);
+  box-shadow: 0 8px 22px -10px color-mix(in srgb, var(--accent-primary) 85%, transparent);
 }
 
-.topbar-icon,
-.topbar-actions .notification-btn {
+/* Transfer: lingkaran bergaris */
+.topbar-ring {
   border: 1px solid var(--border-default);
   background: var(--input-bg);
   color: var(--text-secondary);
 }
 
+.topbar-divider {
+  width: 1px;
+  height: 22px;
+  margin: 0 4px;
+  background: var(--border-default);
+}
+
+/* Tema & notifikasi: ikon polos */
+.topbar-icon,
+.topbar-actions .notification-btn {
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+/* Notifikasi belum dibaca = titik kecil */
+.topbar-actions .notification-badge {
+  top: 9px;
+  right: 10px;
+  min-width: 8px;
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 0;
+  background: var(--accent-primary);
+  box-shadow: 0 0 0 2px var(--window-solid);
+}
+
 @media (hover: hover) {
   .topbar-add:hover { background: color-mix(in srgb, var(--accent-primary) 88%, white); }
+  .topbar-ring:hover,
   .topbar-icon:hover,
   .topbar-actions .notification-btn:hover { background: var(--surface-hover); color: var(--text-primary); }
 }
 
 .topbar-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--accent-primary) 70%, white);
-  color: var(--accent-contrast);
-  font-size: 13px;
+  border: none;
+  background: var(--avatar-bg);
+  color: var(--avatar-fg);
+  font-size: 12.5px;
   font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   flex-shrink: 0;
+  margin-left: 2px;
 }

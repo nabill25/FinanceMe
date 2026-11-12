@@ -2,61 +2,82 @@
 
 /* =====================
    DESIGN TOKENS
-   Tampilan utama: gelap kehijauan, panel kaca transparan, aksen hijau mint
-   (tema "dark" adalah default). Mode terang memakai nuansa hijau yang sama.
+   Tampilan utama: gelap kebiruan, panel kaca transparan, aksen biru muda
+   (tema "dark" adalah default). Di desktop aplikasi tampil sebagai "jendela"
+   kaca di atas latar bercahaya buram. Mode terang memakai nuansa biru yang sama.
    ===================== */
 
 :root {
   /* Mode terang */
-  --bg-main: #eef3f0;
+  --bg-main: #edf1f7;
   --bg-elevated: #ffffff;
-  --bg-appbar: rgba(244, 248, 245, 0.82);
-  --surface: rgba(255, 255, 255, 0.74);        /* kartu / panel kaca */
-  --surface-strong: rgba(255, 255, 255, 0.94);  /* dialog, dropdown */
-  --surface-hover: rgba(13, 40, 24, 0.04);
-  --input-bg: rgba(13, 40, 24, 0.04);
-  --track: rgba(13, 40, 24, 0.08);              /* jalur progress / bar */
-  
+  --bg-appbar: rgba(243, 246, 251, 0.85);
+  --surface: rgba(255, 255, 255, 0.72);        /* kartu / panel kaca */
+  --surface-strong: rgba(255, 255, 255, 0.95);  /* dialog, dropdown */
+  --surface-hover: rgba(14, 30, 60, 0.04);
+  --input-bg: rgba(14, 30, 60, 0.04);
+  --track: rgba(14, 30, 60, 0.08);              /* jalur progress / bar */
+
   /* Text */
-  --text-primary: #0d1a12;
-  --text-secondary: #4a5b51;
-  --text-muted: #85938a;
-  
-  /* Aksen hijau */
-  --accent-primary: #1a9d5c;
-  --accent-secondary: #14834c;
-  --accent-tertiary: #0f6a3d;
+  --text-primary: #0d1627;
+  --text-secondary: #485670;
+  --text-muted: #8390a5;
+
+  /* Aksen biru */
+  --accent-primary: #2f6fde;
+  --accent-secondary: #255fc4;
+  --accent-tertiary: #1d4fa6;
   --accent-contrast: #ffffff;   /* warna teks di atas latar aksen */
   --accent-soft: color-mix(in srgb, var(--accent-primary) 14%, transparent);
-  --accent-sand: #c08a3e;       /* kategori "keinginan" */
-  
-  --accent-success: #15a05a;
+  --accent-sand: #b8853a;       /* kategori "keinginan", tagihan */
+
+  --accent-success: #12a06e;
   --accent-danger: #e1484d;
   --accent-warning: #d4921b;
   --accent-info: #0e93c9;
-  
+
   /* Desain ini memakai warna datar; nama variabel lama dipertahankan agar komponen tetap jalan */
   --gradient-primary: var(--accent-primary);
   --gradient-success: var(--accent-success);
   --gradient-danger: var(--accent-danger);
   --gradient-warning: var(--accent-warning);
-  
-  /* Borders & Shadows */
-  --border-default: rgba(13, 40, 24, 0.10);
-  --border-subtle: rgba(13, 40, 24, 0.06);
-  
-  --shadow-sm: 0 1px 2px rgba(10, 30, 18, 0.05);
-  --shadow-md: 0 6px 16px -8px rgba(10, 30, 18, 0.14);
-  --shadow-lg: 0 14px 30px -14px rgba(10, 30, 18, 0.20);
-  --shadow-xl: 0 24px 48px -18px rgba(10, 30, 18, 0.26);
-  --shadow-glow: 0 8px 20px -6px rgba(10, 30, 18, 0.18);
 
-  /* Cahaya lembut di latar belakang halaman */
+  /* Borders & Shadows */
+  --border-default: rgba(14, 30, 60, 0.10);
+  --border-subtle: rgba(14, 30, 60, 0.06);
+
+  --shadow-sm: 0 1px 2px rgba(10, 20, 40, 0.05);
+  --shadow-md: 0 6px 16px -8px rgba(10, 20, 40, 0.14);
+  --shadow-lg: 0 14px 30px -14px rgba(10, 20, 40, 0.20);
+  --shadow-xl: 0 24px 48px -18px rgba(10, 20, 40, 0.26);
+  --shadow-glow: 0 8px 20px -6px rgba(10, 20, 40, 0.18);
+
+  /* Latar: cahaya buram seperti foto bokeh di belakang jendela aplikasi */
   --page-glow:
-    radial-gradient(55% 45% at 10% 6%, rgba(26, 157, 92, 0.10), transparent 70%),
-    radial-gradient(45% 40% at 88% 16%, rgba(120, 190, 150, 0.12), transparent 70%),
-    radial-gradient(60% 50% at 68% 100%, rgba(26, 157, 92, 0.08), transparent 70%);
+    radial-gradient(14% 42% at 16% 30%, rgba(255, 255, 255, 0.7), transparent 70%),
+    radial-gradient(12% 46% at 62% 26%, rgba(255, 255, 255, 0.55), transparent 70%),
+    radial-gradient(40% 40% at 8% 4%, rgba(47, 111, 222, 0.14), transparent 70%),
+    radial-gradient(34% 34% at 88% 18%, rgba(120, 160, 230, 0.16), transparent 70%),
+    radial-gradient(50% 45% at 64% 100%, rgba(47, 111, 222, 0.12), transparent 72%);
   --glass-blur: 18px;
+
+  /* Jendela aplikasi (desktop) */
+  --window-gap: 14px;
+  --window-radius: 26px;
+  --topbar-h: 76px;
+  --window-bg: rgba(255, 255, 255, 0.5);
+  --window-solid: #f5f7fb;        /* perkiraan warna jendela yang tidak transparan */
+  --window-border: rgba(255, 255, 255, 0.75);
+  --window-highlight: rgba(255, 255, 255, 0.6);
+  --topbar-scrolled: rgba(245, 247, 251, 0.78);
+  --scrollbar: rgba(14, 30, 60, 0.16);
+
+  /* Avatar: lingkaran terang dengan inisial gelap di semua tema */
+  --avatar-bg: color-mix(in srgb, var(--accent-primary) 26%, #eef3fb);
+  --avatar-fg: #0d1a30;
+
+  /* Kartu fisik (widget Kartu & halaman Akun): kaca berwarna aksen */
+  --card-glass-base: #0f1b31;
   
   /* Layout */
   --radius-sm: 8px;
@@ -111,77 +132,88 @@
 }
 
 [data-theme="dark"] {
-  /* Gelap kehijauan (tampilan utama) */
-  --bg-main: #090e0b;
-  --bg-elevated: #121a15;
-  --bg-appbar: rgba(11, 17, 13, 0.74);
-  --surface: rgba(26, 36, 30, 0.55);
-  --surface-strong: rgba(20, 29, 24, 0.94);
-  --surface-hover: rgba(255, 255, 255, 0.04);
-  --input-bg: rgba(255, 255, 255, 0.04);
+  /* Gelap kebiruan (tampilan utama) */
+  --bg-main: #060a12;
+  --bg-elevated: #111a2a;
+  --bg-appbar: rgba(9, 14, 24, 0.78);
+  --surface: rgba(30, 41, 62, 0.42);
+  --surface-strong: rgba(17, 25, 40, 0.96);
+  --surface-hover: rgba(255, 255, 255, 0.045);
+  --input-bg: rgba(255, 255, 255, 0.045);
   --track: rgba(255, 255, 255, 0.07);
 
-  --accent-primary: #5fd896;
-  --accent-secondary: #48c582;
-  --accent-tertiary: #34a86b;
-  --accent-contrast: #062012;
-  --accent-sand: #d6b274;
-  --accent-success: #5fd896;
-  --accent-danger: #f0796d;
-  --accent-warning: #e6b45a;
-  --accent-info: #6cc4e8;
-  
+  --accent-primary: #6ea8ff;
+  --accent-secondary: #4f8ff2;
+  --accent-tertiary: #3a76db;
+  --accent-contrast: #05132a;
+  --accent-sand: #d9b778;
+  --accent-success: #52cf9f;
+  --accent-danger: #f27b72;
+  --accent-warning: #e8b65c;
+  --accent-info: #7cc6f5;
+
   /* Text */
-  --text-primary: #e7efe9;
-  --text-secondary: #a3b1a8;
-  --text-muted: #6c7b72;
-  
+  --text-primary: #e8eef7;
+  --text-secondary: #a3aec1;
+  --text-muted: #6c798e;
+
   /* Borders & Shadows */
   --border-default: rgba(255, 255, 255, 0.08);
   --border-subtle: rgba(255, 255, 255, 0.05);
-  
+
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
   --shadow-md: 0 8px 20px -10px rgba(0, 0, 0, 0.55);
   --shadow-lg: 0 16px 36px -16px rgba(0, 0, 0, 0.65);
   --shadow-xl: 0 28px 56px -20px rgba(0, 0, 0, 0.75);
   --shadow-glow: 0 8px 20px -6px rgba(0, 0, 0, 0.5);
 
+  /* Cahaya buram: "jendela" & lampu yang terlihat samar di balik kaca */
   --page-glow:
-    radial-gradient(55% 45% at 8% 4%, rgba(95, 216, 150, 0.10), transparent 70%),
-    radial-gradient(40% 35% at 86% 14%, rgba(190, 230, 205, 0.06), transparent 70%),
-    radial-gradient(65% 55% at 62% 100%, rgba(52, 140, 95, 0.13), transparent 70%);
+    radial-gradient(12% 44% at 17% 30%, rgba(160, 185, 230, 0.16), transparent 70%),
+    radial-gradient(9% 52% at 35% 40%, rgba(175, 198, 240, 0.10), transparent 70%),
+    radial-gradient(13% 42% at 76% 24%, rgba(150, 178, 228, 0.13), transparent 70%),
+    radial-gradient(22% 30% at 88% 74%, rgba(84, 132, 232, 0.14), transparent 72%),
+    radial-gradient(30% 26% at 46% 94%, rgba(110, 168, 255, 0.11), transparent 72%),
+    radial-gradient(70% 60% at 50% 45%, rgba(24, 37, 62, 0.65), transparent 80%);
+
+  --window-bg: rgba(14, 21, 35, 0.62);
+  --window-solid: #121a2a;
+  --window-border: rgba(255, 255, 255, 0.08);
+  --window-highlight: rgba(255, 255, 255, 0.05);
+  --topbar-scrolled: rgba(15, 22, 36, 0.78);
+  --scrollbar: rgba(255, 255, 255, 0.14);
 }
 
 [data-theme="dark-amoled"] {
-  /* Hitam pekat dengan aksen hijau yang sama */
+  /* Hitam pekat dengan aksen biru yang sama */
   --bg-main: #000000;
-  --bg-elevated: #0c110e;
+  --bg-elevated: #0b111c;
   --bg-appbar: rgba(0, 0, 0, 0.8);
-  --surface: rgba(18, 26, 21, 0.6);
-  --surface-strong: rgba(12, 18, 14, 0.96);
-  --surface-hover: rgba(255, 255, 255, 0.04);
-  --input-bg: rgba(255, 255, 255, 0.04);
+  --surface: rgba(20, 28, 44, 0.5);
+  --surface-strong: rgba(11, 17, 28, 0.97);
+  --surface-hover: rgba(255, 255, 255, 0.045);
+  --input-bg: rgba(255, 255, 255, 0.045);
   --track: rgba(255, 255, 255, 0.07);
 
-  --accent-primary: #5fd896;
-  --accent-secondary: #48c582;
-  --accent-tertiary: #34a86b;
-  --accent-contrast: #062012;
-  --accent-sand: #d6b274;
-  --accent-success: #5fd896;
-  --accent-danger: #f0796d;
-  --accent-warning: #e6b45a;
-  --accent-info: #6cc4e8;
-  
+  --accent-primary: #6ea8ff;
+  --accent-secondary: #4f8ff2;
+  --accent-tertiary: #3a76db;
+  --accent-contrast: #05132a;
+  --accent-sand: #d9b778;
+  --accent-success: #52cf9f;
+  --accent-danger: #f27b72;
+  --accent-warning: #e8b65c;
+  --accent-info: #7cc6f5;
+
   /* Text */
-  --text-primary: #eef4f0;
-  --text-secondary: #a3b1a8;
-  --text-muted: #66756c;
-  
+  --text-primary: #edf2fa;
+  --text-secondary: #a3aec1;
+  --text-muted: #67748a;
+
   /* Borders & Shadows */
   --border-default: rgba(255, 255, 255, 0.08);
   --border-subtle: rgba(255, 255, 255, 0.05);
-  
+
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.6);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.6), 0 2px 4px -2px rgba(0, 0, 0, 0.6);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.6), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
@@ -189,11 +221,34 @@
   --shadow-glow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
 
   --page-glow:
-    radial-gradient(55% 45% at 8% 4%, rgba(95, 216, 150, 0.07), transparent 70%),
-    radial-gradient(65% 55% at 62% 100%, rgba(52, 140, 95, 0.09), transparent 70%);
+    radial-gradient(12% 44% at 17% 30%, rgba(160, 185, 230, 0.08), transparent 70%),
+    radial-gradient(13% 42% at 76% 24%, rgba(150, 178, 228, 0.07), transparent 70%),
+    radial-gradient(30% 26% at 46% 94%, rgba(110, 168, 255, 0.07), transparent 72%);
+
+  --window-bg: rgba(8, 12, 20, 0.75);
+  --window-solid: #080c14;
+  --window-border: rgba(255, 255, 255, 0.07);
+  --window-highlight: rgba(255, 255, 255, 0.04);
+  --topbar-scrolled: rgba(6, 9, 15, 0.82);
+  --scrollbar: rgba(255, 255, 255, 0.14);
 }
 
-/* Pilihan warna aksen (Pengaturan). Default = hijau dari tema di atas. */
+/* Pilihan warna aksen (Pengaturan). Default = biru dari tema di atas. */
+/* Hijau mint (tampilan sebelumnya) */
+[data-accent="mint"] {
+  --accent-primary: #5fd896;
+  --accent-secondary: #48c582;
+  --accent-tertiary: #34a86b;
+  --accent-contrast: #062012;
+}
+
+[data-theme="light"][data-accent="mint"] {
+  --accent-primary: #1a9d5c;
+  --accent-secondary: #14834c;
+  --accent-tertiary: #0f6a3d;
+  --accent-contrast: #ffffff;
+}
+
 [data-accent="blue"] {
   --accent-primary: #4c8df6;
   --accent-secondary: #2f72e0;
@@ -288,6 +343,82 @@ h1, h2, h3, h4, h5, h6 {
 /* Judul & subjudul kartu ala dashboard: "Per kategori" + keterangan kecil */
 .card-heading { font-size: 15px; font-weight: 500; color: var(--text-primary); }
 .card-sub { font-size: 12.5px; color: var(--text-muted); margin-top: 2px; }
+
+/* Kepala kartu: judul + keterangan di kiri, aksi kecil di kanan */
+.widget { padding: 20px 22px; }
+.widget-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.widget-head > :first-child { min-width: 0; }
+.widget-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 18px;
+  border-radius: 14px;
+  border: 1px dashed var(--border-default);
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+@media (max-width: 768px) {
+  .widget { padding: 16px; }
+}
+.widget-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
+  padding: 2px 0;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+/* Tombol ikon bulat bergaris & tombol pil kecil */
+.round-icon-btn {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--border-default);
+  background: var(--input-bg);
+  color: var(--text-secondary);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.round-icon-btn:disabled { opacity: 0.4; cursor: default; }
+.pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border-default);
+  background: var(--input-bg);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+@media (hover: hover) {
+  .widget-link:hover { color: var(--text-primary); }
+  .round-icon-btn:hover:not(:disabled),
+  .pill-btn:hover { background: var(--surface-hover); color: var(--text-primary); }
+}
 
 /* =====================
    UTILITIES
@@ -620,8 +751,6 @@ h1, h2, h3, h4, h5, h6 {
    ===================== */
 .recharts-cartesian-axis-tick-value { fill: var(--text-muted); }
 .recharts-cartesian-grid line { stroke: var(--border-subtle); }
-.cf-income .recharts-area-curve { stroke: var(--accent-success); }
-.cf-expense .recharts-area-curve { stroke: var(--accent-danger); }
 .recharts-default-tooltip {
   background: var(--surface-strong) !important;
   border: 1px solid var(--border-default) !important;
@@ -832,12 +961,17 @@ h1, h2, h3, h4, h5, h6 {
   gap: var(--space-md);
 }
 .page-header h1 {
-  font-size: 2.1rem;
-  font-weight: 500;
-  letter-spacing: -0.025em;
+  font-size: 2.3rem;
+  font-weight: 400;
+  letter-spacing: -0.03em;
 }
 .page-header h1 + p {
   margin-top: 4px;
+}
+.page-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
 }
 /* Baris kecil di atas judul, mis. tanggal hari ini */
 .page-eyebrow {

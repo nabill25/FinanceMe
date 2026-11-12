@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useFinanceStore } from '../../store/financeStore';
 import { getCurrentMonth } from '../../lib/utils';
-import { Activity, ShieldCheck, HeartPulse, AlertTriangle } from 'lucide-react';
+import { Activity, HeartPulse, AlertTriangle } from 'lucide-react';
 import './FinancialHealthWidget.css';
 
 export default function FinancialHealthWidget() {
@@ -17,7 +17,7 @@ export default function FinancialHealthWidget() {
         color: 'var(--text-muted)',
         status: 'Belum ada data',
         message: 'Catat pemasukan dan pengeluaran bulan ini untuk melihat skor.',
-        icon: <Activity size={24} color="var(--text-muted)" />,
+        icon: <Activity size={18} color="var(--text-muted)" />,
       };
     }
 
@@ -80,18 +80,18 @@ export default function FinancialHealthWidget() {
       message = `Sisa ${Math.round(((income - expense) / income) * 100)}% dari pemasukan bulan ini (target 20%).`;
     }
 
-    let color = 'var(--accent-success)';
-    let status = 'Sangat Sehat';
-    let icon = <HeartPulse size={24} color="var(--accent-success)" />;
+    let color = 'var(--accent-primary)';
+    let status = 'Sangat sehat';
+    let icon = <HeartPulse size={18} color="var(--accent-primary)" />;
 
     if (totalScore < 50) {
       color = 'var(--accent-danger)';
       status = 'Kritis';
-      icon = <AlertTriangle size={24} color="var(--accent-danger)" />;
+      icon = <AlertTriangle size={18} color="var(--accent-danger)" />;
     } else if (totalScore < 80) {
-      color = 'var(--accent-warning)';
-      status = 'Perlu Perhatian';
-      icon = <Activity size={24} color="var(--accent-warning)" />;
+      color = 'var(--accent-sand)';
+      status = 'Perlu perhatian';
+      icon = <Activity size={18} color="var(--accent-sand)" />;
     }
 
     return { score: totalScore, color, status, message, icon };
@@ -102,13 +102,14 @@ export default function FinancialHealthWidget() {
   const strokeDashoffset = circumference - ((healthData.score ?? 0) / 100) * circumference;
 
   return (
-    <div className="card health-widget">
-      <div className="health-header">
-        <h3 style={{ fontSize: '15px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-          Skor Kesehatan <ShieldCheck size={16} className="text-primary" />
-        </h3>
+    <section className="card widget health-widget">
+      <div className="widget-head">
+        <div>
+          <h3 className="card-heading">Skor kesehatan</h3>
+          <p className="card-sub">Arus kas, porsi tabungan, dan batas belanja</p>
+        </div>
       </div>
-      
+
       <div className="health-body">
         <div className="health-gauge">
           <svg width="100" height="100" viewBox="0 0 100 100">
@@ -118,7 +119,7 @@ export default function FinancialHealthWidget() {
               cy="50"
               r={radius}
               fill="transparent"
-              stroke="var(--border-default)"
+              stroke="var(--track)"
               strokeWidth="8"
             />
             {/* Progress circle */}
@@ -144,11 +145,11 @@ export default function FinancialHealthWidget() {
         <div className="health-info">
           <div className="health-status-row">
             {healthData.icon}
-            <strong style={{ color: healthData.color, fontSize: '15px' }}>{healthData.status}</strong>
+            <strong style={{ color: healthData.color }}>{healthData.status}</strong>
           </div>
           <p className="health-message">{healthData.message}</p>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

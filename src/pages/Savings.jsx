@@ -227,7 +227,7 @@ export default function SavingsPage() {
         <div className="savings-summary-item">
           <div>
             <p className="text-xs text-muted">Progress Keseluruhan</p>
-            <p className="savings-summary-amount" style={{ color: '#10b981' }}>
+            <p className="savings-summary-amount" style={{ color: 'var(--accent-primary)' }}>
               {totalTarget > 0 ? `${Math.round((totalSaved / totalTarget) * 100)}%` : '—'}
             </p>
           </div>

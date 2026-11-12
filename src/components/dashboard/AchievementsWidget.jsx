@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Award, Lock, CheckCircle2 } from 'lucide-react';
+import { Lock, Check } from 'lucide-react';
 import { useFinanceStore } from '../../store/financeStore';
 import { calculateAchievements, MEDALS } from '../../lib/achievements';
 import './AchievementsWidget.css';
@@ -7,47 +7,43 @@ import './AchievementsWidget.css';
 export default function AchievementsWidget() {
   const { transactions, budgets, getTotalBalance } = useFinanceStore();
 
-  const unlockedIds = useMemo(() => {
-    return calculateAchievements(transactions, budgets, getTotalBalance());
-  }, [transactions, budgets]);
+  const unlockedIds = useMemo(
+    () => calculateAchievements(transactions, budgets, getTotalBalance()),
+    [transactions, budgets, getTotalBalance],
+  );
 
   const unlockedCount = unlockedIds.length;
   const totalMedals = MEDALS.length;
-  const progressPct = (unlockedCount / totalMedals) * 100;
 
   return (
-    <div className="achievements-widget card">
-      <div className="achievements-header">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div className="achievements-icon-bg">
-            <Award size={20} color="white" />
-          </div>
-          <div>
-            <h3 className="card-title" style={{ margin: 0, fontSize: '15px' }}>Pencapaian Anda</h3>
-            <p style={{ margin: 0, fontSize: '12px', color: 'var(--text-muted)' }}>
-              {unlockedCount} dari {totalMedals} medali terkumpul
-            </p>
-          </div>
+    <section className="achievements-widget card widget">
+      <div className="widget-head">
+        <div>
+          <h3 className="card-heading">Pencapaian</h3>
+          <p className="card-sub">{unlockedCount} dari {totalMedals} medali terkumpul</p>
         </div>
       </div>
 
-      <div className="achievements-progress-bg">
-        <div className="achievements-progress-bar" style={{ width: `${progressPct}%` }} />
-      </div>
+      <span className="budget-track achievements-track">
+        <span className="budget-fill" style={{ width: `${(unlockedCount / totalMedals) * 100}%` }} />
+      </span>
 
       <div className="achievements-list">
-        {MEDALS.map(medal => {
+        {MEDALS.map((medal) => {
           const isUnlocked = unlockedIds.includes(medal.id);
           return (
             <div key={medal.id} className={`medal-item ${isUnlocked ? 'unlocked' : 'locked'}`} title={medal.desc}>
-              <div className="medal-icon" style={{ background: isUnlocked ? medal.color : 'var(--border-default)' }}>
-                {isUnlocked ? <CheckCircle2 size={16} color="white" /> : <Lock size={14} color="var(--text-muted)" />}
-              </div>
-              <span className="medal-title">{medal.title}</span>
+              <span className="medal-icon" aria-hidden="true">
+                {isUnlocked ? <Check size={14} strokeWidth={2.6} /> : <Lock size={12} />}
+              </span>
+              <span className="medal-text">
+                <span className="medal-title">{medal.title}</span>
+                <span className="medal-desc">{medal.desc}</span>
+              </span>
             </div>
           );
         })}
       </div>
-    </div>
+    </section>
   );
 }

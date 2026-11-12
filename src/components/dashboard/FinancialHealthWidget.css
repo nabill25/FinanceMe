@@ -1,16 +1,3 @@
-.health-widget {
-  display: flex;
-  flex-direction: column;
-  padding: var(--space-md);
-  gap: var(--space-md);
-}
-
-.health-header h3 {
-  margin: 0;
-  color: var(--text-primary);
-  font-weight: 700;
-}
-
 .health-body {
   display: flex;
   align-items: center;
@@ -19,26 +6,30 @@
 
 .health-gauge {
   position: relative;
-  width: 100px;
-  height: 100px;
+  width: 96px;
+  height: 96px;
   flex-shrink: 0;
+}
+
+.health-gauge svg {
+  width: 100%;
+  height: 100%;
 }
 
 .health-score-text {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 28px;
-  font-weight: 800;
+  font-size: 26px;
+  font-weight: 400;
+  letter-spacing: -0.02em;
 }
 
 .health-info {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -48,25 +39,25 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  font-size: 14.5px;
+}
+
+.health-status-row strong {
+  font-weight: 500;
 }
 
 .health-message {
   margin: 0;
   font-size: 13px;
   color: var(--text-secondary);
-  line-height: 1.4;
+  line-height: 1.45;
 }
 
 @media (max-width: 480px) {
   .health-body {
-    flex-direction: row;
     gap: var(--space-md);
   }
   .health-gauge {
-    width: 80px;
-    height: 80px;
-  }
-  .health-gauge svg {
     width: 80px;
     height: 80px;
   }

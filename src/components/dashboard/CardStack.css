@@ -1,0 +1,334 @@
+/* Widget "Kartu" — tumpukan kartu kaca hijau */
+.cards-widget {
+  display: flex;
+  flex-direction: column;
+  padding: 20px 22px 18px;
+}
+
+.deck-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px 0 22px;
+  min-height: 0;
+}
+
+.deck {
+  width: 100%;
+  max-width: 410px;
+  /* ruang untuk kartu yang mengintip di belakang (±6% tinggi kartu per lapis;
+     padding % dihitung dari lebar, tinggi kartu = lebar / 1.586) */
+  padding-top: calc(var(--deck-depth, 2) * 3.9%);
+}
+
+.deck-stage {
+  position: relative;
+  aspect-ratio: 1.586;
+}
+
+.deck-card {
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  transform-origin: 50% 100%;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+
+.deck-card.is-top {
+  cursor: grab;
+}
+
+.deck-card.is-top:active {
+  cursor: grabbing;
+}
+
+.deck-card:focus-visible .deck-face {
+  box-shadow:
+    0 0 0 2px var(--bg-main),
+    0 0 0 4px var(--accent-primary);
+}
+
+.deck-flip {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+
+/* Kartu kaca berwarna aksen (biru); --card-tint = warna akun, dicampur tipis
+   agar tiap akun sedikit berbeda */
+.deck-face {
+  --glass-1: color-mix(in srgb, var(--accent-primary) 54%, var(--card-glass-base));
+  --glass-2: color-mix(in srgb, var(--accent-primary) 37%, var(--card-glass-base));
+  --glass-3: color-mix(in srgb, var(--accent-primary) 24%, var(--card-glass-base));
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 18px 20px 16px;
+  border-radius: 18px;
+  overflow: hidden;
+  color: #eef7f1;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  background:
+    radial-gradient(130% 110% at 0% 0%, rgba(255, 255, 255, 0.17) 0%, rgba(255, 255, 255, 0) 52%),
+    radial-gradient(90% 80% at 100% 100%, rgba(0, 0, 0, 0.22) 0%, rgba(0, 0, 0, 0) 60%),
+    linear-gradient(150deg,
+      color-mix(in srgb, var(--card-tint) 14%, var(--glass-1)) 0%,
+      color-mix(in srgb, var(--card-tint) 10%, var(--glass-2)) 55%,
+      color-mix(in srgb, var(--card-tint) 8%, var(--glass-3)) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 24px 44px -24px rgba(0, 0, 0, 0.75);
+}
+
+/* Kilau tipis diagonal seperti kaca */
+.deck-face::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 38%, rgba(255, 255, 255, 0.07) 46%, transparent 56%);
+  pointer-events: none;
+}
+
+.deck-back {
+  transform: rotateY(180deg);
+  justify-content: flex-start;
+  padding: 0;
+}
+
+.deck-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.deck-name {
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.deck-nfc {
+  opacity: 0.75;
+  flex-shrink: 0;
+}
+
+.deck-mid {
+  justify-content: flex-start;
+}
+
+.deck-chip {
+  position: relative;
+  width: 40px;
+  height: 30px;
+  border-radius: 7px;
+  background: linear-gradient(135deg, #f3dc9d 0%, #d2ad66 48%, #b38a3e 100%);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.14);
+}
+
+.deck-chip::before,
+.deck-chip::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.deck-chip::before { top: 34%; }
+.deck-chip::after { top: 66%; }
+
+.deck-type-icon {
+  opacity: 0.85;
+}
+
+.deck-balance {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.deck-amount {
+  font-size: clamp(1.15rem, 4.6vw, 1.5rem);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.deck-label {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: rgba(238, 247, 241, 0.6);
+}
+
+.deck-foot {
+  align-items: flex-end;
+  justify-content: flex-start;
+  gap: 26px;
+}
+
+.deck-meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  font-size: 12.5px;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.deck-meta span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.deck-logo {
+  margin-left: auto;
+}
+
+/* Sisi belakang */
+.deck-stripe {
+  display: block;
+  height: 38px;
+  margin-top: 20px;
+  background: linear-gradient(180deg, #0a1322, #12203a);
+  opacity: 0.9;
+}
+
+.deck-back-body {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 14px 20px 16px;
+}
+
+.deck-back-title {
+  font-size: 12px;
+  color: rgba(238, 247, 241, 0.65);
+  text-transform: capitalize;
+  margin-bottom: 2px;
+}
+
+.deck-stat {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+  color: rgba(238, 247, 241, 0.75);
+}
+
+.deck-stat strong {
+  font-weight: 500;
+  color: #eef7f1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Kontrol di bawah tumpukan */
+.deck-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.deck-pager,
+.deck-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.deck-dots {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 4px;
+}
+
+.deck-dot {
+  position: relative;
+  width: 6px;
+  height: 6px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: var(--border-default);
+  cursor: pointer;
+  transition: width 0.35s var(--ease-out), background-color 0.35s ease;
+}
+
+/* area sentuh lebih besar dari titiknya */
+.deck-dot::before {
+  content: '';
+  position: absolute;
+  inset: -8px -3px;
+}
+
+.deck-dot.active {
+  width: 20px;
+  background: var(--accent-primary);
+}
+
+.deck-empty {
+  width: 100%;
+  max-width: 410px;
+  aspect-ratio: 1.586;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 18px;
+  border: 1.5px dashed var(--border-default);
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.deck-empty small {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+@media (hover: hover) {
+  .deck-empty:hover {
+    border-color: color-mix(in srgb, var(--accent-primary) 50%, var(--border-default));
+    color: var(--text-primary);
+  }
+}
+
+@media (max-width: 768px) {
+  .cards-widget {
+    padding: 16px;
+  }
+
+  .deck-area {
+    padding: 12px 0 18px;
+  }
+
+  .deck-face {
+    padding: 14px 16px 13px;
+  }
+
+  .deck-foot {
+    gap: 16px;
+  }
+}

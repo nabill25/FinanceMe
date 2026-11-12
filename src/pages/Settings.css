@@ -20,8 +20,8 @@
   padding: var(--space-md) var(--space-lg);
   border-left: 4px solid;
 }
-.guard-ok { border-left-color: #10b981; }
-.guard-ok .guard-banner-icon { color: #10b981; }
+.guard-ok { border-left-color: var(--accent-primary); }
+.guard-ok .guard-banner-icon { color: var(--accent-primary); }
 .guard-warning { border-left-color: #f59e0b; background: rgba(245,158,11,0.06); }
 .guard-warning .guard-banner-icon { color: #f59e0b; }
 .guard-blocked { border-left-color: #ef4444; background: rgba(239,68,68,0.06); }

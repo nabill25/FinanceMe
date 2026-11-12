@@ -1,11 +1,13 @@
 import { Fragment, useEffect, useMemo, useState } from 'react';
-import { Sparkles, Download, Receipt } from 'lucide-react';
+import { Sparkles, Download, Receipt, ArrowDownLeft, ArrowUpRight, PiggyBank } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { useFinanceStore } from '../store/financeStore';
 import { useAuthStore } from '../store/authStore';
-import { formatCurrency, formatCurrencyChart, getMonthLabel, EXCHANGE_RATES } from '../lib/utils';
+import { formatCurrency, getMonthLabel, EXCHANGE_RATES } from '../lib/utils';
 import { exportReportToPDF } from '../lib/exportUtils';
 import { analyzeHabits } from '../lib/gemini';
+import { monthlyFlow } from '../lib/overview';
+import MoneyFlowCard from '../components/dashboard/MoneyFlowCard';
 import './Reports.css';
 
 // Kategori bawaan yang dihitung sebagai "kebutuhan"; sisanya "keinginan"
@@ -20,11 +22,6 @@ const PERIODS = [
   { id: 'last', label: 'Bulan lalu' },
   { id: '3m', label: '3 bulan' },
 ];
-const FLOW_RANGES = [
-  { id: 3, label: 'Kuartal' },
-  { id: 6, label: '6 bulan' },
-  { id: 12, label: 'Setahun' },
-];
 const WEEKDAYS = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
 
 const pad = (n) => String(n).padStart(2, '0');
@@ -32,7 +29,6 @@ const ymd = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate(
 const monthKey = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}`;
 const addMonths = (d, n) => new Date(d.getFullYear(), d.getMonth() + n, 1);
 const endOfMonth = (d) => new Date(d.getFullYear(), d.getMonth() + 1, 0);
-const shortMonth = (d) => new Intl.DateTimeFormat('id-ID', { month: 'short' }).format(d);
 const shortDay = (d) => new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short' }).format(d);
 const toIdr = (t) => t.amount * (EXCHANGE_RATES[t.accounts?.currency || 'IDR'] || 1);
 const inRange = (t, from, to) => t.date >= from && t.date <= to;
@@ -93,7 +89,6 @@ export default function ReportsPage() {
   const { fetchTransactionHistory } = useFinanceStore();
   const [tab, setTab] = useState('spending');
   const [period, setPeriod] = useState('this');
-  const [flowRange, setFlowRange] = useState(6);
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
@@ -176,22 +171,24 @@ export default function ReportsPage() {
   }, [expenses, now]);
 
   // ── Arus kas bulanan ────────────────────────────────────────────
-  const months = useMemo(() => Array.from({ length: 12 }, (_, i) => {
-    const m = addMonths(thisStart, i - 11);
-    const key = monthKey(m);
-    const list = real.filter((t) => t.date.startsWith(key));
-    const income = list.filter((t) => t.type === 'income').reduce((s, t) => s + toIdr(t), 0);
-    const expense = list.filter((t) => t.type === 'expense').reduce((s, t) => s + toIdr(t), 0);
-    return { key, label: shortMonth(m), income, expense };
-  }), [real, thisStart]);
+  const months = useMemo(() => monthlyFlow(history, now, 12), [history, now]);
 
-  const flow = useMemo(() => {
-    const list = months.slice(-flowRange);
-    const income = list.reduce((s, m) => s + m.income, 0);
-    const expense = list.reduce((s, m) => s + m.expense, 0);
-    const max = Math.max(1, ...list.map((m) => Math.max(m.income, m.expense)));
-    return { list, income, expense, kept: income - expense, max };
-  }, [months, flowRange]);
+  // Rata-rata per bulan dari 6 bulan penuh terakhir (bulan berjalan belum selesai)
+  const averages = useMemo(() => {
+    const done = months.slice(-7, -1).filter((m) => m.income > 0 || m.expense > 0);
+    const n = Math.max(done.length, 1);
+    const inc = done.reduce((s, m) => s + m.income, 0) / n;
+    const exp = done.reduce((s, m) => s + m.expense, 0) / n;
+    const from = done[0]?.key;
+    const sources = new Set(real
+      .filter((t) => t.type === 'income' && from && t.date >= `${from}-01` && t.date < ymd(thisStart))
+      .map((t) => (t.description || t.categories?.name || '').trim().toLowerCase())
+      .filter(Boolean));
+    const topCat = [...groupBy(expenses.filter((t) => from && t.date >= `${from}-01` && t.date < ymd(thisStart)),
+      (t) => t.category_id || 'none', (t) => ({ name: t.categories?.name || 'Lainnya' })).values()]
+      .sort((a, b) => b.total - a.total)[0];
+    return { months: done.length, inc, exp, kept: inc - exp, rate: inc > 0 ? Math.round(((inc - exp) / inc) * 100) : null, sources: sources.size, topCat };
+  }, [months, real, expenses, thisStart]);
 
   // ── Merchant ────────────────────────────────────────────────────
   const merchants = useMemo(() => {
@@ -387,38 +384,31 @@ export default function ReportsPage() {
 
           {tab === 'flow' && (
             <>
-              <section className="card insight-card">
-                <div className="insight-card-head">
-                  <div>
-                    <h3 className="card-heading">Uang masuk & keluar</h3>
-                    <p className="card-sub">{flowRange} bulan terakhir, tanpa transfer antar akun</p>
-                  </div>
-                  <Segmented options={FLOW_RANGES} value={flowRange} onChange={setFlowRange} small />
-                </div>
-                <div className="flow-legend">
-                  <span><i className="dot" /> Masuk <strong className="amount-text">{fmt(flow.income)}</strong></span>
-                  <span><i className="dot out" /> Keluar <strong className="amount-text">{fmt(flow.expense)}</strong></span>
-                  <span>Disimpan <strong className={`amount-text ${flow.kept < 0 ? 'amount-expense' : ''}`}>{fmt(flow.kept)}</strong></span>
-                </div>
-                <div className="flow-chart">
-                  <div className="flow-axis" aria-hidden="true">
-                    <span>{formatCurrencyChart(flow.max)}</span>
-                    <span>{formatCurrencyChart(flow.max / 2)}</span>
-                    <span>0</span>
-                  </div>
-                  <div className="flow-cols" style={{ '--n': flow.list.length }}>
-                    {flow.list.map((m, i) => (
-                      <div className="flow-col" key={m.key} title={`${m.label}: masuk ${fmt(m.income)}, keluar ${fmt(m.expense)}`}>
-                        <div className="flow-bars">
-                          <span className="flow-bar in" style={{ height: `${(m.income / flow.max) * 100}%`, '--i': i }} />
-                          <span className="flow-bar out" style={{ height: `${(m.expense / flow.max) * 100}%`, '--i': i }} />
-                        </div>
-                        <span className="flow-label">{m.label}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </section>
+              <div className="flow-stats">
+                <section className="card flow-stat" style={{ '--i': 0 }}>
+                  <span className="flow-stat-label"><ArrowDownLeft size={15} /> Rata-rata masuk sebulan</span>
+                  <strong className="flow-stat-value amount-text">{fmt(averages.inc)}</strong>
+                  <span className="flow-stat-note">
+                    {averages.months === 0 ? 'Belum ada bulan yang lengkap' : `${averages.months} bulan terakhir · ${averages.sources} sumber pemasukan`}
+                  </span>
+                </section>
+                <section className="card flow-stat" style={{ '--i': 1 }}>
+                  <span className="flow-stat-label"><ArrowUpRight size={15} /> Rata-rata keluar sebulan</span>
+                  <strong className="flow-stat-value amount-text">{fmt(averages.exp)}</strong>
+                  <span className="flow-stat-note">
+                    {averages.topCat ? `Terbesar: ${averages.topCat.name}` : 'Belum ada pengeluaran'}
+                  </span>
+                </section>
+                <section className="card flow-stat" style={{ '--i': 2 }}>
+                  <span className="flow-stat-label"><PiggyBank size={15} /> Rata-rata disimpan</span>
+                  <strong className={`flow-stat-value amount-text ${averages.kept < 0 ? 'is-negative' : ''}`}>{fmt(averages.kept)}</strong>
+                  <span className="flow-stat-note">
+                    {averages.rate === null ? 'Belum ada pemasukan' : `${averages.rate}% dari pemasukan (target 20%)`}
+                  </span>
+                </section>
+              </div>
+
+              <MoneyFlowCard months={months} defaultRange={12} />
 
               <section className="card insight-card">
                 <div className="insight-card-head">

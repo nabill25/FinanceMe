@@ -105,15 +105,15 @@ export default function Forecast() {
 
         <div className="card forecast-card">
           <div className="forecast-card-header">
-            <div className="forecast-card-icon" style={{ 
-              background: safeRemaining >= 0 ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)', 
-              color: safeRemaining >= 0 ? '#10b981' : '#ef4444' 
+            <div className="forecast-card-icon" style={{
+              background: safeRemaining >= 0 ? 'var(--accent-soft)' : 'color-mix(in srgb, var(--accent-danger) 12%, transparent)',
+              color: safeRemaining >= 0 ? 'var(--accent-primary)' : 'var(--accent-danger)'
             }}>
               <CalendarClock size={20} />
             </div>
             <span className="text-sm text-secondary">Sisa Aman / Defisit</span>
           </div>
-          <div className="forecast-amount" style={{ color: safeRemaining >= 0 ? '#10b981' : '#ef4444' }}>
+          <div className="forecast-amount" style={{ color: safeRemaining >= 0 ? 'var(--accent-primary)' : 'var(--accent-danger)' }}>
             {formatCurrency(safeRemaining)}
           </div>
           <p className="text-xs text-muted">Pemasukan dikurangi prediksi pengeluaran</p>

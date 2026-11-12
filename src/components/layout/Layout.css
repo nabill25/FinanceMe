@@ -5,6 +5,7 @@
 }
 
 .layout-main {
+  position: relative; /* acuan posisi halaman lama saat crossfade */
   flex: 1;
   min-width: 0;
   overflow-x: hidden;
@@ -16,6 +17,48 @@
   padding: var(--space-xl);
   max-width: 1400px;
   margin: 0 auto;
+}
+
+/* =====================
+   DESKTOP: aplikasi tampil sebagai "jendela" kaca bersudut bulat yang
+   mengambang di atas latar buram. Konten di-scroll di dalam jendela.
+   ===================== */
+@media (min-width: 769px) {
+  .layout {
+    position: relative;
+    height: calc(100vh - var(--window-gap) * 2);
+    height: calc(100dvh - var(--window-gap) * 2);
+    min-height: 0;
+    width: auto;
+    margin: var(--window-gap);
+    border-radius: var(--window-radius);
+    border: 1px solid var(--window-border);
+    background: var(--window-bg);
+    box-shadow:
+      inset 0 1px 0 var(--window-highlight),
+      0 40px 90px -30px rgba(0, 0, 0, 0.65);
+    overflow: hidden;
+  }
+
+  .layout-main {
+    height: 100%;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar) transparent;
+  }
+
+  .layout-main::-webkit-scrollbar { width: 10px; }
+  .layout-main::-webkit-scrollbar-track { background: transparent; }
+  .layout-main::-webkit-scrollbar-thumb {
+    background: var(--scrollbar);
+    border-radius: 10px;
+    border: 3px solid transparent;
+    background-clip: padding-box;
+  }
+
+  .layout-content {
+    padding: 8px 32px 32px;
+  }
 }
 
 @media (max-width: 768px) {

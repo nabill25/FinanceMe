@@ -80,45 +80,31 @@ export default function AiInsightsWidget() {
   const next = () => setCurrentIndex(i => (i + 1) % insights.length);
   const prev = () => setCurrentIndex(i => (i - 1 + insights.length) % insights.length);
 
-  const currentInsight = insights[currentIndex] || insights[0];
-
-  const getTheme = (type) => {
-    switch (type) {
-      case 'warning': return { color: '#d97706', bg: 'rgba(245, 158, 11, 0.1)' };
-      case 'danger': return { color: '#dc2626', bg: 'rgba(239, 68, 68, 0.1)' };
-      case 'success': return { color: '#059669', bg: 'rgba(16, 185, 129, 0.1)' };
-      default: return { color: 'var(--accent-primary)', bg: 'color-mix(in srgb, var(--accent-primary) 10%, transparent)' };
-    }
-  };
-
-  const theme = getTheme(currentInsight?.type);
+  const safeIndex = currentIndex < insights.length ? currentIndex : 0;
+  const currentInsight = insights[safeIndex];
 
   return (
-    <div className="ai-insights-widget card">
-      <div className="ai-insights-header">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Lightbulb size={18} style={{ color: 'var(--accent-primary)' }} />
-          <h3 style={{ fontSize: '14px', margin: 0, fontWeight: 700 }}>
-            Insight Bulan Ini
-          </h3>
+    <section className="ai-insights-widget card widget">
+      <div className="widget-head">
+        <div>
+          <h3 className="card-heading">Insight bulan ini</h3>
+          <p className="card-sub">Dari anggaran & perbandingan dengan bulan lalu</p>
         </div>
         {insights.length > 1 && (
           <div className="ai-insights-nav">
-            <button onClick={prev} className="btn-icon btn-ghost" title="Sebelumnya"><ChevronLeft size={16} /></button>
-            <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{currentIndex + 1} / {insights.length}</span>
-            <button onClick={next} className="btn-icon btn-ghost" title="Selanjutnya"><ChevronRight size={16} /></button>
+            <button type="button" onClick={prev} className="round-icon-btn" aria-label="Insight sebelumnya"><ChevronLeft size={15} /></button>
+            <span>{safeIndex + 1}/{insights.length}</span>
+            <button type="button" onClick={next} className="round-icon-btn" aria-label="Insight berikutnya"><ChevronRight size={15} /></button>
           </div>
         )}
       </div>
 
-      <div className="ai-insight-content" style={{ background: theme.bg, borderColor: theme.color }}>
-        <div style={{ fontWeight: 600, color: theme.color, fontSize: '13px', marginBottom: '6px' }}>
-          {currentInsight?.title}
-        </div>
-        <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-primary)', lineHeight: 1.5 }}>
-          {currentInsight?.desc}
+      <div className={`ai-insight-content tone-${currentInsight?.type || 'info'}`} key={safeIndex}>
+        <p className="ai-insight-title">
+          <Lightbulb size={15} aria-hidden="true" /> {currentInsight?.title}
         </p>
+        <p className="ai-insight-desc">{currentInsight?.desc}</p>
       </div>
-    </div>
+    </section>
   );
 }

@@ -13,8 +13,8 @@ export default defineConfig({
         name: 'FinanceMe',
         short_name: 'FinanceMe',
         description: 'Kelola uang Anda dengan cerdas menggunakan AI',
-        theme_color: '#000000',
-        background_color: '#000000',
+        theme_color: '#0a0f19',
+        background_color: '#060a12',
         display: 'standalone',
         icons: [
           {

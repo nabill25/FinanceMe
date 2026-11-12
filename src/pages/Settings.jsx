@@ -89,11 +89,11 @@ export default function SettingsPage() {
   const setAccentColor = useFinanceStore(state => state.setAccentColor);
 
   const ACCENT_COLORS = [
-    { value: 'default', color: '#5fd896' }, // Hijau mint (bawaan)
-    { value: 'blue', color: '#4c8df6' },
-    { value: 'emerald', color: '#2dc79a' },
-    { value: 'rose', color: '#f2557a' },
-    { value: 'amber', color: '#f2a93b' },
+    { value: 'default', color: '#6ea8ff', label: 'biru (bawaan)' },
+    { value: 'mint', color: '#5fd896', label: 'hijau mint' },
+    { value: 'emerald', color: '#2dc79a', label: 'hijau zamrud' },
+    { value: 'rose', color: '#f2557a', label: 'merah muda' },
+    { value: 'amber', color: '#f2a93b', label: 'kuning' },
   ];
 
   const isBlocked = spendingGuardState?.blocked;
@@ -260,10 +260,12 @@ export default function SettingsPage() {
               {ACCENT_COLORS.map(c => (
                 <button
                   key={c.value}
-                  className={`accent-color-btn ${accentColor === c.value ? 'active' : ''}`}
+                  className={`accent-color-btn ${accentColor === c.value || (c.value === 'default' && accentColor === 'blue') ? 'active' : ''}`}
                   style={{ backgroundColor: c.color }}
                   onClick={() => setAccentColor(c.value)}
-                  title={`Ganti warna ke ${c.value}`}
+                  title={`Warna aksen ${c.label}`}
+                  aria-label={`Warna aksen ${c.label}`}
+                  aria-pressed={accentColor === c.value}
                 />
               ))}
             </div>

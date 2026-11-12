@@ -314,87 +314,52 @@
   animation: none;
 }
 
-/* ---------- Uang masuk & keluar ---------- */
-.flow-legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 18px;
-  margin-bottom: 18px;
-  font-size: 13px;
-  color: var(--text-muted);
-}
-
-.flow-legend strong {
-  margin-left: 4px;
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
-.flow-chart {
-  display: flex;
-  gap: 10px;
-}
-
-.flow-axis {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 200px;
-  font-size: 11px;
-  color: var(--text-muted);
-  text-align: right;
-  min-width: 56px;
-}
-
-.flow-cols {
-  flex: 1;
-  min-width: 0;
+/* ---------- Arus kas: kartu rata-rata bulanan ---------- */
+.flow-stats {
   display: grid;
-  grid-template-columns: repeat(var(--n), minmax(0, 1fr));
-  gap: 6px;
-  border-left: 1px solid var(--border-subtle);
-  padding-left: 6px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-lg);
 }
 
-.flow-col {
+.flow-stat {
   display: flex;
   flex-direction: column;
+  gap: 6px;
+  padding: 18px 20px;
+  animation: sectionIn var(--dur-page) var(--ease-out) backwards;
+  animation-delay: calc(80ms + var(--i, 0) * 70ms);
+}
+
+.flow-stat-label {
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
-  min-width: 0;
-}
-
-.flow-bars {
-  width: 100%;
-  height: 200px;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 3px;
-  background: linear-gradient(to top, var(--border-subtle) 1px, transparent 1px) 0 50% / 100% 50%;
-}
-
-.flow-bar {
-  width: min(14px, 38%);
-  min-height: 2px;
-  border-radius: 4px 4px 2px 2px;
-  transform-origin: bottom center;
-  animation: barRise 0.8s var(--ease-out) backwards;
-  animation-delay: calc(200ms + var(--i, 0) * 50ms);
-}
-
-.flow-bar.in { background: var(--accent-primary); }
-.flow-bar.out { background: color-mix(in srgb, var(--text-primary) 24%, transparent); }
-
-@keyframes barRise {
-  from { transform: scaleY(0); }
-  to { transform: none; }
-}
-
-.flow-label {
-  font-size: 11.5px;
+  gap: 7px;
+  font-size: 12.5px;
   color: var(--text-muted);
+}
+
+.flow-stat-label svg {
+  color: var(--accent-primary);
+}
+
+.flow-stat-value {
+  font-size: clamp(1.4rem, 2.2vw, 1.75rem);
+  font-weight: 400;
+  letter-spacing: -0.025em;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.flow-stat-value.is-negative {
+  color: var(--accent-danger);
+}
+
+.flow-stat-note {
+  font-size: 12px;
+  color: var(--text-muted);
 }
 
 /* ---------- AI & merchant ---------- */
@@ -502,17 +467,9 @@
     font-size: 10px;
   }
 
-  .flow-axis {
-    min-width: 44px;
-    font-size: 10px;
-  }
-
-  .flow-bars {
-    height: 160px;
-  }
-
-  .flow-axis {
-    height: 160px;
+  .flow-stats {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-md);
   }
 
   .merchant-row {

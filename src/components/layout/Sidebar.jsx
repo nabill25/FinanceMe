@@ -1,6 +1,8 @@
-import { NavLink, useNavigate } from 'react-router-dom';
-import { LogOut, Wallet, X, Sun, Moon, Eye, EyeOff } from 'lucide-react';
-import { useEffect, useRef } from 'react';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import {
+  LogOut, Wallet, X, Sun, Moon, Eye, EyeOff, PanelLeftClose, PanelLeftOpen, Ellipsis, Settings, LayoutGrid, ChevronDown,
+} from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import NotificationBell from './NotificationBell';
 import { NAV_GROUPS } from './navItems';
 import { useAuthStore } from '../../store/authStore';
@@ -11,6 +13,11 @@ import { lockBodyScroll, unlockBodyScroll } from '../../lib/scrollLock';
 import { useShellData, useThemeToggle, useUserIdentity } from '../../lib/useShellData';
 import { formatCurrency } from '../../lib/utils';
 import './Sidebar.css';
+
+const FOLDABLE_GROUP = 1; // kelompok alat tambahan (lihat navItems.js)
+const readToolsOpen = () => {
+  try { return localStorage.getItem('financeme-nav-more') === 'open'; } catch { return false; }
+};
 
 /** Kartu ringkas di bawah sidebar: berapa yang aman dibelanjakan hari ini. */
 function SafeToSpend({ data }) {
@@ -30,17 +37,57 @@ function SafeToSpend({ data }) {
   );
 }
 
+/** Menu kecil di samping nama pengguna: pengaturan, tema, keluar. */
+function UserMenu({ open, onClose, onSignOut, isDark, toggleTheme }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!open) return undefined;
+    const onDown = (e) => { if (!ref.current?.parentElement?.contains(e.target)) onClose(); };
+    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('pointerdown', onDown);
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('pointerdown', onDown);
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [open, onClose]);
+
+  if (!open) return null;
+  return (
+    <div className="user-menu" role="menu" ref={ref}>
+      <NavLink to="/settings" className="user-menu-item" role="menuitem" onClick={onClose}>
+        <Settings size={16} /> Pengaturan
+      </NavLink>
+      <button type="button" className="user-menu-item" role="menuitem" onClick={() => { toggleTheme(); onClose(); }}>
+        {isDark ? <Sun size={16} /> : <Moon size={16} />} {isDark ? 'Mode terang' : 'Mode gelap'}
+      </button>
+      <button type="button" className="user-menu-item danger" role="menuitem" onClick={onSignOut}>
+        <LogOut size={16} /> Keluar
+      </button>
+    </div>
+  );
+}
+
 export default function Sidebar() {
   const { signOut } = useAuthStore();
   const { showBalance, setShowBalance } = useFinanceStore();
   const { t } = useLanguageStore();
   const navigate = useNavigate();
-  const { drawerOpen: mobileOpen, setDrawerOpen: setMobileOpen } = useUiStore();
+  const { drawerOpen: mobileOpen, setDrawerOpen: setMobileOpen, sidebarCollapsed, toggleSidebar } = useUiStore();
   const { isDark, toggleTheme } = useThemeToggle();
   const { user, fullName, firstName, initials } = useUserIdentity();
   const shell = useShellData();
+  const { pathname } = useLocation();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [toolsOpen, setToolsOpen] = useState(readToolsOpen);
   const asideRef = useRef(null);
   const swipe = useRef(null);
+
+  const toggleTools = () => {
+    const next = !toolsOpen;
+    setToolsOpen(next);
+    try { localStorage.setItem('financeme-nav-more', next ? 'open' : 'closed'); } catch { /* mode privat */ }
+  };
 
   // Drawer terbuka: kunci scroll halaman di belakangnya, Esc untuk menutup
   useEffect(() => {
@@ -85,6 +132,7 @@ export default function Sidebar() {
   };
 
   const handleSignOut = async () => {
+    setMenuOpen(false);
     await signOut();
     navigate('/auth');
   };
@@ -96,7 +144,7 @@ export default function Sidebar() {
       {/* --- SIDEBAR (desktop) / DRAWER (HP) --- */}
       <aside
         ref={asideRef}
-        className={`sidebar ${mobileOpen ? 'mobile-open' : ''}`}
+        className={`sidebar ${mobileOpen ? 'mobile-open' : ''} ${sidebarCollapsed ? 'is-collapsed' : ''}`}
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
@@ -110,17 +158,44 @@ export default function Sidebar() {
             <span className="sidebar-brand-name">FinanceMe</span>
             <span className="sidebar-brand-sub">{firstName ? `Keuangan ${firstName}` : 'Keuangan pribadi'}</span>
           </div>
+          <button
+            type="button"
+            className="sidebar-collapse desktop-only"
+            onClick={toggleSidebar}
+            aria-label={sidebarCollapsed ? 'Lebarkan sidebar' : 'Ciutkan sidebar'}
+            title={sidebarCollapsed ? 'Lebarkan sidebar' : 'Ciutkan sidebar'}
+          >
+            {sidebarCollapsed ? <PanelLeftOpen size={16} /> : <PanelLeftClose size={16} />}
+          </button>
           <button className="btn btn-icon btn-ghost sidebar-close mobile-only" onClick={() => setMobileOpen(false)} aria-label="Tutup menu">
             <X size={20} />
           </button>
         </div>
 
         <nav className="sidebar-nav" aria-label="Menu">
-          {NAV_GROUPS.map((group, gi) => (
-            <div className="sidebar-nav-section" key={gi}>
+          {NAV_GROUPS.map((group, gi) => {
+            const foldable = gi === FOLDABLE_GROUP;
+            const activeInside = group.some((item) => item.to !== '/' && pathname.startsWith(item.to));
+            const folded = foldable && !toolsOpen && !activeInside;
+            return (
+            <div className={`sidebar-nav-section ${foldable ? 'can-fold' : ''} ${folded ? 'is-folded' : ''}`} key={gi}>
+              {foldable && (
+                <button
+                  type="button"
+                  className="sidebar-nav-item sidebar-fold desktop-only"
+                  onClick={toggleTools}
+                  aria-expanded={!folded}
+                  title={sidebarCollapsed ? 'Lainnya' : undefined}
+                >
+                  <LayoutGrid size={18} />
+                  <span className="sidebar-nav-label">Lainnya</span>
+                  <ChevronDown size={16} className="sidebar-fold-chevron" aria-hidden="true" />
+                </button>
+              )}
               {group.map(({ to, icon: Icon, labelKey, badge }) => {
                 const count = badge ? shell.badges[badge] : 0;
                 const i = itemIndex++;
+                const label = t(labelKey);
                 return (
                   <NavLink
                     key={to}
@@ -128,29 +203,56 @@ export default function Sidebar() {
                     end={to === '/'}
                     onClick={() => setMobileOpen(false)}
                     style={{ '--i': i }}
+                    title={sidebarCollapsed ? label : undefined}
                     className={({ isActive }) => `sidebar-nav-item ${isActive ? 'active' : ''}`}
                   >
                     <Icon size={18} />
-                    <span>{t(labelKey)}</span>
+                    <span className="sidebar-nav-label">{label}</span>
                     {count > 0 && <span className="sidebar-badge" aria-label={`${count} perlu perhatian`}>{count}</span>}
                   </NavLink>
                 );
               })}
             </div>
-          ))}
+            );
+          })}
         </nav>
 
         <SafeToSpend data={shell} />
 
         <div className="sidebar-user">
-          <div className="sidebar-user-avatar">{initials}</div>
+          <button
+            type="button"
+            className="sidebar-user-avatar"
+            onClick={() => setMenuOpen((o) => !o)}
+            aria-label="Menu akun"
+            aria-haspopup="menu"
+            aria-expanded={menuOpen}
+            tabIndex={sidebarCollapsed ? 0 : -1}
+          >
+            {initials}
+            <span className="sidebar-user-status" aria-hidden="true" />
+          </button>
           <div className="sidebar-user-info">
             <span className="sidebar-user-name">{fullName || 'Pengguna'}</span>
             <span className="sidebar-user-email">{user?.email}</span>
           </div>
-          <button className="sidebar-signout btn btn-icon btn-ghost" onClick={handleSignOut} title="Keluar" aria-label="Keluar">
-            <LogOut size={16} />
+          <button
+            type="button"
+            className="sidebar-user-more"
+            onClick={() => setMenuOpen((o) => !o)}
+            aria-label="Menu akun"
+            aria-haspopup="menu"
+            aria-expanded={menuOpen}
+          >
+            <Ellipsis size={18} />
           </button>
+          <UserMenu
+            open={menuOpen}
+            onClose={() => setMenuOpen(false)}
+            onSignOut={handleSignOut}
+            isDark={isDark}
+            toggleTheme={toggleTheme}
+          />
         </div>
       </aside>
 

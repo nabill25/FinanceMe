@@ -47,6 +47,13 @@
   padding: var(--space-md);
 }
 
+/* Desktop: bulan & tipe berdampingan dalam satu baris (bukan masing-masing selebar penuh) */
+.tx-filters > .form-input,
+.tx-filters > .form-select {
+  width: auto;
+  flex: 1 1 200px;
+}
+
 .tx-search-wrapper {
   flex: 1;
   min-width: 180px;
@@ -260,8 +267,10 @@
   }
 
   .tx-filters input[type="month"],
-  .tx-filters .tabs {
+  .tx-filters .tabs,
+  .tx-filters > .form-select {
     width: 100%;
+    flex: none;
   }
 
   .tx-item-icon {

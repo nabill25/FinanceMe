@@ -1,50 +1,49 @@
-import { useFinanceStore } from '../../store/financeStore';
-import { Target } from 'lucide-react';
-import { formatCurrencyShort } from '../../lib/utils';
 import { Link } from 'react-router-dom';
+import { ChevronRight, Plus } from 'lucide-react';
+import { useFinanceStore } from '../../store/financeStore';
+import { formatCurrency } from '../../lib/utils';
 
+/** Target tabungan yang paling dekat tercapai (persentase tertinggi yang belum 100%). */
 export default function GoalProgressCard() {
   const { goals } = useFinanceStore();
 
-  if (!goals || goals.length === 0) {
-    return (
-      <Link to="/goals" className="card" style={{ padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: 'var(--text-muted)', textDecoration: 'none' }}>
-        <Target size={24} style={{ marginBottom: '8px' }} />
-        <p style={{ fontSize: '13px', margin: 0 }}>Belum ada target tabungan.</p>
-        <span style={{ fontSize: '12px', color: 'var(--accent-primary)', marginTop: '4px' }}>Buat Target Baru &rarr;</span>
-      </Link>
-    );
-  }
-
-  // Get the most urgent / active goal
-  const topGoal = goals[0]; // Simplified for now
-  const pct = Math.min((topGoal.current_amount / topGoal.target_amount) * 100, 100);
+  const ranked = (goals || [])
+    .filter((g) => g.target_amount > 0)
+    .map((g) => ({ ...g, pct: Math.min((g.current_amount / g.target_amount) * 100, 100) }))
+    .sort((a, b) => (a.pct >= 100) - (b.pct >= 100) || b.pct - a.pct);
+  const goal = ranked[0];
 
   return (
-    <div className="card animate-fade-in" style={{ padding: '20px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div style={{ padding: '8px', background: 'rgba(16,185,129,0.1)', borderRadius: '8px', color: '#10b981' }}>
-            <Target size={18} />
-          </div>
-          <div>
-            <h3 style={{ fontSize: '15px', fontWeight: 600, margin: 0 }}>Progress Tabungan</h3>
-            <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: 0 }}>{topGoal.name}</p>
-          </div>
+    <section className="card widget">
+      <div className="widget-head">
+        <div>
+          <h3 className="card-heading">Target tabungan</h3>
+          <p className="card-sub">{goal ? `${goal.name} · ${ranked.length} target` : 'Belum ada target'}</p>
         </div>
-        <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--accent-primary)' }}>
-          {pct.toFixed(0)}%
-        </span>
+        <Link to="/goals" className="widget-link">Semua <ChevronRight size={14} /></Link>
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '8px' }}>
-        <span style={{ color: 'var(--text-secondary)' }}>Terkumpul: {formatCurrencyShort(topGoal.current_amount)}</span>
-        <span style={{ color: 'var(--text-muted)' }}>Target: {formatCurrencyShort(topGoal.target_amount)}</span>
-      </div>
-
-      <div style={{ height: '8px', background: 'var(--border-subtle)', borderRadius: '4px', overflow: 'hidden' }}>
-        <div style={{ height: '100%', width: `${pct}%`, background: 'var(--gradient-primary)', transition: 'width 0.5s' }} />
-      </div>
-    </div>
+      {!goal ? (
+        <div className="widget-empty">
+          <p>Buat target seperti dana darurat atau liburan, lalu pantau progresnya di sini.</p>
+          <Link to="/goals" className="pill-btn"><Plus size={14} /> Buat target</Link>
+        </div>
+      ) : (
+        <>
+          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, marginBottom: 10 }}>
+            <span className="amount-text" style={{ fontSize: 22, fontWeight: 400, letterSpacing: '-0.02em' }}>
+              {formatCurrency(goal.current_amount)}
+            </span>
+            <span style={{ fontSize: 13, color: 'var(--accent-primary)', fontWeight: 500 }}>{goal.pct.toFixed(0)}%</span>
+          </div>
+          <span className="budget-track">
+            <span className="budget-fill" style={{ width: `${goal.pct}%` }} />
+          </span>
+          <p className="card-sub amount-text" style={{ marginTop: 8 }}>
+            Sisa {formatCurrency(Math.max(goal.target_amount - goal.current_amount, 0))} dari target {formatCurrency(goal.target_amount)}
+          </p>
+        </>
+      )}
+    </section>
   );
 }

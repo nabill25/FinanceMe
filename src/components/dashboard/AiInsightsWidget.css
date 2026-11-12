@@ -3,36 +3,52 @@
   overflow: hidden;
 }
 
-.ai-insights-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-
 .ai-insights-nav {
   display: flex;
   align-items: center;
-  gap: 4px;
-}
-.ai-insights-nav button {
-  width: 36px; height: 36px; padding: 0; min-width: 36px; min-height: 36px;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-default);
-}
-.ai-insights-nav button:hover {
-  background: var(--bg-main);
+  gap: 6px;
+  flex-shrink: 0;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
 }
 
+.ai-insights-nav .round-icon-btn {
+  width: 30px;
+  height: 30px;
+}
+
+/* Isi insight: garis warna di kiri menandai jenisnya */
 .ai-insight-content {
-  padding: 16px;
-  border-radius: var(--radius-md);
-  border-left: 3px solid;
-  transition: all 0.3s ease;
-  animation: fade-in-insight 0.4s ease-out;
+  --tone: var(--accent-primary);
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--tone) 9%, transparent);
+  border: 1px solid color-mix(in srgb, var(--tone) 22%, transparent);
+  animation: insightIn 0.35s var(--ease-out);
 }
 
-@keyframes fade-in-insight {
-  from { opacity: 0; transform: translateX(5px); }
-  to { opacity: 1; transform: translateX(0); }
+.ai-insight-content.tone-warning { --tone: var(--accent-sand); }
+.ai-insight-content.tone-danger { --tone: var(--accent-danger); }
+.ai-insight-content.tone-success { --tone: var(--accent-success); }
+
+.ai-insight-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 5px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--tone);
+}
+
+.ai-insight-desc {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+@keyframes insightIn {
+  from { opacity: 0; transform: translateX(6px); }
+  to { opacity: 1; transform: none; }
 }

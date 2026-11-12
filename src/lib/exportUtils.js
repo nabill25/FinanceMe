@@ -37,7 +37,7 @@ export const exportTransactionsToPDF = (transactions, monthLabel) => {
     startY: 40,
     theme: 'grid',
     styles: { fontSize: 10, cellPadding: 3 },
-    headStyles: { fillColor: [26, 157, 92], textColor: 255 },
+    headStyles: { fillColor: [47, 111, 222], textColor: 255 },
     alternateRowStyles: { fillColor: [249, 250, 251] },
     columnStyles: {
       5: { halign: 'right' }
@@ -114,7 +114,7 @@ export const exportReportToPDF = (reportData, categoryData, monthLabel) => {
   doc.setTextColor(239, 68, 68); // Red
   doc.text(formatCurrency(reportData.expense), 85, 72);
   
-  doc.setTextColor(reportData.net >= 0 ? 26 : 245, reportData.net >= 0 ? 157 : 158, reportData.net >= 0 ? 92 : 11);
+  doc.setTextColor(reportData.net >= 0 ? 47 : 245, reportData.net >= 0 ? 111 : 158, reportData.net >= 0 ? 222 : 11);
   doc.text(formatCurrency(reportData.net), 145, 72);
 
   // Categories Breakdown

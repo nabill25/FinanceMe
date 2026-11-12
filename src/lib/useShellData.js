@@ -41,7 +41,8 @@ export function useShellData() {
     const in7Days = localDateStr(new Date(now.getFullYear(), now.getMonth(), now.getDate() + 7));
     const daysLeft = endOfMonthDate.getDate() - now.getDate() + 1;
 
-    const activeBills = recurringBills.filter((b) => b.is_active && b.next_due);
+    // Tagihan rutin bertipe pemasukan (gaji, honor) bukan tagihan
+    const activeBills = recurringBills.filter((b) => b.is_active && b.next_due && b.type !== 'income');
     const billsDue = activeBills
       .filter((b) => b.next_due >= today && b.next_due <= endOfMonth)
       .reduce((s, b) => s + Number(b.amount || 0), 0);

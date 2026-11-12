@@ -404,6 +404,11 @@ export default function AccountsPage() {
   };
 
   const totalBalance = accounts.reduce((s, a) => s + a.balance, 0);
+  const thisMonth = getCurrentMonth();
+  const spentThisMonth = transactions
+    .filter(t => t.type === 'expense' && !t.transfer_type && t.date?.startsWith(thisMonth))
+    .reduce((s, t) => s + Number(t.amount || 0), 0);
+  const monthName = new Intl.DateTimeFormat('id-ID', { month: 'long' }).format(new Date());
 
   const handleSave = async (form) => {
     if (editAccount) {
@@ -434,8 +439,12 @@ export default function AccountsPage() {
     <div className="accounts-page animate-fade-in">
       <div className="page-header">
         <div>
-          <h1>Akun Saya</h1>
-          <p className="text-secondary text-sm">Kelola semua akun keuangan Anda</p>
+          <h1>Akun</h1>
+          <p className="text-secondary text-sm">
+            {accounts.length === 0
+              ? 'Rekening bank, e-wallet, dan uang tunai Anda'
+              : `${accounts.length} akun · ${formatCurrency(spentThisMonth)} keluar di bulan ${monthName}`}
+          </p>
         </div>
         <div style={{ display: 'flex', gap: '10px' }}>
           {accounts.length >= 2 && (
@@ -451,9 +460,9 @@ export default function AccountsPage() {
 
       {/* Total balance */}
       <div className="accounts-total card">
-        <p className="text-sm text-muted">Total Saldo</p>
+        <p className="card-heading">Total saldo</p>
         <h2 className="accounts-total-amount">{formatCurrency(totalBalance)}</h2>
-        <p className="text-sm text-secondary">{accounts.length} akun terdaftar</p>
+        <p className="card-sub">{accounts.length} akun terdaftar · ketuk kartu untuk melihat detail</p>
       </div>
 
       {accounts.length === 0 ? (

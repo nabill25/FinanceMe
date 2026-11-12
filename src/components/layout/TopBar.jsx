@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Plus, Eye, EyeOff, Sun, Moon, Wallet, ArrowRight } from 'lucide-react';
+import { Search, Plus, Send, Sun, Moon, Wallet, ArrowRight } from 'lucide-react';
+import { toast } from 'sonner';
 import NotificationBell from './NotificationBell';
 import { NAV_ITEMS } from './navItems';
 import { useFinanceStore } from '../../store/financeStore';
@@ -72,7 +73,7 @@ function CommandSearch() {
       <input
         ref={inputRef}
         value={query}
-        placeholder="Cari transaksi, akun, halaman"
+        placeholder="Cari transaksi, akun, halaman…"
         aria-label="Cari transaksi, akun, atau halaman"
         onChange={(e) => { setQuery(e.target.value); setActive(0); setOpen(true); }}
         onFocus={() => setOpen(true)}
@@ -108,12 +109,21 @@ function CommandSearch() {
   );
 }
 
-/** Top bar desktop: pencarian, tombol tambah, sensor saldo, tema, notifikasi, avatar. */
+/** Top bar desktop: pencarian, catat transaksi, transfer, tema, notifikasi, avatar. */
 export default function TopBar() {
-  const { showBalance, setShowBalance } = useFinanceStore();
-  const { setQuickAddOpen } = useUiStore();
+  const { accounts } = useFinanceStore();
+  const { setQuickAddOpen, setTransferOpen } = useUiStore();
   const { isDark, toggleTheme } = useThemeToggle();
   const { initials, fullName } = useUserIdentity();
+  const navigate = useNavigate();
+
+  const openTransfer = () => {
+    if (accounts.length < 2) {
+      toast.info('Tambahkan minimal dua akun untuk transfer antar akun.');
+      return;
+    }
+    setTransferOpen(true);
+  };
 
   return (
     <header className="topbar">
@@ -122,14 +132,17 @@ export default function TopBar() {
         <button className="topbar-add" onClick={() => setQuickAddOpen(true)} aria-label="Catat transaksi" title="Catat transaksi">
           <Plus size={20} strokeWidth={2.4} />
         </button>
-        <button className="topbar-icon" onClick={() => setShowBalance(!showBalance)} aria-label="Sembunyikan/tampilkan saldo" title="Sembunyikan/tampilkan saldo">
-          {showBalance ? <Eye size={18} /> : <EyeOff size={18} />}
+        <button className="topbar-ring" onClick={openTransfer} aria-label="Transfer antar akun" title="Transfer antar akun">
+          <Send size={17} />
         </button>
+        <span className="topbar-divider" aria-hidden="true" />
         <button className="topbar-icon" onClick={toggleTheme} aria-label={isDark ? 'Mode terang' : 'Mode gelap'} title={isDark ? 'Mode terang' : 'Mode gelap'}>
           {isDark ? <Sun size={18} /> : <Moon size={18} />}
         </button>
         <NotificationBell />
-        <div className="topbar-avatar" title={fullName}>{initials}</div>
+        <button className="topbar-avatar" title={fullName ? `${fullName} · Pengaturan` : 'Pengaturan'} aria-label="Pengaturan akun" onClick={() => navigate('/settings')}>
+          {initials}
+        </button>
       </div>
     </header>
   );

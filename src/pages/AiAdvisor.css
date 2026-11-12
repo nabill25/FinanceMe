@@ -15,11 +15,13 @@
 @media (min-width: 769px) {
   .advisor-page {
     position: sticky;
-    top: var(--space-xl);
+    top: var(--topbar-h);
     left: auto;
     right: auto;
     z-index: 1;
-    height: calc(100vh - (var(--space-xl) * 2));
+    /* setinggi jendela aplikasi dikurangi top bar & jarak tepi konten */
+    height: calc(100vh - var(--window-gap) * 2 - var(--topbar-h) - 40px);
+    height: calc(100dvh - var(--window-gap) * 2 - var(--topbar-h) - 40px);
     border-radius: 16px;
     border: 1px solid var(--border-subtle);
     box-shadow: var(--shadow-md);
