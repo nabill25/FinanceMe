@@ -8,6 +8,8 @@ import QuickAddModal from '../QuickAddModal';
 import { useAuthStore } from '../../store/authStore';
 import { useFinanceStore } from '../../store/financeStore';
 import { useUiStore } from '../../store/uiStore';
+import { toast } from 'sonner';
+import { promptInstall, useInstallPrompt } from '../../lib/installPrompt';
 import './Layout.css';
 
 // Halaman lama memudar + buram saat halaman baru masuk (crossfade)
@@ -20,6 +22,24 @@ export default function Layout({ children }) {
   const { fetchAccounts, fetchRecurringBills } = useFinanceStore();
   const sidebarCollapsed = useUiStore((s) => s.sidebarCollapsed);
   const mainRef = useRef(null);
+  const { canInstall } = useInstallPrompt();
+
+  // Di HP: tawarkan sekali untuk memasang FinanceMe sebagai aplikasi (bisa juga dari Pengaturan)
+  useEffect(() => {
+    if (!canInstall || !window.matchMedia('(max-width: 768px)').matches) return undefined;
+    let offered = true;
+    try { offered = localStorage.getItem('financeme-install-offered') === '1'; } catch { /* storage diblokir */ }
+    if (offered) return undefined;
+    const timer = setTimeout(() => {
+      try { localStorage.setItem('financeme-install-offered', '1'); } catch { /* abaikan */ }
+      toast('Pasang FinanceMe sebagai aplikasi?', {
+        description: 'Buka langsung dari layar utama, layar penuh tanpa bilah alamat.',
+        duration: 15000,
+        action: { label: 'Instal', onClick: () => { promptInstall(); } },
+      });
+    }, 2500);
+    return () => clearTimeout(timer);
+  }, [canInstall]);
 
   // Data kecil untuk sidebar (saldo aman, badge tagihan) tersedia di halaman mana pun
   useEffect(() => {

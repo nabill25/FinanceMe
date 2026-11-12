@@ -117,3 +117,29 @@
     padding: var(--space-md);
   }
 }
+
+/* Kartu "Aplikasi FinanceMe": pasang sebagai aplikasi (PWA) */
+.install-body {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.install-icon {
+  flex-shrink: 0;
+  border-radius: 14px;
+  box-shadow: 0 6px 18px -10px rgba(0, 0, 0, 0.6);
+}
+.install-text { flex: 1; min-width: 0; }
+.install-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 2px;
+  font-weight: 600;
+}
+.install-ok { color: var(--accent-success); }
+.install-btn { flex-shrink: 0; }
+@media (max-width: 768px) {
+  .install-body { flex-wrap: wrap; }
+  .install-btn { width: 100%; justify-content: center; }
+}
