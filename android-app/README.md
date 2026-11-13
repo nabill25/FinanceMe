@@ -5,7 +5,9 @@ Folder ini adalah proyek Android **Trusted Web Activity (TWA)** yang dibuat deng
 https://financeme-three.vercel.app layar penuh lewat Chrome, jadi setiap perubahan di
 situs langsung ikut tanpa perlu membuat APK baru.
 
-APK siap pasang ada di `../FinanceMe.apk` (tidak di-commit ke Git).
+APK siap pasang ada di `../FinanceMe.apk` (tidak di-commit ke Git). Berjalan di
+**Android 7.0 ke atas** (termasuk Android 8.1), dengan Chrome terpasang di HP. APK ditandatangani
+skema v1 + v2 + v3 agar installer di HP lama pun bisa memeriksanya.
 
 ## File penting yang tidak ada di Git
 
@@ -39,7 +41,7 @@ JAVA_HOME="C:/Program Files/Java/jdk-17" ./gradlew assembleRelease
 # 3. Rapikan & tanda tangani (build-tools 35.0.0 dari Android SDK)
 BT="$LOCALAPPDATA/Android/Sdk/build-tools/35.0.0"
 "$BT/zipalign" -f -p 4 app/build/outputs/apk/release/app-release-unsigned.apk app-release-aligned.apk
-"$BT/apksigner.bat" sign --ks android.keystore --ks-key-alias financeme --out ../FinanceMe.apk app-release-aligned.apk
+"$BT/apksigner.bat" sign --ks android.keystore --ks-key-alias financeme --v1-signing-enabled true --out ../FinanceMe.apk app-release-aligned.apk
 "$BT/apksigner.bat" verify --print-certs ../FinanceMe.apk
 ```
 
