@@ -220,3 +220,15 @@
   margin: 6px 0;
 }
 .shortcut-copy { height: 32px; padding: 0 12px; }
+.shortcut-final {
+  margin: 8px 0 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--input-bg);
+  border: 1px solid var(--border-subtle);
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: var(--text-primary);
+}

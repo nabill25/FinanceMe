@@ -196,24 +196,40 @@ export default function IphoneShortcutCard() {
               <li>Tambah tindakan <strong>Ambil Jepretan Layar</strong> (<em>Take Screenshot</em>).</li>
               <li>Tambah <strong>Ekstrak Teks dari Gambar</strong> (<em>Extract Text from Image</em>); otomatis memakai jepretan layar tadi.</li>
               <li>
-                Tambah <strong>Dapatkan Isi URL</strong> (<em>Get Contents of URL</em>) dengan URL:
+                Tambah <strong>Dapatkan Isi URL</strong> (<em>Get Contents of URL</em>). Kolom URL-nya adalah tulisan biru
+                setelah <em>“Get contents of”</em>; iPhone sering mengisinya otomatis dengan <strong>Extracted Text</strong>.
+                Ketuk tulisan itu → <strong>Clear Variable</strong>, lalu tempel URL ini:
                 <span className="shortcut-inline">
                   <code>{ENDPOINT}</code>
                   <CopyButton value={ENDPOINT} label="Salin URL" />
                 </span>
-                Buka detailnya: <strong>Metode</strong> = POST, <strong>Isi Permintaan</strong> = JSON, lalu tambah dua bidang
-                <em> Teks</em>: <code>token</code> berisi token Anda, dan <code>text</code> berisi variabel <strong>Teks</strong> dari langkah 3.
+                Buka detailnya (ikon ⌄): <strong>Method</strong> = POST, <strong>Request Body</strong> = JSON, lalu tambah dua
+                bidang <em>Text</em>: <code>token</code> berisi token Anda, dan <code>text</code> berisi variabel
+                <strong> Extracted Text</strong> dari langkah 3 (bukan <em>Screenshot</em>).
               </li>
-              <li>Tambah <strong>Tampilkan Pemberitahuan</strong> (<em>Show Notification</em>) berisi <strong>Isi URL</strong> (<em>Contents of URL</em>).</li>
+              <li>
+                Tambah <strong>Tampilkan Pemberitahuan</strong> (<em>Show Notification</em>); ganti tulisan “Hello World!” dengan
+                variabel <strong>Contents of URL</strong>.
+              </li>
               <li>
                 Buka <strong>Pengaturan</strong> iPhone → <strong>Aksesibilitas</strong> → <strong>Sentuh</strong> →
-                <strong> Ketuk Belakang</strong> → <strong>Ketuk Dua Kali</strong> → pilih <strong>Catat ke FinanceMe</strong>.
+                <strong> Ketuk Belakang</strong> (<em>Back Tap</em>) → <strong>Ketuk Dua Kali</strong> → pilih <strong>Catat ke FinanceMe</strong>.
               </li>
             </ol>
+            <p className="shortcut-box-title">Hasil akhirnya seperti ini</p>
+            <pre className="shortcut-final">{`Take screenshot
+Extract Text from Screenshot
+Get contents of ${ENDPOINT}
+   Method: POST · Request Body: JSON
+   token → fm_…
+   text  → Extracted Text
+Show notification: Contents of URL`}</pre>
             <p className="text-xs text-muted">
-              Saat pertama dijalankan, iPhone meminta izin mengambil jepretan layar dan menghubungi situs FinanceMe; pilih
-              <strong> Izinkan Selalu</strong>. Top up dan pindah dana antar akun sendiri tidak dicatat otomatis; catat lewat menu
-              Transfer. Layar yang sama tidak akan tercatat dua kali.
+              Uji dengan tombol ▶ di editor Shortcuts: karena yang terpotret layar editor, notifikasi
+              <strong> “Layar ini bukan bukti pembayaran…”</strong> berarti sudah tersambung. Saat pertama dijalankan, iPhone meminta
+              izin mengambil jepretan layar dan menghubungi situs FinanceMe; pilih <strong>Izinkan Selalu</strong> (<em>Always Allow</em>).
+              Top up dan pindah dana antar akun sendiri tidak dicatat otomatis; catat lewat menu Transfer. Layar yang sama tidak
+              akan tercatat dua kali.
             </p>
           </details>
         </>
