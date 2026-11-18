@@ -232,3 +232,9 @@
   word-break: break-all;
   color: var(--text-primary);
 }
+.shortcut-names {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0;
+}

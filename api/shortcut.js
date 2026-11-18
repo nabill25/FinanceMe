@@ -1,6 +1,7 @@
 // POST /api/shortcut — dipanggil Shortcut iPhone "Catat ke FinanceMe" (ketuk 2x bagian belakang iPhone).
 //
-// Body JSON: { "token": "fm_…", "text": "<teks hasil Ekstrak Teks dari Gambar>", "dry_run"?: true }
+// Body JSON: { "token": "fm_…", "text": "<teks hasil Ekstrak Teks dari Gambar>",
+//              "account"?: "<nama akun pilihan di Shortcut>", "dry_run"?: true }
 // Balasan: teks biasa untuk ditampilkan sebagai notifikasi di iPhone
 // (atau JSON bila ?format=json — dipakai tombol "Uji coba" di Pengaturan).
 //
@@ -74,6 +75,8 @@ export default async function handler(req, res) {
   const token = String(body.token || '').trim();
   const text = String(body.text || '').slice(0, MAX_TEXT).trim();
   const dryRun = body.dry_run === true || body.dryRun === true;
+  // Opsional: nama akun yang dipilih di Shortcut ("Choose from List") — paling diutamakan
+  const accountHint = String(body.account || '').trim().slice(0, 60) || undefined;
   if (!token) return reply(401, MSG.noToken, { reason: 'no_token' });
   if (!text) return reply(400, MSG.noText, { reason: 'no_text' });
 
@@ -98,6 +101,7 @@ export default async function handler(req, res) {
       categories: context.categories || [],
       today: context.today,
       apiKey,
+      accountHint,
     });
   } catch (e) {
     console.error('parseReceipt', e?.message?.slice(0, 300));

@@ -50,6 +50,8 @@ export default function IphoneShortcutCard() {
   const [test, setTest] = useState(null); // { ok, message }
   const accounts = useFinanceStore((s) => s.accounts);
   const sampleAccount = accounts.find((a) => a.type === 'ewallet') || accounts[0];
+  // Nama untuk daftar "pilih akun" di Shortcut (uang tunai tidak punya layar bukti bayar)
+  const listNames = accounts.filter((a) => a.type !== 'cash').map((a) => a.name);
 
   const load = async () => {
     setStatus('loading');
@@ -196,16 +198,28 @@ export default function IphoneShortcutCard() {
               <li>Tambah tindakan <strong>Ambil Jepretan Layar</strong> (<em>Take Screenshot</em>).</li>
               <li>Tambah <strong>Ekstrak Teks dari Gambar</strong> (<em>Extract Text from Image</em>); otomatis memakai jepretan layar tadi.</li>
               <li>
+                <strong>Pilih akun (disarankan, agar selalu tepat):</strong> tambah <strong>List</strong> lalu isi dengan nama akun
+                persis seperti di FinanceMe
+                {listNames.length > 0 && (
+                  <span className="shortcut-names">
+                    {listNames.map((n) => <code key={n}>{n}</code>)}
+                  </span>
+                )}
+                Lalu tambah <strong>Choose from List</strong>. Banyak layar “Berhasil” tidak menyebut nama aplikasinya, jadi
+                tanpa langkah ini akun hanya bisa ditebak dari tulisan di layar.
+              </li>
+              <li>
                 Tambah <strong>Dapatkan Isi URL</strong> (<em>Get Contents of URL</em>). Kolom URL-nya adalah tulisan biru
-                setelah <em>“Get contents of”</em>; iPhone sering mengisinya otomatis dengan <strong>Extracted Text</strong>.
+                setelah <em>“Get contents of”</em>; iPhone sering mengisinya otomatis dengan variabel lain.
                 Ketuk tulisan itu → <strong>Clear Variable</strong>, lalu tempel URL ini:
                 <span className="shortcut-inline">
                   <code>{ENDPOINT}</code>
                   <CopyButton value={ENDPOINT} label="Salin URL" />
                 </span>
-                Buka detailnya (ikon ⌄): <strong>Method</strong> = POST, <strong>Request Body</strong> = JSON, lalu tambah dua
-                bidang <em>Text</em>: <code>token</code> berisi token Anda, dan <code>text</code> berisi variabel
-                <strong> Extracted Text</strong> dari langkah 3 (bukan <em>Screenshot</em>).
+                Buka detailnya (ikon ⌄): <strong>Method</strong> = POST, <strong>Request Body</strong> = JSON, lalu tambah bidang
+                <em> Text</em>: <code>token</code> berisi token Anda, <code>text</code> berisi variabel
+                <strong> Extracted Text</strong> (bukan <em>Screenshot</em>), dan <code>account</code> berisi variabel
+                <strong> Chosen Item</strong> dari langkah 4.
               </li>
               <li>
                 Tambah <strong>Tampilkan Pemberitahuan</strong> (<em>Show Notification</em>); ganti tulisan “Hello World!” dengan
@@ -219,11 +233,18 @@ export default function IphoneShortcutCard() {
             <p className="shortcut-box-title">Hasil akhirnya seperti ini</p>
             <pre className="shortcut-final">{`Take screenshot
 Extract Text from Screenshot
+List: ${listNames.length ? listNames.join(', ') : 'GoPay, ShopeePay, …'}
+Choose from List
 Get contents of ${ENDPOINT}
    Method: POST · Request Body: JSON
-   token → fm_…
-   text  → Extracted Text
+   token   → fm_…
+   text    → Extracted Text
+   account → Chosen Item
 Show notification: Contents of URL`}</pre>
+            <p className="text-xs text-muted">
+              Sudah punya Shortcut tanpa pilihan akun? Tambahkan <strong>List</strong> dan <strong>Choose from List</strong>, seret
+              keduanya ke atas <em>“Get contents of”</em>, lalu tambah bidang <code>account</code>.
+            </p>
             <p className="text-xs text-muted">
               Uji dengan tombol ▶ di editor Shortcuts: karena yang terpotret layar editor, notifikasi
               <strong> “Layar ini bukan bukti pembayaran…”</strong> berarti sudah tersambung. Saat pertama dijalankan, iPhone meminta

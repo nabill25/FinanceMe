@@ -19,9 +19,10 @@ const thinkingConfigFor = (model) => {
   return { thinkingLevel: 'low' };
 };
 
-// Nama/ciri khas aplikasi bank/e-wallet → id provider akun FinanceMe (ACCOUNT_PROVIDERS di src/lib/utils.js).
-// Banyak layar "Berhasil" tidak menulis nama aplikasinya sendiri, jadi ciri tampilannya ikut dipakai
-// (mis. "Koin Shopee", "Gojek", "Kantong" milik Jago).
+// Nama/merek aplikasi bank/e-wallet → id provider akun FinanceMe (ACCOUNT_PROVIDERS di src/lib/utils.js).
+// Hanya merek yang khas: kata umum seperti "Kantong" atau "Saldo" dipakai banyak bank, jadi tidak dipakai
+// (sempat membuat transaksi SuperBank tercatat ke akun lain). Akun "Bank Lainnya" (mis. SuperBank, neobank)
+// dicocokkan lewat namanya.
 // "DANA" sengaja peka huruf besar: kata "dana" biasa berarti "uang" ("Sumber dana", "Dana masuk").
 const PROVIDERS = [
   { id: 'gopay', name: 'GoPay', re: /go\s?pay|gojek|gopaylater/i },
@@ -29,7 +30,13 @@ const PROVIDERS = [
   { id: 'ovo', name: 'OVO', re: /\bovo\b/i },
   { id: 'dana', name: 'DANA', re: /\bDANA\b/ },
   { id: 'linkaja', name: 'LinkAja', re: /link\s?aja/i },
-  { id: 'jago', name: 'Bank Jago', re: /\bjago\b|\bkantong\b/i },
+  { id: 'jago', name: 'Bank Jago', re: /\bjago\b/i },
+  { id: 'superbank', name: 'SuperBank', re: /super\s?bank/i },
+  { id: 'neobank', name: 'neobank', re: /neo\s?bank|bank\s?neo/i },
+  { id: 'blu', name: 'blu', re: /\bblu\b|bca\s?digital/i },
+  { id: 'allo', name: 'Allo Bank', re: /allo\s?bank/i },
+  { id: 'krom', name: 'Krom', re: /\bkrom\b/i },
+  { id: 'linebank', name: 'LINE Bank', re: /line\s?bank/i },
   { id: 'seabank', name: 'SeaBank', re: /sea\s?bank/i },
   { id: 'jenius', name: 'Jenius', re: /jenius/i },
   { id: 'bca', name: 'BCA', re: /\bbca\b/i },
@@ -133,7 +140,7 @@ Aturan:
 - type: "expense" untuk bayar/beli/QRIS/transfer keluar/tagihan; "income" untuk terima uang/dana masuk/refund/cashback yang masuk sebagai saldo.
 - internal_transfer: true bila top up atau pindah dana antar akun milik pengguna sendiri (mis. top up GoPay dari Jago, tarik saldo ke rekening sendiri).
 - merchant: nama toko atau penerima/pengirim yang singkat dan rapi (mis. "Kopi Kenangan", "Indomaret", "Budi Santoso"), tanpa awalan seperti "Pembayaran ke".
-- account_id: id akun pengguna yang dipakai membayar (SUMBER dana, "dari", "metode pembayaran") atau yang menerima dana masuk. Untuk transfer keluar, bank tujuan ("ke BCA ...") BUKAN akun pengguna. Petunjuk: "Kantong" = Bank Jago, "GoPay Saldo/Coins" = GoPay, "OVO Cash" = OVO, "DANA Balance" = DANA. Cocokkan dengan daftar akun; null bila tidak yakin.
+- account_id: id akun pengguna yang dipakai membayar (SUMBER dana, "dari", "metode pembayaran") atau yang menerima dana masuk. Untuk transfer keluar, bank tujuan ("ke BCA ...") BUKAN akun pengguna. Isi HANYA bila nama aplikasi/bank sumber dana tertulis di layar (mis. "GoPay Saldo", "OVO Cash", "DANA Balance", "Rekening SeaBank") dan cocok dengan daftar akun. Jangan menebak dari jenis akun atau kata umum seperti "Kantong"/"Saldo"; bila tidak tertulis, null.
 - category_id: id kategori yang paling cocok dengan merchant, dari daftar kategori dengan type yang sama. null bila tidak ada yang cocok.
 - date: tanggal transaksi "YYYY-MM-DD" bila tertulis di layar, selain itu null. Hari ini ${today}.
 - time: jam transaksi "HH:MM" bila tertulis (bukan jam di bilah status), selain itu null.
@@ -159,20 +166,47 @@ const NOT_RECEIPT = { ok: false, reason: 'not_receipt', message: 'Layar ini buka
  * @returns {Promise<{ok: true, type, amount, description, account, category, date, dedupKey, providers}
  *                 | {ok: false, reason: string, message: string}>}
  */
-export async function parseReceipt({ text, accounts = [], categories = [], today, apiKey, now = new Date() }) {
+export async function parseReceipt({ text, accounts = [], categories = [], today, apiKey, now = new Date(), accountHint }) {
   // Layar bukti transaksi selalu memuat kata seperti ini; tanpa itu tidak perlu bertanya ke AI (hemat kuota)
   if (!RECEIPT_WORDS.test(text)) return NOT_RECEIPT;
+  // Akun pilihan di Shortcut yang tidak ada di FinanceMe: beri tahu tanpa memakai kuota AI
+  if (accountHint && !matchAccountByName(accounts, accountHint)) return unknownAccount(accountHint, accounts);
   const ai = await askGemini(buildPrompt({ text, accounts, categories, today }), apiKey);
-  return interpretReceipt(ai, { text, accounts, categories, today, now });
+  return interpretReceipt(ai, { text, accounts, categories, today, now, accountHint });
 }
+
+const normName = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+
+/** Akun FinanceMe dengan nama yang sama (huruf besar/kecil & spasi diabaikan), atau satu-satunya yang mirip. */
+export function matchAccountByName(accounts, name) {
+  const n = normName(name);
+  if (!n) return null;
+  const exact = accounts.filter((a) => normName(a.name) === n);
+  if (exact.length === 1) return exact[0];
+  const partial = accounts.filter((a) => {
+    const an = normName(a.name);
+    return an && (an.includes(n) || n.includes(an));
+  });
+  return partial.length === 1 ? partial[0] : null;
+}
+
+const unknownAccount = (hint, accounts) => ({
+  ok: false,
+  reason: 'unknown_account',
+  message: `Akun "${String(hint).slice(0, 40)}" yang dipilih di Shortcut tidak ada di FinanceMe. `
+    + `Samakan dengan nama di menu Akun: ${accounts.map((a) => a.name).join(', ') || '(belum ada akun)'}.`,
+});
 
 /**
  * Bagian tanpa AI: memeriksa & merapikan jawaban model menjadi transaksi.
  * Dipisah agar bisa diuji tanpa memanggil Gemini.
+ * accountHint: nama akun yang dipilih pengguna di Shortcut (paling diutamakan).
  */
-export function interpretReceipt(ai, { text, accounts = [], categories = [], today, now = new Date() }) {
+export function interpretReceipt(ai, { text, accounts = [], categories = [], today, now = new Date(), accountHint }) {
   const providers = detectProviders(text);
   if (!RECEIPT_WORDS.test(text) || !ai || ai.is_receipt !== true) return NOT_RECEIPT;
+  const hinted = accountHint ? matchAccountByName(accounts, accountHint) : null;
+  if (accountHint && !hinted) return unknownAccount(accountHint, accounts);
   if (ai.internal_transfer === true) {
     return { ok: false, reason: 'internal_transfer', message: 'Top up/pindah dana antar akun sendiri tidak dicatat otomatis. Catat lewat menu Transfer di FinanceMe.' };
   }
@@ -188,9 +222,18 @@ export function interpretReceipt(ai, { text, accounts = [], categories = [], tod
 
   const type = ai.type === 'income' ? 'income' : 'expense';
 
-  // Akun: pilihan AI bila valid → satu-satunya aplikasi bank/e-wallet yang terbaca di layar
-  // (bila terbaca dua, mis. "Jago … ke BCA", jangan menebak) → satu-satunya akun pengguna
-  let account = accounts.find((a) => a.id === ai.account_id);
+  // Akun: pilihan pengguna di Shortcut → pilihan AI bila valid → satu-satunya aplikasi bank/e-wallet
+  // yang terbaca di layar (bila terbaca dua, mis. "Jago … ke BCA", jangan menebak) → satu-satunya akun
+  // Pilihan AI hanya dipakai bila akun itu benar-benar tersebut di layar (AI bisa menebak dari kata umum)
+  const flatText = normName(text);
+  const evidenced = (acc) => {
+    const byIcon = PROVIDERS.find((p) => p.id === acc.icon);
+    if (byIcon && byIcon.re.test(text)) return true;
+    if (PROVIDERS.some((p) => p.re.test(acc.name || '') && p.re.test(text))) return true;
+    const n = normName(acc.name);
+    return n.length >= 3 && flatText.includes(n);
+  };
+  let account = hinted || accounts.find((a) => a.id === ai.account_id && evidenced(a));
   if (!account) {
     const matches = [...new Set(providers.map((p) => accountForProvider(accounts, p)).filter(Boolean))];
     if (matches.length === 1) [account] = matches;
@@ -203,7 +246,7 @@ export function interpretReceipt(ai, { text, accounts = [], categories = [], tod
   if (!account) {
     // Sebutkan apa yang terbaca & akun yang ada, supaya penyebabnya langsung kelihatan di notifikasi
     const read = `Terbaca ${type === 'income' ? '+' : '−'}${rupiah(amount)} · ${description}`;
-    const seen = providers.map((p) => p.name).find((name) => !accounts.some((a) => a.name === name));
+    const seen = providers.find((p) => !accountForProvider(accounts, p))?.name;
     let message;
     if (accounts.length === 0) {
       message = `${read}, tapi belum ada akun di FinanceMe. Tambahkan akun bank/e-wallet di menu Akun.`;
@@ -211,7 +254,7 @@ export function interpretReceipt(ai, { text, accounts = [], categories = [], tod
       message = `${read} dari ${seen}, tapi akun ${seen} belum ada di FinanceMe. Tambahkan di menu Akun, lalu ketuk lagi.`;
     } else {
       message = `${read}, tapi aplikasi pembayarnya tidak jelas dari layar. Akun Anda: ${accounts.map((a) => a.name).join(', ')}. `
-        + 'Ketuk saat rincian yang menyebut metode/sumber dana tampil.';
+        + 'Tambahkan pilihan akun di Shortcut (Pengaturan → Pintasan iPhone) agar selalu tepat.';
     }
     return { ok: false, reason: 'no_account', message };
   }

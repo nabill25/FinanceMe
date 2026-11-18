@@ -275,10 +275,19 @@ export const useFinanceStore = create((set, get) => ({
     if (original) {
       const oldDelta = original.type === 'income' ? original.amount : -original.amount;
       const newDelta = data.type === 'income' ? data.amount : -data.amount;
-      const netDelta = newDelta - oldDelta;
-      if (netDelta !== 0 && original.account_id === data.account_id) {
-        await supabase.rpc('update_account_balance', { account_id: data.account_id, delta: netDelta });
-        get().updateAccountBalance(data.account_id, netDelta);
+      if (original.account_id === data.account_id) {
+        const netDelta = newDelta - oldDelta;
+        if (netDelta !== 0) {
+          await supabase.rpc('update_account_balance', { account_id: data.account_id, delta: netDelta });
+          get().updateAccountBalance(data.account_id, netDelta);
+        }
+      } else {
+        // Akun diganti: kembalikan saldo akun lama, lalu kenakan ke akun baru
+        // (sebelumnya kedua saldo dibiarkan, jadi akun lama tetap terpotong)
+        await supabase.rpc('update_account_balance', { account_id: original.account_id, delta: -oldDelta });
+        get().updateAccountBalance(original.account_id, -oldDelta);
+        await supabase.rpc('update_account_balance', { account_id: data.account_id, delta: newDelta });
+        get().updateAccountBalance(data.account_id, newDelta);
       }
     }
     return data;
