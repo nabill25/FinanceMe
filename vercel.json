@@ -1,8 +1,11 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
-    { "source": "/((?!.*\\.).*)", "destination": "/index.html" }
+    { "source": "/((?!api/|.*\\.).*)", "destination": "/index.html" }
   ],
+  "functions": {
+    "api/shortcut.js": { "maxDuration": 30 }
+  },
   "headers": [
     {
       "source": "/sw.js",

@@ -7,6 +7,7 @@ import { formatCurrency } from '../lib/utils';
 import { toast } from 'sonner';
 import TabIndicator from '../components/TabIndicator';
 import InstallAppCard from '../components/InstallAppCard';
+import IphoneShortcutCard from '../components/IphoneShortcutCard';
 import { switchTheme } from '../lib/themeTransition';
 import './Settings.css';
 
@@ -149,6 +150,8 @@ export default function SettingsPage() {
       )}
 
       <InstallAppCard />
+
+      <IphoneShortcutCard />
 
       {/* Spending Guard Settings */}
       <div className="card settings-section">

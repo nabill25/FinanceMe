@@ -42,6 +42,8 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
         // Halaman seperti /reports dibuka dari cache saat offline
         navigateFallback: 'index.html',
+        // ...kecuali endpoint server (mis. /api/shortcut untuk Shortcut iPhone)
+        navigateFallbackDenylist: [/^\/api\//],
         maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
       },
     })

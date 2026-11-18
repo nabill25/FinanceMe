@@ -37,4 +37,9 @@ export default [
       ],
     },
   },
+  // Fungsi server Vercel (api/) dan modul pendukungnya berjalan di Node
+  {
+    files: ['api/**/*.js', 'server/**/*.js'],
+    languageOptions: { globals: globals.node },
+  },
 ]

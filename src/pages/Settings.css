@@ -143,3 +143,80 @@
   .install-body { flex-wrap: wrap; }
   .install-btn { width: 100%; justify-content: center; }
 }
+
+/* Kartu "Pintasan iPhone": token & panduan Shortcut ketuk belakang */
+.shortcut-intro { margin-bottom: 16px; }
+.shortcut-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  border-radius: 14px;
+  border: 1px solid var(--border-default);
+  background: var(--input-bg);
+}
+.shortcut-box-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+.shortcut-ok { color: var(--accent-success); }
+.shortcut-token {
+  display: block;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--bg-main);
+  border: 1px dashed var(--border-default);
+  font-size: 13px;
+  word-break: break-all;
+  user-select: all;
+}
+.shortcut-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.shortcut-test {
+  font-size: 13px;
+  padding: 8px 10px;
+  border-radius: 10px;
+}
+.shortcut-test.is-ok { background: color-mix(in srgb, var(--accent-success) 14%, transparent); color: var(--accent-success); }
+.shortcut-test.is-bad { background: color-mix(in srgb, var(--accent-danger) 14%, transparent); color: var(--accent-danger); }
+.shortcut-guide { margin-top: 18px; }
+.shortcut-guide summary {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 4px 0;
+}
+.shortcut-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 10px 0 12px;
+  padding-left: 20px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+.shortcut-steps strong { color: var(--text-primary); font-weight: 600; }
+.shortcut-steps code,
+.shortcut-inline code {
+  font-size: 12.5px;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: var(--input-bg);
+  border: 1px solid var(--border-subtle);
+  word-break: break-all;
+}
+.shortcut-inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0;
+}
+.shortcut-copy { height: 32px; padding: 0 12px; }
