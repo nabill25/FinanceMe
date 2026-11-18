@@ -19,6 +19,8 @@ const MSG = {
   notReady: 'Fitur Pintasan iPhone belum aktif: jalankan supabase_step14_iphone_shortcut.sql di Supabase.',
   noAi: 'AI FinanceMe belum dikonfigurasi di server (GEMINI_API_KEY).',
   aiDown: 'AI sedang tidak bisa membaca layar. Coba ketuk lagi sebentar lagi.',
+  // Kuota harian Gemini tier gratis direset tengah malam waktu Pasifik (±14.00–15.00 WIB)
+  aiQuota: 'Kuota AI (Gemini) hari ini sudah habis, reset sekitar pukul 14.00–15.00 WIB. Catat manual dulu di FinanceMe.',
   dbDown: 'Tidak bisa terhubung ke database FinanceMe. Coba lagi sebentar lagi.',
 };
 
@@ -98,7 +100,10 @@ export default async function handler(req, res) {
       apiKey,
     });
   } catch (e) {
-    console.error('parseReceipt', e?.message);
+    console.error('parseReceipt', e?.message?.slice(0, 300));
+    if (/RESOURCE_EXHAUSTED|\b429\b|quota/i.test(String(e?.message))) {
+      return reply(503, MSG.aiQuota, { reason: 'ai_quota' });
+    }
     return reply(502, MSG.aiDown, { reason: 'ai' });
   }
   if (!parsed.ok) return reply(422, parsed.message, { reason: parsed.reason });

@@ -19,15 +19,17 @@ const thinkingConfigFor = (model) => {
   return { thinkingLevel: 'low' };
 };
 
-// Nama aplikasi bank/e-wallet → id provider akun FinanceMe (ACCOUNT_PROVIDERS di src/lib/utils.js).
+// Nama/ciri khas aplikasi bank/e-wallet → id provider akun FinanceMe (ACCOUNT_PROVIDERS di src/lib/utils.js).
+// Banyak layar "Berhasil" tidak menulis nama aplikasinya sendiri, jadi ciri tampilannya ikut dipakai
+// (mis. "Koin Shopee", "Gojek", "Kantong" milik Jago).
 // "DANA" sengaja peka huruf besar: kata "dana" biasa berarti "uang" ("Sumber dana", "Dana masuk").
 const PROVIDERS = [
-  { id: 'gopay', name: 'GoPay', re: /go\s?pay/i },
-  { id: 'shopeepay', name: 'ShopeePay', re: /shopee\s?pay/i },
+  { id: 'gopay', name: 'GoPay', re: /go\s?pay|gojek|gopaylater/i },
+  { id: 'shopeepay', name: 'ShopeePay', re: /shopee|\bspay(later)?\b/i },
   { id: 'ovo', name: 'OVO', re: /\bovo\b/i },
   { id: 'dana', name: 'DANA', re: /\bDANA\b/ },
   { id: 'linkaja', name: 'LinkAja', re: /link\s?aja/i },
-  { id: 'jago', name: 'Bank Jago', re: /\bjago\b/i },
+  { id: 'jago', name: 'Bank Jago', re: /\bjago\b|\bkantong\b/i },
   { id: 'seabank', name: 'SeaBank', re: /sea\s?bank/i },
   { id: 'jenius', name: 'Jenius', re: /jenius/i },
   { id: 'bca', name: 'BCA', re: /\bbca\b/i },
@@ -44,6 +46,9 @@ const PROVIDERS = [
   { id: 'panin-bank', name: 'Panin', re: /panin/i },
 ];
 
+// Kata yang selalu ada di layar bukti transaksi (Indonesia/Inggris). Penyaring awal saja; AI tetap memutuskan.
+const RECEIPT_WORDS = /berhasil|sukses|success|selesai|lunas|paid|dibayar|terbayar|terkirim|diterima|kiriman|transaksi|transaction|pembayaran|payment|transfer|bayar|top\s?up|refund|bukti|struk|receipt/i;
+
 const rupiah = (n) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n);
 
 /** Semua angka yang tertulis di layar, dinormalisasi (25.000 / 25,000 / 25.000,00 → 25000).
@@ -51,6 +56,8 @@ const rupiah = (n) => new Intl.NumberFormat('id-ID', { style: 'currency', curren
 function numbersInText(text) {
   const found = new Set();
   for (const raw of text.match(/\d[\d.,]*\d|\d/g) || []) {
+    // Jam ("10.09" di iPhone berbahasa Indonesia) bukan format nominal Rupiah
+    if (/^\d{1,2}[.,]\d{2}$/.test(raw)) continue;
     const noCents = raw.replace(/[.,]\d{2}$/, ''); // "25.000,00" → "25.000"
     for (const v of [raw, noCents]) found.add(v.replace(/[.,]/g, ''));
   }
@@ -146,23 +153,32 @@ ${text}
 Balas hanya JSON: {"is_receipt":bool,"amount":number|null,"type":"expense"|"income","internal_transfer":bool,"merchant":string|null,"account_id":string|null,"category_id":string|null,"date":string|null,"time":string|null,"reference":string|null}`;
 }
 
+const NOT_RECEIPT = { ok: false, reason: 'not_receipt', message: 'Layar ini bukan bukti pembayaran yang berhasil. Ketuk saat layar "Berhasil" tampil.' };
+
 /**
  * @returns {Promise<{ok: true, type, amount, description, account, category, date, dedupKey, providers}
  *                 | {ok: false, reason: string, message: string}>}
  */
 export async function parseReceipt({ text, accounts = [], categories = [], today, apiKey, now = new Date() }) {
+  // Layar bukti transaksi selalu memuat kata seperti ini; tanpa itu tidak perlu bertanya ke AI (hemat kuota)
+  if (!RECEIPT_WORDS.test(text)) return NOT_RECEIPT;
   const ai = await askGemini(buildPrompt({ text, accounts, categories, today }), apiKey);
-  const providers = detectProviders(text);
+  return interpretReceipt(ai, { text, accounts, categories, today, now });
+}
 
-  if (!ai || ai.is_receipt === false) {
-    return { ok: false, reason: 'not_receipt', message: 'Layar ini bukan bukti pembayaran yang berhasil. Ketuk saat layar "Berhasil" tampil.' };
-  }
+/**
+ * Bagian tanpa AI: memeriksa & merapikan jawaban model menjadi transaksi.
+ * Dipisah agar bisa diuji tanpa memanggil Gemini.
+ */
+export function interpretReceipt(ai, { text, accounts = [], categories = [], today, now = new Date() }) {
+  const providers = detectProviders(text);
+  if (!RECEIPT_WORDS.test(text) || !ai || ai.is_receipt !== true) return NOT_RECEIPT;
   if (ai.internal_transfer === true) {
     return { ok: false, reason: 'internal_transfer', message: 'Top up/pindah dana antar akun sendiri tidak dicatat otomatis. Catat lewat menu Transfer di FinanceMe.' };
   }
 
   const amount = toAmount(ai.amount);
-  if (!Number.isFinite(amount) || amount <= 0 || amount >= 1e12) {
+  if (!Number.isFinite(amount) || amount < 100 || amount >= 1e12) {
     return { ok: false, reason: 'no_amount', message: 'Nominal pembayaran tidak terbaca. Coba lagi saat angkanya terlihat jelas.' };
   }
   // AI tidak boleh mengarang angka: nominal harus benar-benar tertulis di layar
@@ -180,20 +196,27 @@ export async function parseReceipt({ text, accounts = [], categories = [], today
     if (matches.length === 1) [account] = matches;
   }
   if (!account && accounts.length === 1) account = accounts[0];
+
+  const description = tidyName(String(ai.merchant || '').replace(/\s+/g, ' ').trim().slice(0, 80))
+    || (type === 'income' ? 'Dana masuk' : 'Pembayaran');
+
   if (!account) {
-    const seen = providers[0]?.name;
-    return {
-      ok: false,
-      reason: 'no_account',
-      message: seen
-        ? `Akun ${seen} belum ada di FinanceMe. Tambahkan dulu di menu Akun, lalu ketuk lagi.`
-        : 'Tidak tahu akun mana yang dipakai. Pastikan akun bank/e-wallet ini sudah ada di FinanceMe.',
-    };
+    // Sebutkan apa yang terbaca & akun yang ada, supaya penyebabnya langsung kelihatan di notifikasi
+    const read = `Terbaca ${type === 'income' ? '+' : '−'}${rupiah(amount)} · ${description}`;
+    const seen = providers.map((p) => p.name).find((name) => !accounts.some((a) => a.name === name));
+    let message;
+    if (accounts.length === 0) {
+      message = `${read}, tapi belum ada akun di FinanceMe. Tambahkan akun bank/e-wallet di menu Akun.`;
+    } else if (seen) {
+      message = `${read} dari ${seen}, tapi akun ${seen} belum ada di FinanceMe. Tambahkan di menu Akun, lalu ketuk lagi.`;
+    } else {
+      message = `${read}, tapi aplikasi pembayarnya tidak jelas dari layar. Akun Anda: ${accounts.map((a) => a.name).join(', ')}. `
+        + 'Ketuk saat rincian yang menyebut metode/sumber dana tampil.';
+    }
+    return { ok: false, reason: 'no_account', message };
   }
 
   const category = categories.find((c) => c.id === ai.category_id && c.type === type) || null;
-  const description = tidyName(String(ai.merchant || '').replace(/\s+/g, ' ').trim().slice(0, 80))
-    || (type === 'income' ? 'Dana masuk' : 'Pembayaran');
   const date = /^\d{4}-\d{2}-\d{2}$/.test(ai.date || '') ? ai.date : null;
   const time = /^\d{1,2}[:.]\d{2}$/.test(ai.time || '') ? ai.time.replace('.', ':') : null;
 
