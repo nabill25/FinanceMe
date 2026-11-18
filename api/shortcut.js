@@ -17,6 +17,7 @@ const MSG = {
   noToken: 'Token FinanceMe belum diisi di Shortcut. Salin token dari Pengaturan → Pintasan iPhone.',
   badToken: 'Token FinanceMe tidak valid. Buat token baru di Pengaturan → Pintasan iPhone, lalu ganti token di Shortcut.',
   noText: 'Tidak ada teks yang terbaca dari layar. Ketuk saat layar "Pembayaran berhasil" tampil.',
+  wholeList: 'Bidang "account" di Shortcut berisi seluruh daftar akun. Tambahkan aksi Choose from List setelah List, lalu isi account dengan Chosen Item.',
   notReady: 'Fitur Pintasan iPhone belum aktif: jalankan supabase_step14_iphone_shortcut.sql di Supabase.',
   noAi: 'AI FinanceMe belum dikonfigurasi di server (GEMINI_API_KEY).',
   aiDown: 'AI sedang tidak bisa membaca layar. Coba ketuk lagi sebentar lagi.',
@@ -77,8 +78,11 @@ export default async function handler(req, res) {
   const dryRun = body.dry_run === true || body.dryRun === true;
   // Opsional: nama akun yang dipilih di Shortcut ("Choose from List") — paling diutamakan
   const accountHint = String(body.account || '').trim().slice(0, 60) || undefined;
+  // Bidang account berisi variabel "List" (seluruh daftar) alih-alih "Chosen Item"
+  const accountIsWholeList = Array.isArray(body.account) || /\n/.test(String(body.account || '').trim());
   if (!token) return reply(401, MSG.noToken, { reason: 'no_token' });
   if (!text) return reply(400, MSG.noText, { reason: 'no_text' });
+  if (accountIsWholeList) return reply(422, MSG.wholeList, { reason: 'account_is_list' });
 
   const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
   if (!apiKey) return reply(500, MSG.noAi, { reason: 'no_ai' });
